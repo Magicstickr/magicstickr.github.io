@@ -167,7 +167,7 @@
 		var textMesh = new THREE.Mesh();
 		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
 			
-			var theText = "I think of you.<br><br>      Yann";
+			var theText = "I think of you.";
 			var hash = document.location.hash.substr( 1 );
 			if ( hash.length !== 0 ) {
 				theText = hash;
@@ -203,7 +203,7 @@
 			//Reposition to 0,halfY,0
 			textMesh.position.copy(cent).multiplyScalar(-1);
 			textMesh.position.y+= (size.y * 5);
-			textMesh.position.z+= (size.z * 10);
+			textMesh.position.z+= (size.z * 7);
 		} );
 
 		//////////////////////////////////////////////////////////////////////////////////
