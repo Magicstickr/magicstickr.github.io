@@ -122,17 +122,18 @@
 
 		var arWorldRoot = smoothedRoot;
 
+		//Add some light
 		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
 		light.position.set( 0, 1, 0 );
 		scene.add( light );
 
-		// model
+		// Load 3D object
 		var loader  = new THREE.GLTFLoader();
 		loader.load('content/scene.gltf', function ( gltf ) {
 
 			arWorldRoot.add( gltf.scene );
-			//gltf.scene.scale.set( 0.6, 0.6, 0.6 );
 
+			//Resize/rescale the 3D Object
 			var bbox = new THREE.Box3().setFromObject(gltf.scene);
 			var cent = bbox.getCenter(new THREE.Vector3());
 			var size = bbox.getSize(new THREE.Vector3());
