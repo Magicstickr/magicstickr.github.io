@@ -15,6 +15,11 @@
 		//		Init
 		//////////////////////////////////////////////////////////////////////////////////
 
+		//Error if not WebGL compatible
+		if ( WEBGL.isWebGLAvailable() === false ) {
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+			}
+
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			// antialias	: true,
