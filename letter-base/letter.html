@@ -1,174 +1,150 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<!-- three.js library -->
-<script src='lib/three.min.js'></script>
-<script src="lib/ar.min.js"></script>
-<script src="lib/GLTFLoader.js"></script>
-<script src="lib/WebGL.js"></script>
-
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-
-	<script>
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Init
-	//////////////////////////////////////////////////////////////////////////////////
-
-	// init renderer
-	var renderer	= new THREE.WebGLRenderer({
-		// antialias	: true,
-		alpha: true
-	});
-	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-	// renderer.setPixelRatio( 1/2 );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.domElement.style.position = 'absolute'
-	renderer.domElement.style.top = '0px'
-	renderer.domElement.style.left = '0px'
-	document.body.appendChild( renderer.domElement );
-
-	// array of functions for the rendering loop
-	var onRenderFcts= [];
-
-	// init scene and camera
-
-	var scene	= new THREE.Scene();
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<title>Letter from the future</title>
+	</head>
 	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Initialize a basic camera
-	//////////////////////////////////////////////////////////////////////////////////
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 
-	// Create a camera
-	var camera = new THREE.Camera();
-	scene.add(camera);
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
 
-	////////////////////////////////////////////////////////////////////////////////
-	//          handle arToolkitSource
-	////////////////////////////////////////////////////////////////////////////////
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({ alpha: true });
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
 
-	var arToolkitSource = new THREEx.ArToolkitSource({
-		// to read from the webcam 
-		sourceType : 'webcam',
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
 
-		// to read from an image
-		// sourceType : 'image',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
+		// init scene and camera
+		var scene	= new THREE.Scene();
+		var camera = new THREE.Camera();
+		scene.add(camera);
 
-		// to read from a video
-		// sourceType : 'video',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',		
-	})
+		// add some light
+		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
+		light.position.set( 0, 1, 0 );
+		scene.add( light );
 
-	arToolkitSource.init(function onReady(){
-		onResize()
-	})
-	
-	// handle resize
-	window.addEventListener('resize', function(){
-		onResize()
-	})
-	function onResize(){
-		arToolkitSource.onResize()	
-		arToolkitSource.copySizeTo(renderer.domElement)	
-		if( arToolkitContext.arController !== null ){
-			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
-		}	
-	}
-	////////////////////////////////////////////////////////////////////////////////
-	//          initialize arToolkitContext
-	////////////////////////////////////////////////////////////////////////////////
-	
+		////////////////////////////////////////////////////////////////////////////////
+		//          handle arToolkitSource
+		////////////////////////////////////////////////////////////////////////////////
 
-	// create atToolkitContext
-	var arToolkitContext = new THREEx.ArToolkitContext({
-		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
-		detectionMode: 'mono',
-		maxDetectionRate: 30,
-		canvasWidth: 80*3,
-		canvasHeight: 60*3,
-	})
-	// initialize it
-	arToolkitContext.init(function onCompleted(){
-		// copy projection matrix to camera
-		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-	})
-
-	// update artoolkit on every frame
-	onRenderFcts.push(function(){
-		if( arToolkitSource.ready === false )	return
-
-		arToolkitContext.update( arToolkitSource.domElement )
-	})
-	
-	
-	////////////////////////////////////////////////////////////////////////////////
-	//          Create a ArMarkerControls
-	////////////////////////////////////////////////////////////////////////////////
-	
-	var markerRoot = new THREE.Group
-	scene.add(markerRoot)
-	var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-		type : 'pattern',
-		patternUrl : 'marker/marker.patt'
-		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji'
-	})
-
-	// build a smoothedControls
-	var smoothedRoot = new THREE.Group()
-	scene.add(smoothedRoot)
-	var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-		lerpPosition: 0.4,
-		lerpQuaternion: 0.3,
-		lerpScale: 1,
-	})
-	onRenderFcts.push(function(delta){
-		smoothedControls.update(markerRoot)
-	})
-	//////////////////////////////////////////////////////////////////////////////////
-	//		add an object in the scene
-	//////////////////////////////////////////////////////////////////////////////////
-
-	var arWorldRoot = smoothedRoot;
-
-	light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
-	light.position.set( 0, 1, 0 );
-	scene.add( light );
-
-	// model
-	var loader  = new THREE.GLTFLoader();
-	loader.load('content/scene.gltf', function ( gltf ) {
-
-		arWorldRoot.add( gltf.scene );
-		gltf.scene.scale.set( 0.6, 0.6, 0.6 );
-
-	}, undefined, function ( e ) {
-
-		console.error( e );
-
-	} );
-
-	//////////////////////////////////////////////////////////////////////////////////
-	//		render the whole thing on the page
-	//////////////////////////////////////////////////////////////////////////////////
-
-	// render the scene
-	onRenderFcts.push(function(){
-		renderer.render( scene, camera );
-	})
-
-	// run the rendering loop
-	var lastTimeMsec= null
-	requestAnimationFrame(function animate(nowMsec){
-		// keep looping
-		requestAnimationFrame( animate );
-		// measure time
-		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-		lastTimeMsec	= nowMsec
-		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
-			onRenderFct(deltaMsec/1000, nowMsec/1000)
+		var arToolkitSource = new THREEx.ArToolkitSource({ sourceType : 'webcam' })
+		arToolkitSource.init(function onReady(){ onResize() })
+		
+		// handle resize
+		window.addEventListener('resize', function(){
+			onResize()
 		})
-	})
-	</script>
+		function onResize(){
+			arToolkitSource.onResize()	
+			arToolkitSource.copySizeTo(renderer.domElement)	
+			if( arToolkitContext.arController !== null ){
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+			}	
+		}
 
-</body>
+		////////////////////////////////////////////////////////////////////////////////
+		//          initialize arToolkitContext
+		////////////////////////////////////////////////////////////////////////////////
+		
+		// create atToolkitContext
+		var arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
+		})
+		// initialize it
+		arToolkitContext.init(function onCompleted(){
+			// copy projection matrix to camera
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		})
+
+		// update artoolkit on every frame
+		onRenderFcts.push(function(){
+			if( arToolkitSource.ready === false )	return arToolkitContext.update( arToolkitSource.domElement )
+		})
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//          Create a ArMarkerControls
+		////////////////////////////////////////////////////////////////////////////////
+		
+		var markerRoot = new THREE.Group
+		scene.add(markerRoot)
+		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt'
+		})
+
+		// build a smoothedControls
+		var smoothedRoot = new THREE.Group()
+		scene.add(smoothedRoot)
+		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			lerpPosition: 0.4,
+			lerpQuaternion: 0.3,
+			lerpScale: 1,
+		})
+		onRenderFcts.push(function(delta){
+			smoothedControls.update(markerRoot)
+		})
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add objects in the AR scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var arWorldRoot = smoothedRoot;
+
+		// Add a GLTF 3D model
+		var loader  = new THREE.GLTFLoader();
+		loader.load('content/scene.gltf', function ( gltf ) {
+
+			arWorldRoot.add( gltf.scene );
+			gltf.scene.scale.set( 0.6, 0.6, 0.6 );
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( scene, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+		</script>
+
+	</body>
+</html>
