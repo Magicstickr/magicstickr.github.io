@@ -139,7 +139,7 @@
 
 			//Rescale the object to normalized space
 			var maxAxis = Math.max(size.x, size.y, size.z);
-			gltf.scene.scale.multiplyScalar(0.6 / maxAxis);
+			gltf.scene.scale.multiplyScalar(1.5 / maxAxis);
 			bbox.setFromObject(gltf.scene);
 			bbox.getCenter(cent);
 			bbox.getSize(size);
