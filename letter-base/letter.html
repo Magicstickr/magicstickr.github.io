@@ -11,6 +11,7 @@
 	</head>
 	
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -33,17 +34,17 @@
 		var camera = new THREE.Camera();
 		scene.add(camera);
 
+		// add some light
+		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
+		light.position.set( 0, 1, 0 );
+		scene.add( light );
+
 		////////////////////////////////////////////////////////////////////////////////
 		//          handle arToolkitSource
 		////////////////////////////////////////////////////////////////////////////////
 
-		var arToolkitSource = new THREEx.ArToolkitSource({ 
-			sourceType : 'webcam', 
-		})
-
-		arToolkitSource.init(function onReady(){ 
-			onResize() 
-		})
+		var arToolkitSource = new THREEx.ArToolkitSource({ sourceType : 'webcam' })
+		arToolkitSource.init(function onReady(){ onResize() })
 		
 		// handle resize
 		window.addEventListener('resize', function(){
@@ -77,8 +78,7 @@
 
 		// update artoolkit on every frame
 		onRenderFcts.push(function(){
-			if( arToolkitSource.ready === false )	
-			return arToolkitContext.update( arToolkitSource.domElement )
+			if( arToolkitSource.ready === false )	return arToolkitContext.update( arToolkitSource.domElement )
 		})
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -109,11 +109,6 @@
 		//////////////////////////////////////////////////////////////////////////////////
 
 		var arWorldRoot = smoothedRoot;
-
-		// add some light
-		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
-		light.position.set( 0, 1, 0 );
-		scene.add( light );
 
 		// Add a GLTF 3D model
 		var loader  = new THREE.GLTFLoader();
@@ -150,5 +145,6 @@
 			})
 		})
 		</script>
+
 	</body>
 </html>
