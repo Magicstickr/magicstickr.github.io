@@ -164,6 +164,7 @@
 
 		// Load text
 		var Fontloader = new THREE.FontLoader();
+		var textMesh = new THREE.Mesh();
 		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
 			
 			var theText = "I think of you.";
@@ -183,12 +184,13 @@
 				new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, overdraw: 0.5 } ),
 				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
 			];
-			var textMesh = new THREE.Mesh( textGeom, materials );
+
+			textMesh = new THREE.Mesh( textGeom, materials );
 			
 			arWorldRoot.add( textMesh );
 
 			//Resize/rescale the 3D Object
-			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var bbox = new THREE.Box3().setFromObject(textMesh);
 			var cent = bbox.getCenter(new THREE.Vector3());
 			var size = bbox.getSize(new THREE.Vector3());
 
