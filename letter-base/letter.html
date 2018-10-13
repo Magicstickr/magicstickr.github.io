@@ -146,7 +146,7 @@
 			bbox.getSize(size);
 			//Reposition to 0,halfY,0
 			gltf.scene.position.copy(cent).multiplyScalar(-1);
-			gltf.scene.position.y-= (size.y * 0.5);
+			gltf.scene.position.y+= (size.y * 0.5);
 
 		}, undefined, function ( e ) {
 			console.error( e );
