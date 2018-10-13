@@ -98,7 +98,6 @@
 			arToolkitContext.update( arToolkitSource.domElement )
 		})
 		
-		
 		////////////////////////////////////////////////////////////////////////////////
 		//          Create a ArMarkerControls
 		////////////////////////////////////////////////////////////////////////////////
@@ -121,8 +120,14 @@
 		onRenderFcts.push(function(delta){
 			smoothedControls.update(markerRoot)
 		})
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          Initialize the Text objects
+		////////////////////////////////////////////////////////////////////////////////
+		
+
 		//////////////////////////////////////////////////////////////////////////////////
-		//		add an object in the scene
+		//		Add the objects in the scene
 		//////////////////////////////////////////////////////////////////////////////////
 
 		var arWorldRoot = smoothedRoot;
@@ -155,6 +160,42 @@
 
 		}, undefined, function ( e ) {
 			console.error( e );
+		} );
+
+		// Load text
+		var Fontloader = new THREE.FontLoader();
+		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
+			
+			var theText = "I think of you.";
+			var hash = document.location.hash.substr( 1 );
+			if ( hash.length !== 0 ) {
+				theText = hash;
+			}
+			var textGeom = new THREE.TextBufferGeometry( theText, {
+				font: font,
+				size: 80,
+				height: 20,
+				curveSegments: 2
+			});
+			textGeom.computeBoundingBox();
+			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
+			var materials = [
+				new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, overdraw: 0.5 } ),
+				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+			];
+			var textMesh = new THREE.Mesh( textGeom, materials );
+			
+			arWorldRoot.add( textMesh );
+
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			textMesh.scale.multiplyScalar(3.0 / maxAxis);
+			bbox.setFromObject(textMesh);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			textMesh.position.copy(cent).multiplyScalar(-1);
+			textMesh.position.y+= (size.y * 0.5);
 		} );
 
 		//////////////////////////////////////////////////////////////////////////////////
