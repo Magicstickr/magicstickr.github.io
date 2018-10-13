@@ -187,6 +187,11 @@
 			
 			arWorldRoot.add( textMesh );
 
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+
 			//Rescale the object to normalized space
 			var maxAxis = Math.max(size.x, size.y, size.z);
 			textMesh.scale.multiplyScalar(3.0 / maxAxis);
