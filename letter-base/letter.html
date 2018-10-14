@@ -196,7 +196,7 @@
 
 			//Rescale the object to normalized space
 			var maxAxis = Math.max(size.x, size.y, size.z);
-			textMesh.scale.multiplyScalar(3.0 / maxAxis);
+			textMesh.scale.multiplyScalar(15 / maxAxis);
 			bbox.setFromObject(textMesh);
 			bbox.getCenter(cent);
 			bbox.getSize(size);
