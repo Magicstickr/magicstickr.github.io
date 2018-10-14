@@ -216,7 +216,7 @@
 
 		// create a plane geometry for the image with a width of 10
 		// and a height that preserves the image's aspect ratio
-		var geometry = new THREE.PlaneGeometry(10, 10*.75);
+		var geometry = new THREE.PlaneGeometry(10*.75, 10);
 
 		// combine our image geometry and material into a mesh
 		var mesh = new THREE.Mesh(geometry, material);
