@@ -16,9 +16,9 @@
 		//////////////////////////////////////////////////////////////////////////////////
 
 		//Error if not WebGL compatible
-		if ( WEBGL.isWebGLAvailable() === false ) {
-				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-			}
+		//if ( WEBGL.isWebGLAvailable() === false ) {
+		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		//}
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -204,7 +204,41 @@
 			textMesh.position.copy(cent).multiplyScalar(-1);
 			textMesh.position.y+= (size.y * 2);
 			textMesh.position.z+= (size.z * 7);
-		} );
+		});
+
+		//Load image
+		var imageLoader = new THREE.TextureLoader();
+
+		// Load an image file into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: imageLoader.load('content/image.jpg')
+		});
+
+		// create a plane geometry for the image with a width of 10
+		// and a height that preserves the image's aspect ratio
+		var geometry = new THREE.PlaneGeometry(10, 10*.75);
+
+		// combine our image geometry and material into a mesh
+		var mesh = new THREE.Mesh(geometry, material);
+
+		//Resize/rescale the 3D Object
+		var bbox = new THREE.Box3().setFromObject(mesh);
+		var cent = bbox.getCenter(new THREE.Vector3());
+		var size = bbox.getSize(new THREE.Vector3());
+
+		//Rescale the object to normalized space
+		var maxAxis = Math.max(size.x, size.y, size.z);
+		mesh.scale.multiplyScalar(1.0 / maxAxis);
+		bbox.setFromObject(mesh);
+		bbox.getCenter(cent);
+		bbox.getSize(size);
+		//Reposition to 0,halfY,0
+		mesh.position.copy(cent).multiplyScalar(-1);
+		mesh.position.y+= (size.y * 0.5);
+		mesh.position.z = -1;
+
+		// add the image to the scene
+		arWorldRoot.add(mesh);
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
