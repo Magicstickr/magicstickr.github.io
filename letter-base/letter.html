@@ -228,7 +228,7 @@
 
 		//Rescale the object to normalized space
 		var maxAxis = Math.max(size.x, size.y, size.z);
-		mesh.scale.multiplyScalar(15.0 / maxAxis);
+		mesh.scale.multiplyScalar(8.0 / maxAxis);
 		bbox.setFromObject(mesh);
 		bbox.getCenter(cent);
 		bbox.getSize(size);
