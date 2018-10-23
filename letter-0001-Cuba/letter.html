@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<title>Your letter from the future</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		//if ( WEBGL.isWebGLAvailable() === false ) {
+		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		//}
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			// antialias	: true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		// renderer.setPixelRatio( 1/2 );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var scene	= new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.Camera();
+		scene.add(camera);
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          handle arToolkitSource
+		////////////////////////////////////////////////////////////////////////////////
+
+		var arToolkitSource = new THREEx.ArToolkitSource({
+			// to read from the webcam 
+			sourceType : 'webcam'	
+		})
+
+		arToolkitSource.init(function onReady(){
+			onResize()
+		})
+		
+		// handle resize
+		window.addEventListener('resize', function(){
+			onResize()
+		})
+		function onResize(){
+			arToolkitSource.onResize()	
+			arToolkitSource.copySizeTo(renderer.domElement)	
+			if( arToolkitContext.arController !== null ){
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+			}	
+		}
+		////////////////////////////////////////////////////////////////////////////////
+		//          initialize arToolkitContext
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		// create atToolkitContext
+		var arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
+		})
+		// initialize it
+		arToolkitContext.init(function onCompleted(){
+			// copy projection matrix to camera
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		})
+
+		// update artoolkit on every frame
+		onRenderFcts.push(function(){
+			if( arToolkitSource.ready === false )	return
+
+			arToolkitContext.update( arToolkitSource.domElement )
+		})
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//          Create a ArMarkerControls
+		////////////////////////////////////////////////////////////////////////////////
+		
+		var markerRoot = new THREE.Group
+		scene.add(markerRoot)
+		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt'
+		})
+
+		// build a smoothedControls
+		var smoothedRoot = new THREE.Group()
+		scene.add(smoothedRoot)
+		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			lerpPosition: 0.4,
+			lerpQuaternion: 0.3,
+			lerpScale: 1,
+		})
+		onRenderFcts.push(function(delta){
+			smoothedControls.update(markerRoot)
+		})
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          Initialize the Text objects
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var arWorldRoot = smoothedRoot;
+
+		//Add some light
+		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
+		light.position.set( 0, 1, 0 );
+		scene.add( light );
+
+		// Load 3D object
+		var loader  = new THREE.GLTFLoader();
+		loader.load('content/scene.gltf', function ( gltf ) {
+
+			arWorldRoot.add( gltf.scene );
+
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
+			bbox.setFromObject(gltf.scene);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			gltf.scene.position.copy(cent).multiplyScalar(-1);
+			gltf.scene.position.y+= (size.y * 0.5);
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		// Load text
+		var Fontloader = new THREE.FontLoader();
+		var textMesh = new THREE.Mesh();
+		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
+			
+			var theText = "Viva la revolucion!\n       Cuba 2018";
+			var hash = document.location.hash.substr( 1 );
+			if ( hash.length !== 0 ) {
+				theText = hash;
+			}
+			var textGeom = new THREE.TextBufferGeometry( theText, {
+				font: font,
+				size: 80,
+				height: 20,
+				curveSegments: 2
+			});
+			textGeom.computeBoundingBox();
+			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
+			var materials = [
+				new THREE.MeshBasicMaterial( { color: 0xff0000, overdraw: 0.5 } ),
+				new THREE.MeshBasicMaterial( { color: 0xff0000, overdraw: 0.5 } )
+			];
+
+			textMesh = new THREE.Mesh( textGeom, materials );
+			
+			arWorldRoot.add( textMesh );
+
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(textMesh);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			textMesh.scale.multiplyScalar(3.0 / maxAxis);
+			bbox.setFromObject(textMesh);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			textMesh.position.copy(cent).multiplyScalar(-1);
+			textMesh.position.y+= (size.y * 2);
+			textMesh.position.z+= (size.z * 7);
+		});
+
+		//Load image
+		var imageLoader = new THREE.TextureLoader();
+
+		// Load an image file into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: imageLoader.load('content/image.jpg')
+		});
+
+		// create a plane geometry for the image with a width of 10
+		// and a height that preserves the image's aspect ratio
+		var geometry = new THREE.PlaneGeometry(10*.75, 10);
+
+		// combine our image geometry and material into a mesh
+		var mesh = new THREE.Mesh(geometry, material);
+
+		//Resize/rescale the 3D Object
+		var bbox = new THREE.Box3().setFromObject(mesh);
+		var cent = bbox.getCenter(new THREE.Vector3());
+		var size = bbox.getSize(new THREE.Vector3());
+
+		//Rescale the object to normalized space
+		var maxAxis = Math.max(size.x, size.y, size.z);
+		mesh.scale.multiplyScalar(5.0 / maxAxis);
+		bbox.setFromObject(mesh);
+		bbox.getCenter(cent);
+		bbox.getSize(size);
+		//Reposition to 0,halfY,0
+		mesh.position.copy(cent).multiplyScalar(-1);
+		mesh.position.y+= (size.y * 0.5);
+		mesh.position.z = -1;
+
+		// add the image to the scene
+		arWorldRoot.add(mesh);
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( scene, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+		</script>
+	</body>
+</html>
