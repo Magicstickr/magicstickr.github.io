@@ -207,38 +207,41 @@
 		});
 
 		//Load image
-		var imageLoader = new THREE.TextureLoader();
+		var imgMesh;
+		var geometry = new THREE.PlaneGeometry(1, 1);
+
+		var imageLoader = new THREE.TextureLoader().load('content/image.jpg', (imageLoader) => {
+			imageLoader.needsUpdate = true;
+			var scaleFactor= 5;
+			imgMesh.scale.set(scaleFactor, scaleFactor*imageLoader.image.height / imageLoader.image.width, 1.0);
+		});
 
 		// Load an image file into a custom material
 		var material = new THREE.MeshLambertMaterial({
-		  map: imageLoader.load('content/image.jpg')
+		  map: imageLoader
 		});
 
-		// create a plane geometry for the image with a width of 10
-		// and a height that preserves the image's aspect ratio
-		var geometry = new THREE.PlaneGeometry(10*(material.image.width/material.image.height), 10);
-
 		// combine our image geometry and material into a mesh
-		var mesh = new THREE.Mesh(geometry, material);
+		imgMesh = new THREE.Mesh(geometry, material);
 
 		//Resize/rescale the 3D Object
-		var bbox = new THREE.Box3().setFromObject(mesh);
+		var bbox = new THREE.Box3().setFromObject(imgMesh);
 		var cent = bbox.getCenter(new THREE.Vector3());
 		var size = bbox.getSize(new THREE.Vector3());
 
 		//Rescale the object to normalized space
 		var maxAxis = Math.max(size.x, size.y, size.z);
-		mesh.scale.multiplyScalar(5.0 / maxAxis);
-		bbox.setFromObject(mesh);
+		imgMesh.scale.multiplyScalar(5.0 / maxAxis);
+		bbox.setFromObject(imgMesh);
 		bbox.getCenter(cent);
 		bbox.getSize(size);
 		//Reposition to 0,halfY,0
-		mesh.position.copy(cent).multiplyScalar(-1);
-		mesh.position.y+= (size.y * 0.5);
-		mesh.position.z = -1;
+		imgMesh.position.copy(cent).multiplyScalar(-1);
+		imgMesh.position.y+= (size.y * 0.5);
+		imgMesh.position.z = -1;
 
 		// add the image to the scene
-		arWorldRoot.add(mesh);
+		arWorldRoot.add(imgMesh);
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
