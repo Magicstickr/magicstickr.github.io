@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+		<title>Your letter from the future</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		//if ( WEBGL.isWebGLAvailable() === false ) {
+		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		//}
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			// antialias	: true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		// renderer.setPixelRatio( 1/2 );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var arWorldRoot	= new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 2, 10 );
+		arWorldRoot.add(camera);
+		//
+
+		// controls
+
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+		//controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+		controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+		controls.dampingFactor = 0.25;
+
+		controls.screenSpacePanning = false;
+
+		controls.minDistance = 0;
+		controls.maxDistance = 500;
+
+		controls.maxPolarAngle = Math.PI / 2;
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          Initialize the Text objects
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Add some light
+		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
+		light.position.set( 0, 1, 0 );
+		arWorldRoot.add( light );
+
+		// Load 3D object
+		var loader  = new THREE.GLTFLoader();
+		loader.load('content/scene.gltf', function ( gltf ) {
+
+			arWorldRoot.add( gltf.scene );
+
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
+			bbox.setFromObject(gltf.scene);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			gltf.scene.position.copy(cent).multiplyScalar(-1);
+			gltf.scene.position.y+= (size.y * 0.5);
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		// Load text
+		var Fontloader = new THREE.FontLoader();
+		var textMesh = new THREE.Mesh();
+		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
+			
+			var theText = "I think of you.\n           Yann";
+			var hash = document.location.hash.substr( 1 );
+			if ( hash.length !== 0 ) {
+				theText = hash;
+			}
+			var textGeom = new THREE.TextBufferGeometry( theText, {
+				font: font,
+				size: 80,
+				height: 20,
+				curveSegments: 2
+			});
+			textGeom.computeBoundingBox();
+			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
+			var materials = [
+				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } ),
+				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+			];
+
+			textMesh = new THREE.Mesh( textGeom, materials );
+			
+			arWorldRoot.add( textMesh );
+
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(textMesh);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			textMesh.scale.multiplyScalar(3.0 / maxAxis);
+			bbox.setFromObject(textMesh);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			textMesh.position.copy(cent).multiplyScalar(-1);
+			textMesh.position.y+= (size.y * 2);
+			textMesh.position.z+= (size.z * 7);
+		});
+
+		//Load image
+		var imgMesh;
+		var geometry = new THREE.PlaneGeometry(1, 1);
+
+		var imageLoader = new THREE.TextureLoader().load('content/image.jpg', (imageLoader) => {
+			imageLoader.needsUpdate = true;
+			var scaleFactor= 5;
+			imgMesh.scale.set(scaleFactor, scaleFactor*imageLoader.image.height / imageLoader.image.width, 1.0);
+		});
+
+		// Load an image file into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: imageLoader
+		});
+
+		// combine our image geometry and material into a mesh
+		imgMesh = new THREE.Mesh(geometry, material);
+
+		//Resize/rescale the 3D Object
+		var bbox = new THREE.Box3().setFromObject(imgMesh);
+		var cent = bbox.getCenter(new THREE.Vector3());
+		var size = bbox.getSize(new THREE.Vector3());
+
+		//Rescale the object to normalized space
+		var maxAxis = Math.max(size.x, size.y, size.z);
+		imgMesh.scale.multiplyScalar(5.0 / maxAxis);
+		bbox.setFromObject(imgMesh);
+		bbox.getCenter(cent);
+		bbox.getSize(size);
+		//Reposition to 0,halfY,0
+		imgMesh.position.copy(cent).multiplyScalar(-1);
+		imgMesh.position.y+= (size.y * 0.5);
+		imgMesh.position.z = -1;
+
+		// add the image to the scene
+		arWorldRoot.add(imgMesh);
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( arWorldRoot, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+		</script>
+	</body>
+</html>

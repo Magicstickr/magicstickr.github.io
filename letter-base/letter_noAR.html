@@ -7,6 +7,7 @@
 		<script src="lib/ar.min.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
 		<script src="lib/WebGL.js"></script>
+		<script src="lib/OrbitControls.js"></script>
 		<title>Your letter from the future</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -38,88 +39,33 @@
 
 		// init scene and camera
 
-		var scene	= new THREE.Scene();
+		var arWorldRoot	= new THREE.Scene();
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Initialize a basic camera
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// Create a camera
-		var camera = new THREE.Camera();
-		scene.add(camera);
+		var camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 2, 10 );
+		arWorldRoot.add(camera);
+		//
 
-		////////////////////////////////////////////////////////////////////////////////
-		//          handle arToolkitSource
-		////////////////////////////////////////////////////////////////////////////////
+		// controls
 
-		var arToolkitSource = new THREEx.ArToolkitSource({
-			// to read from the webcam 
-			sourceType : 'webcam'	
-		})
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-		arToolkitSource.init(function onReady(){
-			onResize()
-		})
-		
-		// handle resize
-		window.addEventListener('resize', function(){
-			onResize()
-		})
-		function onResize(){
-			arToolkitSource.onResize()	
-			arToolkitSource.copySizeTo(renderer.domElement)	
-			if( arToolkitContext.arController !== null ){
-				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
-			}	
-		}
-		////////////////////////////////////////////////////////////////////////////////
-		//          initialize arToolkitContext
-		////////////////////////////////////////////////////////////////////////////////
-		
+		//controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
 
-		// create atToolkitContext
-		var arToolkitContext = new THREEx.ArToolkitContext({
-			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
-			detectionMode: 'mono',
-			maxDetectionRate: 30,
-			canvasWidth: 80*3,
-			canvasHeight: 60*3,
-		})
-		// initialize it
-		arToolkitContext.init(function onCompleted(){
-			// copy projection matrix to camera
-			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-		})
+		controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+		controls.dampingFactor = 0.25;
 
-		// update artoolkit on every frame
-		onRenderFcts.push(function(){
-			if( arToolkitSource.ready === false )	return
+		controls.screenSpacePanning = false;
 
-			arToolkitContext.update( arToolkitSource.domElement )
-		})
-		
-		////////////////////////////////////////////////////////////////////////////////
-		//          Create a ArMarkerControls
-		////////////////////////////////////////////////////////////////////////////////
-		
-		var markerRoot = new THREE.Group
-		scene.add(markerRoot)
-		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-			type : 'pattern',
-			patternUrl : 'marker/marker.patt'
-		})
+		controls.minDistance = 0;
+		controls.maxDistance = 500;
 
-		// build a smoothedControls
-		var smoothedRoot = new THREE.Group()
-		scene.add(smoothedRoot)
-		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-			lerpPosition: 0.4,
-			lerpQuaternion: 0.3,
-			lerpScale: 1,
-		})
-		onRenderFcts.push(function(delta){
-			smoothedControls.update(markerRoot)
-		})
+		controls.maxPolarAngle = Math.PI / 2;
 
 		////////////////////////////////////////////////////////////////////////////////
 		//          Initialize the Text objects
@@ -130,12 +76,10 @@
 		//		Add the objects in the scene
 		//////////////////////////////////////////////////////////////////////////////////
 
-		var arWorldRoot = smoothedRoot;
-
 		//Add some light
 		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
 		light.position.set( 0, 1, 0 );
-		scene.add( light );
+		arWorldRoot.add( light );
 
 		// Load 3D object
 		var loader = new THREE.GLTFLoader();
@@ -322,7 +266,7 @@
 
 		// render the scene
 		onRenderFcts.push(function(){
-			renderer.render( scene, camera );
+			renderer.render( arWorldRoot, camera );
 		})
 
 		// run the rendering loop
@@ -330,6 +274,7 @@
 		requestAnimationFrame(function animate(nowMsec){
 			// keep looping
 			requestAnimationFrame( animate );
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
 			// measure time
 			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
 			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)

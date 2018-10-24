@@ -1,0 +1,19 @@
+My dear Satsuki,
+
+The character encoding of the HTML document was 
+not declared. The document will render wit
+h garbled text in some browser configurations if th
+e document contains characters from ou
+tside the US-ASCII range. The character encoding of 
+the page must be declared in the document or in the t
+ransfer protocol.The character encoding of the
+ HTML document was not declared. The document will ren
+ der with garbled text in 
+ some browser configurations if the document con
+ tains characters from outside the US-ASCII
+  range. The character encoding of the page mus
+  t be declared in the document or in 
+  the transfer protocol.The character.
+
+
+          Yann
