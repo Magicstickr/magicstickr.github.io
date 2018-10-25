@@ -95,7 +95,7 @@
 			var size = bbox.getSize(new THREE.Vector3());
 			//Rescale the object to normalized space
 			var maxAxis = Math.max(size.x, size.y, size.z);
-			gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
+			gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
 			bbox.setFromObject(gltf.scene);
 			bbox.getCenter(cent);
 			bbox.getSize(size);
@@ -153,14 +153,14 @@
 			var size = bbox.getSize(new THREE.Vector3());
 			
 			var maxAxis = Math.max(size.x, size.y, size.z);
-			textMesh.scale.multiplyScalar(3.0 / maxAxis);
+			textMesh.scale.multiplyScalar(1.0 / maxAxis);
 			bbox.setFromObject(textMesh);
 			bbox.getCenter(cent);
 			bbox.getSize(size);
 			//Reposition to 0,halfY+1, 2
 			textMesh.position.copy(cent).multiplyScalar(-1);
 			textMesh.position.y = (size.y * 0.5) + 1;
-			textMesh.position.z = 2;
+			textMesh.position.z = 1;
 		});
 
 		//Load image
@@ -170,10 +170,10 @@
 		//Get image from image.jpg
 		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 			//Rescale and position image
-			var targetWidth = 4;
+			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 			imgMesh.scale.set(targetWidth, targetHeight, 1.0);
-			imgMesh.position.x = (targetWidth * 0.5) + 0.75;
+			imgMesh.position.x = (targetWidth * 0.5) + 0.1;
 			imgMesh.position.y = (targetHeight * 0.5);
 			imgMesh.position.z = -1;
 		});
@@ -195,13 +195,13 @@
 		//Load the message on a paper
 
 		//Create the paper
-		var paperWidth = 4;
-		var paperHeight = 4*4/3;
+		var paperWidth = 1;
+		var paperHeight = 1*4/3;
 		var geometry = new THREE.PlaneGeometry(paperWidth , paperHeight);
 		var material = new THREE.MeshBasicMaterial( { color: 0x00ffff, overdraw: 0.5 } );
 		var paper = new THREE.Mesh(geometry, material);
 
-		paper.position.x = (paperWidth * 0.5) - 4.5;
+		paper.position.x = (paperWidth * 0.5) - 1.1;
 		paper.position.y = (paperHeight* 0.5);
 		paper.position.z = -1;
 		paper.rotation.x = -0.1*Math.PI;
@@ -251,11 +251,13 @@
 			var bbox = new THREE.Box3().setFromObject(text);
 			var cent = bbox.getCenter(new THREE.Vector3());
 			var size = bbox.getSize(new THREE.Vector3());
-
+			
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			text.scale.multiplyScalar(0.9 / maxAxis);
 			text.position.copy(cent).multiplyScalar(-1);
-			text.position.x += (size.x * 0.5) - 4.5;
-			text.position.y += (size.y * 0.5) + 1;
-			text.position.z += -1;
+			text.position.x += (size.x * 0.5) - 1.1;
+			text.position.y += (size.y * 0.5) -2;
+			text.position.z += -0.75;
 			text.rotation.x = -0.1*Math.PI;
 			text.rotation.y = 0.1*Math.PI;
 
