@@ -311,19 +311,17 @@
 
 			raycaster.setFromCamera( mouse, camera );
 
-			var objects = [imgMesh, paper];
+			var images = [imgMesh];
+			var letters =[paper];
 
-			var intersects = raycaster.intersectObjects( objects );
+			var imagesIntersects = raycaster.intersectObjects( images );
+			var letterIntersects = raycaster.intersectObjects( letters );
 
-			if ( intersects.length > 0 ) {
-
-				intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
-
-				var particle = new THREE.Sprite( particleMaterial );
-				particle.position.copy( intersects[ 0 ].point );
-				particle.scale.x = particle.scale.y = 16;
-				scene.add( particle );
-
+			if ( imagesIntersects.length > 0 ) {
+				window.location.href = './images.html';
+			}
+			if ( letterIntersects.length > 0 ) {
+				window.location.href = './letters.html';
 			}
 		}
 		</script>
