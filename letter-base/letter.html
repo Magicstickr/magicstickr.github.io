@@ -365,6 +365,7 @@
 			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
+			camera.inPerspectiveMode = true;
 			raycaster.setFromCamera( mouse, camera );
 
 			var images = [imgMesh];
