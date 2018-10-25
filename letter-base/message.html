@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	</head>
+	<body>
+		<div id="message"></div>
+		<a class="back" href="./letter.html">&#9661;</a>
+		<script>
+			function readTextFile(file)
+			{
+			    var rawFile = new XMLHttpRequest();
+			    rawFile.open("GET", file, false);
+			    rawFile.onreadystatechange = function ()
+			    {
+			        if(rawFile.readyState === 4)
+			        {
+			            if(rawFile.status === 200 || rawFile.status == 0)
+			            {
+			                var allText = rawFile.responseText;
+			                document.getElementById('message').innerHTML = allText;
+			            }
+			        }
+			    }
+			    rawFile.send(null);
+			}
+			window.onLoad = readTextFile('content/messageText.txt');
+		</script>
+	</body>
+</html> 
