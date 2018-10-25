@@ -88,7 +88,7 @@
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
 			// copy projection matrix to camera
-			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			//camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 		})
 
 		// update artoolkit on every frame
@@ -365,7 +365,6 @@
 			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
-			camera.inPerspectiveMode = true;
 			raycaster.setFromCamera( mouse, camera );
 
 			var images = [imgMesh];
