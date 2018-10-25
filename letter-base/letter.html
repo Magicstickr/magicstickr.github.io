@@ -137,6 +137,9 @@
 		light.position.set( 0, 1, 0 );
 		scene.add( light );
 
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
 		// Load 3D object
 		var loader = new THREE.GLTFLoader();
 		loader.load('content/scene.gltf', function ( gltf ) {
@@ -221,7 +224,7 @@
 		var material = new THREE.MeshLambertMaterial();
 		var imgMesh = new THREE.Mesh(geometry, material);
 		//Get image from image.jpg
-		var imageLoader = new THREE.TextureLoader().load('content/image.jpg', (imgLoader) => {
+		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 			//Rescale and position image
 			var targetWidth = 4;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
@@ -339,6 +342,44 @@
 				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
 		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			
+			console.log("DOWN!");
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var images = [imgMesh];
+			var letters =[paper];
+
+			var imagesIntersects = raycaster.intersectObjects( images );
+			var letterIntersects = raycaster.intersectObjects( letters );
+
+			if ( imagesIntersects.length > 0 ) {
+				window.location.href = './images.html';
+			}
+			if ( letterIntersects.length > 0 ) {
+				window.location.href = './letters.html';
+			}
+		}
 		</script>
 	</body>
 </html>
