@@ -45,7 +45,7 @@
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// Create a camera
-		var camera = new THREE.Camera();
+		var camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1500 );
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
 			// copy projection matrix to camera
-			//camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 		})
 
 		// update artoolkit on every frame
