@@ -81,6 +81,9 @@
 		light.position.set( 0, 1, 0 );
 		arWorldRoot.add( light );
 
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
 		// Load 3D object
 		var loader = new THREE.GLTFLoader();
 		loader.load('content/scene.gltf', function ( gltf ) {
@@ -165,7 +168,7 @@
 		var material = new THREE.MeshLambertMaterial();
 		var imgMesh = new THREE.Mesh(geometry, material);
 		//Get image from image.jpg
-		var imageLoader = new THREE.TextureLoader().load('content/image.jpg', (imgLoader) => {
+		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 			//Rescale and position image
 			var targetWidth = 4;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
@@ -248,7 +251,6 @@
 			var bbox = new THREE.Box3().setFromObject(text);
 			var cent = bbox.getCenter(new THREE.Vector3());
 			var size = bbox.getSize(new THREE.Vector3());
-			console.log(size);
 
 			text.position.copy(cent).multiplyScalar(-1);
 			text.position.x += (size.x * 0.5) - 4.5;
@@ -284,6 +286,44 @@
 				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
 		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			
+			console.log("DOWN!");
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var intersects = raycaster.intersectObjects( objects );
+
+			if ( intersects.length > 0 ) {
+
+				intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+
+				var particle = new THREE.Sprite( particleMaterial );
+				particle.position.copy( intersects[ 0 ].point );
+				particle.scale.x = particle.scale.y = 16;
+				scene.add( particle );
+
+			}
+		}
 		</script>
 	</body>
 </html>
