@@ -135,7 +135,11 @@
 				font: font,
 				size: 80,
 				height: 20,
-				curveSegments: 2
+				curveSegments: 2,
+				bevelEnabled: true,
+				bevelThickness: 4,
+				bevelSize: 8,
+				bevelSegments: 8
 			});
 			textGeom.computeBoundingBox();
 			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
