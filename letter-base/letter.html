@@ -158,6 +158,7 @@
 			//Reposition to 0,halfY,0
 			gltf.scene.position.copy(cent).multiplyScalar(-1);
 			gltf.scene.position.y = (size.y * 0.5);
+			gltf.scene.rotation.x = -0.1*Math.PI;
 
 		}, undefined, function ( e ) {
 			console.error( e );
@@ -215,8 +216,9 @@
 			bbox.getSize(size);
 			//Reposition to 0,halfY+1, 2
 			textMesh.position.copy(cent).multiplyScalar(-1);
-			textMesh.position.y = (size.y * 0.5) + 1;
-			textMesh.position.z = 1;
+			textMesh.position.y = (size.y * 0.5) + 0.8;
+			textMesh.position.z = 0.3;
+			textMesh.rotation.x = -0.1*Math.PI;
 		});
 
 		//Load image
@@ -231,7 +233,7 @@
 			imgMesh.scale.set(targetWidth, targetHeight, 1.0);
 			imgMesh.position.x = (targetWidth * 0.5) + 0.1;
 			imgMesh.position.y = (targetHeight * 0.5);
-			imgMesh.position.z = -1;
+			imgMesh.position.z = -0.5;
 		});
 
 		//Load the image into a custom material
@@ -259,7 +261,7 @@
 
 		paper.position.x = (paperWidth * 0.5) - 1.1;
 		paper.position.y = (paperHeight* 0.5);
-		paper.position.z = -1;
+		paper.position.z = -0.5;
 		paper.rotation.x = -0.1*Math.PI;
 		paper.rotation.y = 0.1*Math.PI;
 
@@ -273,7 +275,7 @@
 			//Get the Text from mainText.txt file
 			var theText ="";
 			var rawFile = new XMLHttpRequest();
-			rawFile.open("GET", 'content/messageText.txt', false);
+			rawFile.open("GET", 'content/baseMessageText.txt', false);
 			rawFile.onreadystatechange = function (){
 			        if(rawFile.readyState === 4){
 			            if(rawFile.status === 200 || rawFile.status == 0)
@@ -310,10 +312,11 @@
 			
 			var maxAxis = Math.max(size.x, size.y, size.z);
 			text.scale.multiplyScalar(0.9 / maxAxis);
+			text.scale.z= 0;
 			text.position.copy(cent).multiplyScalar(-1);
-			text.position.x += (size.x * 0.5) - 1.1;
-			text.position.y += (size.y * 0.5) -2;
-			text.position.z += -0.75;
+			text.position.x += (size.x * 0.5) - 0.9;
+			text.position.y += (size.y * 0.5) -3;
+			text.position.z += -0.05;
 			text.rotation.x = -0.1*Math.PI;
 			text.rotation.y = 0.1*Math.PI;
 
