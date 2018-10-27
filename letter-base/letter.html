@@ -135,7 +135,7 @@
 		//Add some light
 		light = new THREE.HemisphereLight( 0xffffff, 0x444422 );
 		light.position.set( 0, 0, 1 );
-		arWorldRoot.add( light );
+		scene.add( light );
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
