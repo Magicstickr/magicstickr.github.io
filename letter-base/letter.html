@@ -133,9 +133,9 @@
 		var arWorldRoot = smoothedRoot;
 
 		//Add some light
-		light = new THREE.HemisphereLight( 0xbbbbff, 0x444422 );
-		light.position.set( 0, 1, 0 );
-		scene.add( light );
+		light = new THREE.HemisphereLight( 0xffffff, 0x444422 );
+		light.position.set( 1, 1, 0 );
+		arWorldRoot.add( light );
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
@@ -232,9 +232,6 @@
 		//Get image from image.jpg
 		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 			//Rescale and position image
-
-			imgLoader.magFilter = THREE.LinearMipMapLinearFilter/16;
-			imgLoader. minFilter = THREE.LinearMipMapLinearFilter/16;
 			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 			imgMesh.scale.set(targetWidth, targetHeight, 1.0);
@@ -259,76 +256,34 @@
 
 		//Load the message on a paper
 
-		//Create the paper
-		var paperWidth = 1;
-		var paperHeight = 1*4/3;
-		var geometry = new THREE.PlaneGeometry(paperWidth , paperHeight);
-		var material = new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } );
-		var paper = new THREE.Mesh(geometry, material);
+		//Create the Text message
+		var geometry = new THREE.PlaneGeometry(1, 1);
+		var material = new THREE.MeshLambertMaterial();
+		var baseMsgMesh = new THREE.Mesh(geometry, material);
 
-		paper.position.x = (paperWidth * 0.5) - 1.1;
-		paper.position.y = (paperHeight* 0.5);
-		paper.position.z = -0.5;
-		paper.rotation.x = -0.1*Math.PI;
-		paper.rotation.y = 0.1*Math.PI;
+		var imageTextLoader = new THREE.TextureLoader().load('content/baseMessageText.jpg', (imgLoader) => {
+			//Rescale and position image
+			var targetWidth = 1;
+			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+			baseMsgMesh.scale.set(targetWidth, targetHeight, 1.0);
+			baseMsgMesh.position.x = (targetWidth * 0.5) - 1.1;
+			baseMsgMesh.position.y = (targetHeight * 0.5);
+			baseMsgMesh.position.z = -0.5;
+		});
+
+		//Load the image into a custom material
+		material = new THREE.MeshLambertMaterial({
+		  map: imageTextLoader
+		});
+		//Add material to the image mesh
+		baseMsgMesh.material = material;
+
+		//Rotate a bit the image
+		baseMsgMesh.rotation.x = -0.1*Math.PI;
+		baseMsgMesh.rotation.y = 0.1*Math.PI;
 
 		// add the image to the scene
-		arWorldRoot.add(paper);
-
-		//Create the message text
-		var text = new THREE.Mesh();
-		var Fontloader = new THREE.FontLoader();
-		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {	
-			//Get the Text from mainText.txt file
-			var theText ="";
-			var rawFile = new XMLHttpRequest();
-			rawFile.open("GET", 'content/baseMessageText.txt', false);
-			rawFile.onreadystatechange = function (){
-			        if(rawFile.readyState === 4){
-			            if(rawFile.status === 200 || rawFile.status == 0)
-			            {
-			                theText = rawFile.responseText;
-			            }
-			        }
-			    }
-			rawFile.send(null);
-			//Hash the text
-			var hash = document.location.hash.substr( 1 );
-			if ( hash.length !== 0 ) {
-				theText = hash;
-			}
-			//Add the text to geometry
-			var textGeom = new THREE.TextBufferGeometry( theText, {
-				font: font,
-				size: 0.1,
-				height: 1,
-				curveSegments: 2
-			});
-			textGeom.computeBoundingBox();
-			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
-			//Build material (color,etc) for the text
-			var materials = [
-				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
-			];
-			//Add the text to the scene
-			text = new THREE.Mesh( textGeom, materials );
-			
-			var bbox = new THREE.Box3().setFromObject(text);
-			var cent = bbox.getCenter(new THREE.Vector3());
-			var size = bbox.getSize(new THREE.Vector3());
-			
-			var maxAxis = Math.max(size.x, size.y, size.z);
-			text.scale.multiplyScalar(0.9 / maxAxis);
-			text.scale.z= 0;
-			text.position.copy(cent).multiplyScalar(-1);
-			text.position.x += (size.x * 0.5) - 0.9;
-			text.position.y += (size.y * 0.5) -3;
-			text.position.z += -0.05;
-			text.rotation.x = -0.1*Math.PI;
-			text.rotation.y = 0.1*Math.PI;
-
-			arWorldRoot.add(text);
-		});
+		arWorldRoot.add(baseMsgMesh);
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
