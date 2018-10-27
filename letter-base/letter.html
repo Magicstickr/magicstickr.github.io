@@ -133,7 +133,7 @@
 		var arWorldRoot = smoothedRoot;
 
 		//Add some light
-		light = new THREE.HemisphereLight( 0xffffff, 0x444422 );
+		light = new THREE.HemisphereLight( 0xffffff, 0x000000 );
 		light.position.set( 1, 1, 0 );
 		scene.add( light );
 
@@ -259,16 +259,16 @@
 		//Create the Text message
 		var geometry = new THREE.PlaneGeometry(1, 1);
 		var material = new THREE.MeshLambertMaterial();
-		var baseMsgMesh = new THREE.Mesh(geometry, material);
+		var paper = new THREE.Mesh(geometry, material);
 
 		var imageTextLoader = new THREE.TextureLoader().load('content/baseMessageText.jpg', (imgLoader) => {
 			//Rescale and position image
 			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-			baseMsgMesh.scale.set(targetWidth, targetHeight, 1.0);
-			baseMsgMesh.position.x = (targetWidth * 0.5) - 1.1;
-			baseMsgMesh.position.y = (targetHeight * 0.5);
-			baseMsgMesh.position.z = -0.5;
+			paper.scale.set(targetWidth, targetHeight, 1.0);
+			paper.position.x = (targetWidth * 0.5) - 1.1;
+			paper.position.y = (targetHeight * 0.5);
+			paper.position.z = -0.5;
 		});
 
 		//Load the image into a custom material
@@ -276,14 +276,14 @@
 		  map: imageTextLoader
 		});
 		//Add material to the image mesh
-		baseMsgMesh.material = material;
+		paper.material = material;
 
 		//Rotate a bit the image
-		baseMsgMesh.rotation.x = -0.1*Math.PI;
-		baseMsgMesh.rotation.y = 0.1*Math.PI;
+		paper.rotation.x = -0.1*Math.PI;
+		paper.rotation.y = 0.1*Math.PI;
 
 		// add the image to the scene
-		arWorldRoot.add(baseMsgMesh);
+		arWorldRoot.add(paper);
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
