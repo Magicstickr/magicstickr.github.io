@@ -2,47 +2,51 @@
 <html>
 	<head>
 	<style>
-	body{
-		background-color: #000000;
-	}
-	.paper{
-		margin: auto;
-		background-color: #ffffff;
-		width: 80vw;
-		height: auto;
-	}
-	#message{
-		font-family: Georgia, serif;
-		padding: 40px;
-		white-space: pre-wrap;
-	}
-	.back{
-		display: block;
-		padding-bottom: 40px;
-		text-align: center;
-		left: 50%;
-		text-decoration-line: none;
-		font-size: 45px;
-		color: #000000;
+		body{
+			background-color: #000000;
+		}
+		.paper{
+			margin: auto;
+			background-color: #ffffff;
+			width: 80vw;
+			height: auto;
+		}
+		#message{
+			font-family: Georgia, serif;
+			padding: 40px;
+			white-space: pre-wrap;
+			font-size: 24px;
+		}
+		.back{
+			display: block;
+			padding-bottom: 40px;
+			text-align: center;
+			left: 50%;
+			text-decoration-line: none;
+			font-size: 45px;
+			color: #000000;
+		}
+		/* Fading animation */
+		.fade {
+		  -webkit-animation-name: fade;
+		  -webkit-animation-duration: 1.5s;
+		  animation-name: fade;
+		  animation-duration: 1.5s;
+		}
+		@-webkit-keyframes fade {
+		  from {opacity: .4} 
+		  to {opacity: 1}
+		}
+		@keyframes fade {
+		  from {opacity: .4} 
+		  to {opacity: 1}
+		}
+		/* On smaller screens, decrease text size */
+		@media only screen and (max-width: 400px) {
+		  .back {font-size: 45px;}
+		  #message {font-size: 14px;}
+		}
 
-	/* Fading animation */
-	.fade {
-	  -webkit-animation-name: fade;
-	  -webkit-animation-duration: 1.5s;
-	  animation-name: fade;
-	  animation-duration: 1.5s;
-	}
-	@-webkit-keyframes fade {
-	  from {opacity: .4} 
-	  to {opacity: 1}
-	}
-
-	@keyframes fade {
-	  from {opacity: .4} 
-	  to {opacity: 1}
-	}
-
-	}
 	</style>
 	<script>
 		function readTextFile(file){
