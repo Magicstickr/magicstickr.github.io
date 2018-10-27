@@ -1,28 +1,72 @@
 <!DOCTYPE html>
 <html>
 	<head>
+	<style>
+	body{
+		background-color: #000000;
+	}
+	.paper{
+		margin: auto;
+		background-color: #ffffff;
+		width: 80vw;
+		height: auto;
+	}
+	#message{
+		font-family: Georgia, serif;
+		padding: 40px;
+		white-space: pre-wrap;
+	}
+	.back{
+		display: block;
+		padding-bottom: 40px;
+		text-align: center;
+		left: 50%;
+		text-decoration-line: none;
+		font-size: 45px;
+		color: #000000;
+
+	/* Fading animation */
+	.fade {
+	  -webkit-animation-name: fade;
+	  -webkit-animation-duration: 1.5s;
+	  animation-name: fade;
+	  animation-duration: 1.5s;
+	}
+	@-webkit-keyframes fade {
+	  from {opacity: .4} 
+	  to {opacity: 1}
+	}
+
+	@keyframes fade {
+	  from {opacity: .4} 
+	  to {opacity: 1}
+	}
+
+	}
+	</style>
+	<script>
+		function readTextFile(file){
+		    var rawFile = new XMLHttpRequest();
+		    rawFile.open("GET", file, false);
+		    rawFile.onreadystatechange = function (){
+		        if(rawFile.readyState === 4){
+		            if(rawFile.status === 200 || rawFile.status == 0){
+		                var allText = rawFile.responseText;
+		                document.getElementById('message').innerHTML = allText;
+		            }
+		        }
+		    }
+		    rawFile.send(null);
+		}
+	</script>
 	</head>
+
 	<body>
-		<div id="message"></div>
-		<a class="back" href="./letter.html">&#9661;</a>
+		<div class="paper fade">
+			<div id="message"></div>
+			<a class="back" href="./letter.html">&#9661;</a>
+		</div>
 		<script>
-			function readTextFile(file)
-			{
-			    var rawFile = new XMLHttpRequest();
-			    rawFile.open("GET", file, false);
-			    rawFile.onreadystatechange = function ()
-			    {
-			        if(rawFile.readyState === 4)
-			        {
-			            if(rawFile.status === 200 || rawFile.status == 0)
-			            {
-			                var allText = rawFile.responseText;
-			                document.getElementById('message').innerHTML = allText;
-			            }
-			        }
-			    }
-			    rawFile.send(null);
-			}
 			window.onLoad = readTextFile('content/messageText.txt');
 		</script>
 	</body>
