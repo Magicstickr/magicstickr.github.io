@@ -232,6 +232,9 @@
 		//Get image from image.jpg
 		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 			//Rescale and position image
+
+			imgLoader.magFilter = THREE.LinearMipMapLinearFilter/16;
+			imgLoader. minFilter = THREE.LinearMipMapLinearFilter/16;
 			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 			imgMesh.scale.set(targetWidth, targetHeight, 1.0);
