@@ -45,7 +45,7 @@
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// Create a camera
-		var camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0, 1000 );
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +327,7 @@
 			event.preventDefault();
 
 			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 0.85;
 
 			raycaster.setFromCamera( mouse, camera );
 
