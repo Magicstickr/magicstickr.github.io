@@ -10,6 +10,11 @@
 		<title>Your letter from the future</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<audio id="sound">
+		  <source src="content/sound.mp3" type="audio/mpeg">
+		  Your browser does not support the audio element.
+		</audio>
+
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -19,6 +24,12 @@
 		//if ( WEBGL.isWebGLAvailable() === false ) {
 		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		//}
+
+		///////////////////////////
+		// Sound var init
+		///////////////////////////
+		var isSoundOn = false;
+		var soundOffCountDown = 0;
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -94,7 +105,6 @@
 		// update artoolkit on every frame
 		onRenderFcts.push(function(){
 			if( arToolkitSource.ready === false )	return
-
 			arToolkitContext.update( arToolkitSource.domElement )
 		})
 		
@@ -120,11 +130,6 @@
 		onRenderFcts.push(function(delta){
 			smoothedControls.update(markerRoot)
 		})
-
-		////////////////////////////////////////////////////////////////////////////////
-		//          Initialize the Text objects
-		////////////////////////////////////////////////////////////////////////////////
-		
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Add the objects in the scene
@@ -292,6 +297,31 @@
 		// render the scene
 		onRenderFcts.push(function(){
 			renderer.render( scene, camera );
+
+			///////////////////////////
+			//Sound playing
+			///////////////////////////
+			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
+				
+				soundOffCountDown = 120;
+
+				if(isSoundOn == false){
+					document.getElementById("sound").play();
+					isSoundOn = true;
+				}
+				
+			}
+			else if(arToolkitContext.arController.patternMarkers[0].inCurrent == false && isSoundOn == true){
+				if(soundOffCountDown > 0){
+					soundOffCountDown = soundOffCountDown - 1;
+				}
+				//console.log(soundOffCountDown);
+				if( soundOffCountDown == 0){
+				document.getElementById("sound").pause();
+				isSoundOn = false;
+				}
+			}
+
 		})
 
 		// run the rendering loop
