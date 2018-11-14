@@ -13,9 +13,29 @@
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		<audio id="sound">
 		  <source src="content/sound.mp3" type="audio/mpeg">
-		Your browser does not support the audio element.
+		  Your browser does not support the audio element.
 		</audio>
-
+		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
+			<img src="mute.png" alt="mute" height="30" width="30"> 
+		</div>
+		<div id="audioOn" style="display: none; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(false)">
+			<img src="soundy.png" alt="soundy" height="30" width="30"> 
+		</div>
+		<script>
+			function audioControl(soundNeeded){
+				if(soundNeeded == true){
+					document.getElementById("sound").play();
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'none';
+    				document.getElementById("audioOn").style.display = 'block';
+				}
+				else{
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'block';
+    				document.getElementById("audioOn").style.display = 'none';
+				}
+			}
+		</script>
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -26,11 +46,11 @@
 		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		//}
 
+		///////////////////////////
+		// Sound var init
+		///////////////////////////
 		var isSoundOn = false;
-		if (isSoundOn == false){
-			document.getElementById("sound").play();
-			isSoundOn = true;
-		}
+		var soundOffCountDown = 0;
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({

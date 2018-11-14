@@ -14,7 +14,27 @@
 		  <source src="content/sound.mp3" type="audio/mpeg">
 		  Your browser does not support the audio element.
 		</audio>
-
+		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
+			<img src="mute.png" alt="mute" height="30" width="30"> 
+		</div>
+		<div id="audioOn" style="display: none; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(false)">
+			<img src="soundy.png" alt="soundy" height="30" width="30"> 
+		</div>
+		<script>
+			function audioControl(soundNeeded){
+				if(soundNeeded == true){
+					document.getElementById("sound").play();
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'none';
+    				document.getElementById("audioOn").style.display = 'block';
+				}
+				else{
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'block';
+    				document.getElementById("audioOn").style.display = 'none';
+				}
+			}
+		</script>
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -301,7 +321,7 @@
 			///////////////////////////
 			//Sound playing
 			///////////////////////////
-			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
+			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && document.getElementById("audioOn").style.display == "block"){
 				
 				soundOffCountDown = 120;
 
@@ -367,10 +387,10 @@
 			var imagesIntersects = raycaster.intersectObjects( images );
 			var letterIntersects = raycaster.intersectObjects( letters );
 
-			if ( imagesIntersects.length > 0 ) {
+			if ( imagesIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
 				window.location.href = './images.html';
 			}
-			if ( letterIntersects.length > 0 ) {
+			if ( letterIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
 				window.location.href = './message.html';
 			}
 		}
