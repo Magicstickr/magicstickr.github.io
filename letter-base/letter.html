@@ -14,7 +14,7 @@
 		  <source src="content/sound.mp3" type="audio/mpeg">
 		  Your browser does not support the audio element.
 		</audio>
-		<div>V. 1.0.4b</div>
+		<div>V. 1.0.4c</div>
 		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
 			<img src="mute.png" alt="mute" height="30" width="30"> 
 		</div>
@@ -298,7 +298,7 @@
 			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 			targetHeight = 1;
-			paper.scale.set(targetWidth, targetHeight, 1.0);
+			//paper.scale.set(targetWidth, targetHeight, 1.0);
 			paper.position.x = (targetWidth * 0.5) - 1.1;
 			paper.position.y = (targetHeight * 0.5);
 			paper.position.z = -0.5;
