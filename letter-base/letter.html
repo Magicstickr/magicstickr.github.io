@@ -297,6 +297,7 @@
 			//Rescale and position image
 			var targetWidth = 1;
 			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+			targetHeight = 1;
 			paper.scale.set(targetWidth, targetHeight, 1.0);
 			paper.position.x = (targetWidth * 0.5) - 1.1;
 			paper.position.y = (targetHeight * 0.5);
