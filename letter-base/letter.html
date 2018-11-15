@@ -14,7 +14,7 @@
 		  <source src="content/sound.mp3" type="audio/mpeg">
 		  Your browser does not support the audio element.
 		</audio>
-		<div>V. 1.0.4d</div>
+		<div>V. 1.0.4</div>
 		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
 			<img src="mute.png" alt="mute" height="30" width="30"> 
 		</div>
@@ -295,13 +295,12 @@
 
 		var imageTextLoader = new THREE.TextureLoader().load('content/baseMessageText.jpg', (imgLoader) => {
 			//Rescale and position image
-			// var targetWidth = 1;
-			// var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-			// targetHeight = 1;
-			// paper.scale.set(targetWidth, targetHeight, 1.0);
-			// paper.position.x = (targetWidth * 0.5) - 1.1;
-			// paper.position.y = (targetHeight * 0.5);
-			// paper.position.z = -0.5;
+			var targetWidth = 1;
+			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+			paper.scale.set(targetWidth, targetHeight, 1.0);
+			paper.position.x = (targetWidth * 0.5) - 1.1;
+			paper.position.y = (targetHeight * 0.5);
+			paper.position.z = -0.5;
 		});
 
 		//Load the image into a custom material
