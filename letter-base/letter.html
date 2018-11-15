@@ -8,6 +8,13 @@
 		<script src="lib/GLTFLoader.js"></script>
 		<script src="lib/WebGL.js"></script>
 		<title>Your letter from the future</title>
+
+		<style>
+			canvas { 
+			   width: 100%;
+			   height: 100%;
+			}
+		</style>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		<audio id="sound">
@@ -187,7 +194,7 @@
 
 			onRenderFcts.push(function(){
 				gltf.scene.rotation.y += - 0.005*Math.PI;
-				console.log(gltf.scene.rotation.y);
+				//console.log(gltf.scene.rotation.y);
 			})
 
 		}, undefined, function ( e ) {
