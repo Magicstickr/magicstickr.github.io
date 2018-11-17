@@ -3,8 +3,8 @@
 	<head>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
-		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.min.js"></script>
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
 		<script src="lib/WebGL.js"></script>
 		<script src="lib/CSS3DRenderer.js"></script>
@@ -12,7 +12,7 @@
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		V 1.0.2
-		<div id="container"></div>
+		<div id="container" style='position : absolute;'></div>
 
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@
 			arToolkitSource.onResize()	
 			arToolkitSource.copySizeTo(renderer.domElement)	
 			if( arToolkitContext.arController !== null ){
-				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)
 			}	
 		}
 		////////////////////////////////////////////////////////////////////////////////
@@ -124,9 +124,9 @@
 		var arToolkitContext = new THREEx.ArToolkitContext({
 			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 			detectionMode: 'mono',
-			maxDetectionRate: 30,
-			canvasWidth: 80*3,
-			canvasHeight: 60*3,
+			maxDetectionRate: 60,
+			canvasWidth: 864,
+			canvasHeight: 480,
 		})
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
@@ -138,6 +138,7 @@
 		onRenderFcts.push(function(){
 			if( arToolkitSource.ready === false )	return
 			arToolkitContext.update( arToolkitSource.domElement )
+			//console.log(arToolkitSource.domElement);
 		})
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +149,8 @@
 		scene.add(markerRoot)
 		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
 			type : 'pattern',
-			patternUrl : 'marker/marker.patt'
+			patternUrl : 'marker/marker.patt',
+			changeMatrixMode : 'modelViewMatrix',
 		})
 
 		// build a smoothedControls
@@ -160,7 +162,10 @@
 			lerpScale: 1,
 		})
 		onRenderFcts.push(function(delta){
+			markerRoot.position = markerRoot.position.multiplyScalar(6000);
+			markerRoot.scale = markerRoot.scale.multiplyScalar(15);
 			smoothedControls.update(markerRoot)
+
 		})
 
 		//////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +189,7 @@
 
 		// render the scene
 		onRenderFcts.push(function(){
-			console.log(camera.position.z);
+			//console.log(camera.position.z);
 			renderer.render( scene, camera );
 
 			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
