@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src="lib/CSS3DRenderer.js"></script>
+		<title>ResoSante Videos</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<div id="container"></div>
+
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		if ( WEBGL.isWebGLAvailable() === false ) {
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		}
+
+		// create CSS3D IFrameElements
+		var IFrameElement = function ( id, x, y, z, ry ) {
+
+			var div = document.createElement( 'div' );
+			div.style.width = '480px';
+			div.style.height = '360px';
+			div.style.backgroundColor = '#000';
+
+			var iframe = document.createElement( 'iframe' );
+			iframe.style.width = '480px';
+			iframe.style.height = '360px';
+			iframe.style.border = '0px';
+			iframe.src = [ 'https://www.youtube.com/embed/', id, '?rel=0' ].join( '' );
+			div.appendChild( iframe );
+
+			var object = new THREE.CSS3DObject( div );
+			object.position.set( x, y, z );
+			object.rotation.y = ry;
+
+			return object;
+		};
+		var Image = function ( id, x, y, z, ry ){
+
+			var div = document.createElement( 'div' );
+			div.style.width = '100px';
+			div.style.height = '100px';
+			//div.style.backgroundColor = '#000';
+
+			var img = document.createElement( 'img' );
+			img.style.width = '1000px';
+			img.style.height = '1000px';
+			img.style.border = '0px';
+			img.src = id;
+			img.alt="logo";
+			div.appendChild( img );
+
+			var object = new THREE.CSS3DObject( div );
+			object.position.set( x, y, z );
+			object.rotation.x = ry;
+
+			return object;
+		}
+
+		// init the html div container
+		var container = document.getElementById( 'container' );
+
+		// init renderer
+		var renderer = new THREE.CSS3DRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		container.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var scene	= new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 0, 2000 );
+		scene.add(camera);
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          handle arToolkitSource
+		////////////////////////////////////////////////////////////////////////////////
+
+		var arToolkitSource = new THREEx.ArToolkitSource({
+			// to read from the webcam 
+			sourceType : 'webcam'	
+		})
+
+		arToolkitSource.init(function onReady(){
+			onResize()
+		})
+		
+		// handle resize
+		window.addEventListener('resize', function(){
+			onResize()
+		})
+		function onResize(){
+			arToolkitSource.onResize()	
+			arToolkitSource.copySizeTo(renderer.domElement)	
+			if( arToolkitContext.arController !== null ){
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+			}	
+		}
+		////////////////////////////////////////////////////////////////////////////////
+		//          initialize arToolkitContext
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		// create atToolkitContext
+		var arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
+		})
+		// initialize it
+		arToolkitContext.init(function onCompleted(){
+			// copy projection matrix to camera
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		})
+
+		// update artoolkit on every frame
+		onRenderFcts.push(function(){
+			if( arToolkitSource.ready === false )	return
+			arToolkitContext.update( arToolkitSource.domElement )
+		})
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//          Create a ArMarkerControls
+		////////////////////////////////////////////////////////////////////////////////
+		
+		var markerRoot = new THREE.Group
+		scene.add(markerRoot)
+		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt'
+		})
+
+		// build a smoothedControls
+		var smoothedRoot = new THREE.Group()
+		scene.add(smoothedRoot)
+		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			lerpPosition: 0.4,
+			lerpQuaternion: 0.3,
+			lerpScale: 1,
+		})
+		onRenderFcts.push(function(delta){
+			smoothedControls.update(markerRoot)
+		})
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var arWorldRoot = smoothedRoot;
+
+		var group = new THREE.Group();
+		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
+		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
+		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
+		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
+		arWorldRoot.add( group );
+
+		var image = new Image( 'content/ResoSante_logo_flower.svg', -500, 0, -500, - Math.PI / 2);
+		arWorldRoot.add( image );
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( scene, camera );
+
+			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
+				
+				document.getElementById("container").style.display = 'block';
+			} else{
+				document.getElementById("container").style.display = 'none';
+			}
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+		</script>
+	</body>
+</html>
