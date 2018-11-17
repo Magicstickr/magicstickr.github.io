@@ -88,7 +88,7 @@
 
 		// Create a camera
 		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
-		//camera.position.set( 0, 0, 2000 );
+		camera.position.z = 2000;
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -136,8 +136,8 @@
 
 		// update artoolkit on every frame
 		onRenderFcts.push(function(){
-			if( arToolkitSource.ready === false )	return
-			arToolkitContext.update( arToolkitSource.domElement )
+			if( arToolkitSource.ready === false )	
+				return arToolkitContext.update( arToolkitSource.domElement )
 		})
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -170,10 +170,10 @@
 		var arWorldRoot = smoothedRoot;
 
 		var group = new THREE.Group();
-		//group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
-		//group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
-		//group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
-		//group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
+		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
+		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
+		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
+		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
 		group.add( new Image( 'content/ResoSante_logo_flower.svg', -500, 0, -500, - Math.PI / 2));
 		//group.scale.multiplyScalar(0.1);
 		arWorldRoot.add( group );
@@ -184,7 +184,7 @@
 
 		// render the scene
 		onRenderFcts.push(function(){
-			camera.position.z = camera.position.z + 2000;
+			//console.log(camera.position.z);
 			renderer.render( scene, camera );
 
 			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
