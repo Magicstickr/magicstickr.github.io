@@ -88,7 +88,7 @@
 
 		// Create a camera
 		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
-		camera.position.z = 2000;
+		//camera.position.z = 2000;
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -125,8 +125,6 @@
 			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 			detectionMode: 'mono',
 			maxDetectionRate: 60,
-			canvasWidth: 864,
-			canvasHeight: 480,
 		})
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
