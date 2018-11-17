@@ -87,7 +87,7 @@
 
 		// Create a camera
 		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
-		camera.position.set( 0, 0, 2000 );
+		//camera.position.set( 0, 0, 2000 );
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -173,10 +173,9 @@
 		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
 		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
 		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
+		group.add( new Image( 'content/ResoSante_logo_flower.svg', -500, 0, -500, - Math.PI / 2));
+		//group.scale.multiplyScalar(0.1);
 		arWorldRoot.add( group );
-
-		var image = new Image( 'content/ResoSante_logo_flower.svg', -500, 0, -500, - Math.PI / 2);
-		arWorldRoot.add( image );
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
