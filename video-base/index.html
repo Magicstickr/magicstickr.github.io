@@ -122,7 +122,6 @@
 
 		// create atToolkitContext
 		var arToolkitContext = new THREEx.ArToolkitContext({
-			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 			detectionMode: 'mono',
 			maxDetectionRate: 30,
 		})
@@ -159,8 +158,8 @@
 			lerpScale: 1,
 		})
 		onRenderFcts.push(function(delta){
-			markerRoot.position = markerRoot.position.multiplyScalar(6000);
-			markerRoot.scale = markerRoot.scale.multiplyScalar(30);
+			//markerRoot.position = markerRoot.position.multiplyScalar(6000);
+			//markerRoot.scale = markerRoot.scale.multiplyScalar(30);
 			smoothedControls.update(markerRoot)
 
 		})
