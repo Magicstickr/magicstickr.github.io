@@ -70,6 +70,28 @@
 			return object;
 		}
 
+		var Floor = function ( id, x, y, z, ry ){
+
+			var div = document.createElement( 'div' );
+			div.style.width = '6000px';
+			div.style.height = '6000px';
+			//div.style.backgroundColor = '#000';
+
+			var img = document.createElement( 'img' );
+			img.style.width = '6000px';
+			img.style.height = '6000px';
+			img.style.border = '0px';
+			img.src = id;
+			img.alt="logo";
+			div.appendChild( img );
+
+			var object = new THREE.CSS3DObject( div );
+			object.position.set( x, y, z );
+			object.rotation.x = ry;
+
+			return object;
+		}
+
 		// init the html div container
 		var container = document.getElementById( 'container' );
 
@@ -90,7 +112,7 @@
 
 		// Create a camera
 		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
-		camera.position.set( 500, 350, 750 );
+		camera.position.set( 500, 800, 1500 );
 
 		arWorldRoot.add(camera);
 
@@ -120,8 +142,11 @@
 		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
 		arWorldRoot.add( group );
 
-		var image = new Image( 'content/ResoSante_logo_flower.svg', 0, 0, 0, - Math.PI / 2);
+		var image = new Image( 'content/ResoSante_logo_flower.svg', -30, 0, 0, - Math.PI / 2);
 		arWorldRoot.add( image );
+
+		var floor = new Floor( 'content/table.jpg', 0, -1, 0, - Math.PI / 2);
+		arWorldRoot.add( floor );
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page

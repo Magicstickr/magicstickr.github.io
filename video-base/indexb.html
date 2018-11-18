@@ -10,6 +10,12 @@
 		<title>Reso Sante - videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<div id="markerx">Marker x:</div><br/>
+		<div id="markery">Marker y:</div><br/>
+		<div id="markerz">Marker z:</div><br/>
+		<br/><br/>
+		<div id="objectPos">Object Pos:</div><br/>
+
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -44,8 +50,9 @@
 		var Image = function ( id, x, y, z, ry ){
 
 			var div = document.createElement( 'div' );
-			div.style.width = '1000px';
-			div.style.height = '1000px';
+			div.id = "floorImage";
+			div.style.width = '100px';
+			div.style.height = '100px';
 			//div.style.backgroundColor = '#000';
 
 			var img = document.createElement( 'img' );
@@ -116,6 +123,7 @@
 			if( arToolkitContext.arController !== null ){
 				arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)	
 			}	
+			//console.log(renderer.domElement);
 		}
 		////////////////////////////////////////////////////////////////////////////////
 		//          initialize arToolkitContext
@@ -130,6 +138,7 @@
 			canvasWidth: 80*3,
 			canvasHeight: 60*3,
 		})
+
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
 			// copy projection matrix to camera
@@ -140,6 +149,7 @@
 		onRenderFcts.push(function(){
 			if( arToolkitSource.ready === false )	return
 			arToolkitContext.update( arToolkitSource.domElement )
+			console.log(arToolkitContext);
 		})
 		
 		////////////////////////////////////////////////////////////////////////////////
@@ -150,8 +160,10 @@
 		scene.add(markerRoot)
 		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
 			type : 'pattern',
-			patternUrl : 'marker/patt.hiro'
+			patternUrl : 'marker/marker.patt'
 		})
+
+		//console.log(arToolkitContext);
 
 		// build a smoothedControls
 		var smoothedRoot = new THREE.Group()
@@ -162,6 +174,17 @@
 			lerpScale: 1,
 		})
 		onRenderFcts.push(function(delta){
+
+			var markerX = markerRoot.position.x;
+			var markerY = markerRoot.position.y;
+			var markerZ = markerRoot.position.z;
+			document.getElementById("markerx").innerHTML = "Marker x: " + markerX;
+			document.getElementById("markery").innerHTML = "Marker y: " + markerY;
+			document.getElementById("markerz").innerHTML = "Marker z: " + markerZ;
+
+			//markerRoot.position.x = markerX*(1280/12);
+			//markerRoot.position.y = markerY*(960/4);
+			//markerRoot.position.z = markerZ*(10000);
 			smoothedControls.update(markerRoot)
 		})
 
@@ -172,17 +195,17 @@
 		var arWorldRoot = smoothedRoot;
 
 		var group = new THREE.Group();
-		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
-		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
-		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
-		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
+		//group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
+		//group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
+		//group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
+		//group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
 		group.add( new Image( 'content/ResoSante_logo_flower.svg', 0, 0, 0, - Math.PI / 2));
 		arWorldRoot.add( group );
 
-		// var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		// var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		// var cube = new THREE.Mesh( geometry, material );
-		// arWorldRoot.add( cube );
+		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		var cube = new THREE.Mesh( geometry, material );
+		arWorldRoot.add( cube );
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
@@ -191,6 +214,10 @@
 		// render the scene
 		onRenderFcts.push(function(){
 			renderer.render( scene, camera );
+
+			var objectPosition = document.getElementById("floorImage").style.transform;
+			document.getElementById("objectPos").innerHTML = "Object pos: " + objectPosition;
+
 		})
 
 		// run the rendering loop
