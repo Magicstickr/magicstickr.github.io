@@ -48,8 +48,8 @@
 		var Image = function ( id, x, y, z, ry ){
 
 			var div = document.createElement( 'div' );
-			div.style.width = '240px';
-			div.style.height = '180px';
+			div.style.width = '1000px';
+			div.style.height = '1000px';
 			//div.style.backgroundColor = '#000';
 
 			var img = document.createElement( 'img' );
@@ -191,13 +191,16 @@
 			renderer.render( scene, camera );
 
 			if(arToolkitContext.arController != null){
-				if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
-					
-					document.getElementById("container").style.display = 'block';
-				} else{
-					document.getElementById("container").style.display = 'none';
+				if(arToolkitContext.arController.patternMarkers[0] != null){
+					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
+						
+						document.getElementById("container").style.display = 'block';
+					} else{
+						document.getElementById("container").style.display = 'none';
+					}
 				}
 			}
+
 		})
 
 		// run the rendering loop
