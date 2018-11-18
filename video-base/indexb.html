@@ -64,8 +64,9 @@
 		}
 
 		// init renderer
-		var renderer	= new THREE.WebGLRenderer({
-			antialias	: true,
+		// var renderer	= new THREE.WebGLRenderer({
+		var renderer	= new THREE.CSS3DRenderer({
+			antialias : true,
 			autoResize : true,
 			alpha: true
 		});
@@ -149,7 +150,7 @@
 		scene.add(markerRoot)
 		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
 			type : 'pattern',
-			patternUrl : 'marker/marker.patt'
+			patternUrl : 'marker/patt.hiro'
 		})
 
 		// build a smoothedControls
@@ -178,10 +179,10 @@
 		group.add( new Image( 'content/ResoSante_logo_flower.svg', 0, 0, 0, - Math.PI / 2));
 		arWorldRoot.add( group );
 
-		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		var cube = new THREE.Mesh( geometry, material );
-		arWorldRoot.add( cube );
+		// var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+		// var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		// var cube = new THREE.Mesh( geometry, material );
+		// arWorldRoot.add( cube );
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
