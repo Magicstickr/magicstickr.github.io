@@ -11,7 +11,7 @@
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.0.7b
+		V 1.0.7c
 		<div id="container" style='position : absolute;'></div>
 
 		<script>
@@ -48,13 +48,13 @@
 		var Image = function ( id, x, y, z, ry ){
 
 			var div = document.createElement( 'div' );
-			div.style.width = '1000px';
-			div.style.height = '1000px';
+			//div.style.width = '1000px';
+			//div.style.height = '1000px';
 			//div.style.backgroundColor = '#000';
 
 			var img = document.createElement( 'img' );
-			img.style.width = '1000px';
-			img.style.height = '1000px';
+			//img.style.width = '1000px';
+			//img.style.height = '1000px';
 			img.style.border = '0px';
 			img.src = id;
 			img.alt="logo";
@@ -174,10 +174,10 @@
 		var arWorldRoot = smoothedRoot;
 
 		var group = new THREE.Group();
-		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
-		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
-		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
-		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
+		//group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
+		//group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
+		//group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
+		//group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
 		group.add( new Image( 'content/ResoSante_logo_flower.svg', 0, 0, 0, - Math.PI / 2));
 		arWorldRoot.add( group );
 
