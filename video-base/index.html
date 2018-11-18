@@ -11,7 +11,7 @@
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.0.7c
+		V 1.0.7d
 		<div id="container" style='position : absolute;'></div>
 
 		<script>
@@ -53,8 +53,8 @@
 			//div.style.backgroundColor = '#000';
 
 			var img = document.createElement( 'img' );
-			//img.style.width = '1000px';
-			//img.style.height = '1000px';
+			img.style.width = 'auto';
+			img.style.height = 'auto';
 			img.style.border = '0px';
 			img.src = id;
 			img.alt="logo";
@@ -111,10 +111,10 @@
 			onResize()
 		})
 		function onResize(){
-			arToolkitSource.onResize()	
-			arToolkitSource.copySizeTo(renderer.domElement)	
+			arToolkitSource.onResizeElement()	
+			arToolkitSource.copyElementSizeTo(renderer.domElement)	
 			if( arToolkitContext.arController !== null ){
-				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)
+				arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
 			}	
 		}
 		////////////////////////////////////////////////////////////////////////////////
