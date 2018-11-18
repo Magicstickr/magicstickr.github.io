@@ -11,7 +11,7 @@
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.0.7f
+		V 1.0.7g
 		<div id="container" style='position : absolute;'></div>
 
 		<script>
@@ -191,11 +191,13 @@
 			renderer.render( scene, camera );
 
 			if(!arToolkitContext.arController){
-				if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
-					
-					document.getElementById("container").style.display = 'block';
-				} else{
-					document.getElementById("container").style.display = 'none';
+				if(!arToolkitContext.arController.patternMarkers){
+					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
+						
+						document.getElementById("container").style.display = 'block';
+					} else{
+						document.getElementById("container").style.display = 'none';
+					}
 				}
 			}
 		})
