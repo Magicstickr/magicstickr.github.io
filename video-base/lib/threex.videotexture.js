@@ -7,11 +7,13 @@ THREEx.VideoTexture	= function(url){
 	video.height	= 240;
 	video.autoplay	= true;
 	video.loop	= true;
-	video.WebKitPlaysInline = true;
-	video.playsinline = true;
+	video.setAttribute("WebKitPlaysInline", "true");
+	video.setAttribute("playslinline", "true");
 	video.src	= url;
 	// expose video as this.video
 	this.video	= video
+
+	console.log(video);
 
 	// create the texture
 	var texture	= new THREE.Texture( video );
