@@ -5,14 +5,14 @@
 		<!-- three.js library -->
 		<script src='lib/three.js'></script>
 		<script src="lib/ar.js"></script>
-		<script src="lib/GLTFLoader.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<script src="lib/CSS3DRenderer.js"></script>
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.0.10
-		<div id="container" style='position : absolute;'></div>
+		V 1.1.0
+		<video id="video" crossOrigin="anonymous" webkit-playsinline style="display:none">
+			<source src="content/test.webm" type="video/webm"'>
+		</video>
 
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
@@ -24,85 +24,32 @@
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
 
-		// create CSS3D IFrameElements
-		var IFrameElement = function ( id, x, y, z, ry ) {
-
-			var div = document.createElement( 'div' );
-			div.style.width = '480px';
-			div.style.height = '360px';
-			div.style.backgroundColor = '#000';
-
-			var iframe = document.createElement( 'iframe' );
-			iframe.style.width = '480px';
-			iframe.style.height = '360px';
-			iframe.style.border = '0px';
-			iframe.src = [ 'https://www.youtube.com/embed/', id, '?rel=0' ].join( '' );
-			div.appendChild( iframe );
-
-			var object = new THREE.CSS3DObject( div );
-			object.position.set( x, y, z );
-			object.rotation.y = ry;
-
-			return object;
-		};
-		var Image = function ( id, x, y, z, ry ){
-
-			var div = document.createElement( 'div' );
-			div.style.width = '1000px';
-			div.style.height = '1000px';
-			//div.style.backgroundColor = '#000';
-
-			var img = document.createElement( 'img' );
-			img.style.width = 'auto';
-			img.style.height = 'auto';
-			img.style.border = '0px';
-			img.src = id;
-			img.alt="logo";
-			div.appendChild( img );
-
-			var object = new THREE.CSS3DObject( div );
-			object.position.set( x, y, z );
-			object.rotation.x = ry;
-
-			return object;
-		}
-
-		// init the html div container
-		var container = document.getElementById( 'container' );
-
 		// init renderer
-		var renderer = new THREE.CSS3DRenderer();
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.domElement.style.position = 'absolute'
 		renderer.domElement.style.top = '0px'
 		renderer.domElement.style.left = '0px'
-		container.appendChild( renderer.domElement );
-
-		var renderer2 = new THREE.WebGLRenderer();
-		renderer2.setSize( window.innerWidth, window.innerHeight );
-		renderer2.domElement.style.position = 'absolute'
-		renderer2.domElement.style.top = '0px'
-		renderer2.domElement.style.left = '0px'
-		renderer2.setClearColor(new THREE.Color('lightgrey'), 0)
-		//container.appendChild( renderer2.domElement );
-		var scene2	= new THREE.Scene();
-		var camera2 = new THREE.Camera();
-		scene2.add(camera2);
+		//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		document.body.appendChild( renderer.domElement );
 
 		// array of functions for the rendering loop
 		var onRenderFcts= [];
 
 		// init scene and camera
 
-		var scene	= new THREE.Scene();
+		var scene = new THREE.Scene();
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Initialize a basic camera
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// Create a camera
-		var camera = new THREE.Camera();
-		camera.position.z = amera.position.z + 8000;
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
 		scene.add(camera);
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -145,13 +92,12 @@
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
 			// copy projection matrix to camera
-			camera2.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 		})
 
 		// update artoolkit on every frame
 		onRenderFcts.push(function(){
 			if( arToolkitSource.ready === false )	return
-
 			arToolkitContext.update( arToolkitSource.domElement )
 		})
 		
@@ -169,7 +115,6 @@
 		// build a smoothedControls
 		var smoothedRoot = new THREE.Group()
 		scene.add(smoothedRoot)
-		//scene2.add(smoothedRoot)
 		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
 			lerpPosition: 0.4,
 			lerpQuaternion: 0.3,
@@ -177,7 +122,6 @@
 		})
 		onRenderFcts.push(function(delta){
 			smoothedControls.update(markerRoot);
-
 		})
 
 		//////////////////////////////////////////////////////////////////////////////////
@@ -186,18 +130,22 @@
 
 		var arWorldRoot = smoothedRoot;
 
-		var group = new THREE.Group();
-		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
-		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
-		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
-		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
-		group.add( new Image( 'content/ResoSante_logo_flower.svg', 0, 0, 0, - Math.PI / 2));
-		arWorldRoot.add( group );
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
 
-		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		var cube = new THREE.Mesh( geometry, material );
-		arWorldRoot.add( cube );
+		var xsize = 1;
+		var ysize = xsize * 0.5625;
+
+		var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+		var texture = new THREE.VideoTexture( video );
+		var parameters = { color: 0xffffff, map: texture };
+		var material = new THREE.MeshBasicMaterial( parameters );
+
+		var videoPlane = new THREE.Mesh( geometry, material );
+		videoPlane.scale.multiplyScalar(3);
+		videoPlane.rotation.x = - Math.PI / 2
+		arWorldRoot.add( videoPlane );
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
@@ -205,21 +153,14 @@
 
 		// render the scene
 		onRenderFcts.push(function(){
-			//console.log(camera.position.z);
-			//renderer.render( scene, camera );
-			renderer.render( scene, camera2 );
-
+			renderer.render( scene, camera );
 			if(arToolkitContext.arController != null){
 				if(arToolkitContext.arController.patternMarkers[0] != null){
-					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true ){
-						
-						document.getElementById("container").style.display = 'block';
-					} else{
-						document.getElementById("container").style.display = 'none';
+					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
+						document.getElementById("video").pause();
 					}
 				}
 			}
-
 		})
 
 		// run the rendering loop
@@ -236,6 +177,41 @@
 				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
 		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var videoPlaneArray = [videoPlane];
+
+			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+
+			if ( videoIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
+				if(document.getElementById("video").paused == true){
+					document.getElementById("video").play();
+				}else{
+					document.getElementById("video").pause();
+				}
+			}
+		}
 		</script>
 	</body>
 </html>
