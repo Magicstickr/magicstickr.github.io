@@ -1,21 +1,17 @@
-<!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/SZ2rjudcD4s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
- -->
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
-		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.min.js"></script>
-		<script src="lib/GLTFLoader.js"></script>
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
+		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/OrbitControls.js"></script>
-		<script src="lib/CSS3DRenderer.js"></script>
-		<title>Your letter from the future</title>
+		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		<div id="container"></div>
-
+		V 1.1.4
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -26,100 +22,44 @@
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
 
-		// create CSS3D IFrameElements
-		var IFrameElement = function ( id, x, y, z, ry ) {
-
-			var div = document.createElement( 'div' );
-			div.style.width = '480px';
-			div.style.height = '360px';
-			div.style.backgroundColor = '#000';
-
-			var iframe = document.createElement( 'iframe' );
-			iframe.style.width = '480px';
-			iframe.style.height = '360px';
-			iframe.style.border = '0px';
-			iframe.src = [ 'https://www.youtube.com/embed/', id, '?rel=0' ].join( '' );
-			div.appendChild( iframe );
-
-			var object = new THREE.CSS3DObject( div );
-			object.position.set( x, y, z );
-			object.rotation.y = ry;
-
-			return object;
-		};
-
-		var Image = function ( id, x, y, z, ry ){
-
-			var div = document.createElement( 'div' );
-			div.style.width = '1000px';
-			div.style.height = '1000px';
-			//div.style.backgroundColor = '#000';
-
-			var img = document.createElement( 'img' );
-			img.style.width = '1000px';
-			img.style.height = '1000px';
-			img.style.border = '0px';
-			img.src = id;
-			img.alt="logo";
-			div.appendChild( img );
-
-			var object = new THREE.CSS3DObject( div );
-			object.position.set( x, y, z );
-			object.rotation.x = ry;
-
-			return object;
-		}
-
-		var Floor = function ( id, x, y, z, ry ){
-
-			var div = document.createElement( 'div' );
-			div.style.width = '6000px';
-			div.style.height = '6000px';
-			//div.style.backgroundColor = '#000';
-
-			var img = document.createElement( 'img' );
-			img.style.width = '6000px';
-			img.style.height = '6000px';
-			img.style.border = '0px';
-			img.src = id;
-			img.alt="logo";
-			div.appendChild( img );
-
-			var object = new THREE.CSS3DObject( div );
-			object.position.set( x, y, z );
-			object.rotation.x = ry;
-
-			return object;
-		}
-
-		// init the html div container
-		var container = document.getElementById( 'container' );
-
 		// init renderer
-		var renderer = new THREE.CSS3DRenderer();
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			autoResize : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 		renderer.setSize( window.innerWidth, window.innerHeight );
-		container.appendChild( renderer.domElement );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
 
 		// array of functions for the rendering loop
 		var onRenderFcts= [];
 
-		// init scene and camera
-		var arWorldRoot	= new THREE.Scene();
+		// init arWorldRoot and camera
+
+		var arWorldRoot = new THREE.Scene();
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Initialize a basic camera
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// Create a camera
-		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
-		camera.position.set( 500, 800, 1500 );
-
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 2, 10 );
 		arWorldRoot.add(camera);
 
+		var light = new THREE.HemisphereLight( 0xffffff, 0x000000 );
+		light.position.set( 1, 1, 0 );
+		arWorldRoot.add( light );
+
 		// controls
+
 		controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-		//controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+		//controls.addEventListener( 'change', render ); // call this only in static arWorldRoots (i.e., if there is no animation loop)
 
 		controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
 		controls.dampingFactor = 0.25;
@@ -127,32 +67,70 @@
 		controls.screenSpacePanning = false;
 
 		controls.minDistance = 0;
-		controls.maxDistance = 50000;
+		controls.maxDistance = 500;
 
 		controls.maxPolarAngle = Math.PI / 2;
 
 		//////////////////////////////////////////////////////////////////////////////////
-		//		Add the objects in the scene
+		//		Add the objects in the arWorldRoot
 		//////////////////////////////////////////////////////////////////////////////////
 
-		var group = new THREE.Group();
-		group.add( new IFrameElement( 'SZ2rjudcD4s', 0, 280, 240, 0 ) );
-		group.add( new IFrameElement( 'obXCyi2BLpo', 240, 280, 0, Math.PI / 2 ) );
-		group.add( new IFrameElement( 'Eed2TwPUx5s', 0, 280, - 240, Math.PI ) );
-		group.add( new IFrameElement( '6zyD7jsjc5M', - 240, 280, 0, - Math.PI / 2 ) );
-		arWorldRoot.add( group );
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
 
-		var image = new Image( 'content/ResoSante_logo_flower.svg', -30, 0, 0, - Math.PI / 2);
-		arWorldRoot.add( image );
+		/////////////////////////////
+		// VIDEO OBJECT
+		/////////////////////////////
 
-		var floor = new Floor( 'content/table.jpg', 0, -1, 0, - Math.PI / 2);
-		arWorldRoot.add( floor );
+		// create the videoTexture
+		// var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
+		// if( canPlayMp4 ){
+		// 	var url	= 'content/test.mp4'
+		// }else	alert('cant play mp4')
+
+		var url = "https://www.youtube.com/embed/SZ2rjudcD4s?playsinline=1&HTML5=1";
+		var videoTexture= new THREEx.YoutubeVideoTexture(url);
+		var video	= videoTexture.video;
+
+		onRenderFcts.push(function(delta, now){
+			videoTexture.update(delta, now)
+		})
+
+		var xsize = 1;
+		var ysize = xsize * 0.5625;
+
+		var geometry = new THREE.PlaneGeometry(xsize, ysize);
+		console.log(videoTexture);
+		// var texture = new THREE.VideoTexture( video );
+		 var parameters = { color: 0xffffff, map: videoTexture.texture };
+		 var material = new THREE.MeshBasicMaterial( parameters );
+
+		var videoPlane = new THREE.Mesh( geometry, material );
+		videoPlane.scale.multiplyScalar(3);
+		videoPlane.rotation.x = - Math.PI / 2
+		arWorldRoot.add( videoPlane );
+
+		/////////////////////////////
+		// Floor OBJECT
+		/////////////////////////////
+		var geometry = new THREE.PlaneGeometry(20, 10);
+		var imageTextLoader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: imageTextLoader
+		});
+		
+		var floor = new THREE.Mesh(geometry, material);
+		floor.rotation.x = - Math.PI / 2;
+		floor.position.y = -0.01;
+		arWorldRoot.add(floor);
+
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
 		//////////////////////////////////////////////////////////////////////////////////
 
-		// render the scene
+		// render the arWorldRoot
 		onRenderFcts.push(function(){
 			renderer.render( arWorldRoot, camera );
 		})
@@ -172,6 +150,41 @@
 				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
 		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var videoPlaneArray = [videoPlane];
+
+			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+
+			if ( videoIntersects.length > 0) {
+				if(video.paused == true){
+					video.play();
+				}else{
+					video.pause();
+				}
+			}
+		}
 		</script>
 	</body>
 </html>
