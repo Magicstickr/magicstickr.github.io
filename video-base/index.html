@@ -6,14 +6,11 @@
 		<script src='lib/three.js'></script>
 		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
+		<script src='lib/threex.videotexture.js'></script>
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		V 1.1.0
-		<video id="video" crossOrigin="anonymous" webkit-playsinline style="display:none">
-			<source src="content/test.webm" type="video/webm"'>
-		</video>
-
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -133,13 +130,26 @@
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
 
+		// create the videoTexture
+		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
+		if( canPlayMp4 ){
+			var url	= 'content/test.mp4'
+		}else	alert('cant play mp4')
+		
+		var videoTexture= new THREEx.VideoTexture(url);
+		var video	= videoTexture.video;
+
+		onRenderFcts.push(function(delta, now){
+			videoTexture.update(delta, now)
+		})
+
 		var xsize = 1;
 		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
 		var texture = new THREE.VideoTexture( video );
-		var parameters = { color: 0xffffff, map: texture };
+		var parameters = { color: 0xffffff, map: videoTexture.texture };
 		var material = new THREE.MeshBasicMaterial( parameters );
 
 		var videoPlane = new THREE.Mesh( geometry, material );
@@ -157,7 +167,7 @@
 			if(arToolkitContext.arController != null){
 				if(arToolkitContext.arController.patternMarkers[0] != null){
 					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-						document.getElementById("video").pause();
+						video.pause();
 					}
 				}
 			}
@@ -205,10 +215,10 @@
 			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
 
 			if ( videoIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
-				if(document.getElementById("video").paused == true){
-					document.getElementById("video").play();
+				if(video.paused == true){
+					video.play();
 				}else{
-					document.getElementById("video").pause();
+					video.pause();
 				}
 			}
 		}
