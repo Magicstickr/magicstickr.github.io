@@ -7,6 +7,7 @@ THREEx.VideoTexture	= function(url, thumbnail){
 	video.height = 1080;
 	video.setAttribute("playsinline", true);
 	video.setAttribute("poster", thumbnail);
+	video.autoplay	= true;
 	video.src	= url;
 	// expose video as this.video
 	this.video	= video
