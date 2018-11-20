@@ -85,12 +85,10 @@
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
-			var url	= './content/RS_VidInst.m4v'
+			var url	= 'content/video.mp4'
 		}else	alert('cant play mp4')
 
-		var thumbnail = './content/thumbnail.png';
-
-		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
+		var videoTexture= new THREEx.VideoTexture(url);
 		var video	= videoTexture.video;
 
 		onRenderFcts.push(function(delta, now){
@@ -102,7 +100,7 @@
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
-		var texture = new THREE.VideoTexture( video );
+		//var texture = new THREE.VideoTexture( video );
 		var parameters = { color: 0xffffff, map: videoTexture.texture };
 		var material = new THREE.MeshBasicMaterial( parameters );
 
