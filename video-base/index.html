@@ -86,9 +86,6 @@
 		var arToolkitContext = new THREEx.ArToolkitContext({
 			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 			detectionMode: 'mono',
-			maxDetectionRate: 30,
-			canvasWidth: 80*3,
-			canvasHeight: 60*3,
 		})
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
@@ -280,8 +277,10 @@
 			if ( videoIntersects.length > 0) {
 				if(video.paused == true){
 					video.play();
+					isVideoPlay = true;
 				}else{
 					video.pause();
+					isVideoPlay = false;
 				}
 			}else if(websiteIntersects.length > 0){
 				window.location.href = 'https://resosante.ca';
