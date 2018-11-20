@@ -51,8 +51,7 @@
 		camera.position.set( 0, 2, 10 );
 		arWorldRoot.add(camera);
 
-		var light = new THREE.HemisphereLight( 0xffffff, 0x000000 );
-		light.position.set( 1, 1, 0 );
+		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
 		arWorldRoot.add( light );
 
 		// controls
@@ -95,7 +94,7 @@
 			videoTexture.update(delta, now)
 		})
 
-		var xsize = 1;
+		var xsize = 3;
 		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
@@ -105,18 +104,70 @@
 		var material = new THREE.MeshBasicMaterial( parameters );
 
 		var videoPlane = new THREE.Mesh( geometry, material );
-		videoPlane.scale.multiplyScalar(3);
 		videoPlane.rotation.x = - Math.PI / 2
 		arWorldRoot.add( videoPlane );
+
+
+		// website button
+		var geometry = new THREE.PlaneGeometry(2, 0.3);
+		var loader = new THREE.TextureLoader().load('content/website.png', (imgLoader) => {
+		});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader,
+		  transparent: true,
+		});
+		
+		var website = new THREE.Mesh(geometry, material);
+		website.rotation.x = - Math.PI / 2;
+		website.position.z = -1.2;
+		arWorldRoot.add(website);
+
+		//link buttons
+		var geometry = new THREE.PlaneGeometry(0.3, 0.3);
+		var fbLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
+		var twLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
+		var inLoader = new THREE.TextureLoader().load('content/icon/in_icon.png', (imgLoader) => {});
+		var ytbLoader = new THREE.TextureLoader().load('content/icon/ytb_icon.png', (imgLoader) => {});
+		var gpLoader = new THREE.TextureLoader().load('content/icon/gp_icon.png', (imgLoader) => {});
+		//Load the image into a custom material
+		var fbMaterial = new THREE.MeshLambertMaterial({ map: fbLoader, transparent: true });
+		var twMaterial = new THREE.MeshLambertMaterial({ map: twLoader, transparent: true });
+		var inMaterial = new THREE.MeshLambertMaterial({ map: inLoader, transparent: true });
+		var ytbMaterial = new THREE.MeshLambertMaterial({ map: ytbLoader, transparent: true });
+		var gpMaterial = new THREE.MeshLambertMaterial({ map: gpLoader, transparent: true });
+		
+		var groupButton = new THREE.Group();
+
+		var fb = new THREE.Mesh(geometry, fbMaterial);
+		fb.position.x = -0.7;
+		groupButton.add(fb);
+		var tw = new THREE.Mesh(geometry, twMaterial);
+		tw.position.x = -0.35;
+		groupButton.add(tw);
+		var lkd = new THREE.Mesh(geometry, inMaterial);
+		lkd.position.x = 0;
+		groupButton.add(lkd);
+		var ytb = new THREE.Mesh(geometry, ytbMaterial);
+		ytb.position.x = 0.35;
+		groupButton.add(ytb);
+		var gp = new THREE.Mesh(geometry, gpMaterial);
+		gp.position.x = 0.7;
+		groupButton.add(gp);
+
+		groupButton.rotation.x = - Math.PI / 2;
+		groupButton.position.z = 1.2;
+		arWorldRoot.add(groupButton);
+
 
 		/////////////////////////////
 		// Floor OBJECT
 		/////////////////////////////
 		var geometry = new THREE.PlaneGeometry(20, 10);
-		var imageTextLoader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+		var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
 		//Load the image into a custom material
 		var material = new THREE.MeshLambertMaterial({
-		  map: imageTextLoader
+		  map: loader
 		});
 		
 		var floor = new THREE.Mesh(geometry, material);
@@ -173,8 +224,10 @@
 			raycaster.setFromCamera( mouse, camera );
 
 			var videoPlaneArray = [videoPlane];
+			var websiteArray = [website];
 
 			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+			var websiteIntersects = raycaster.intersectObjects( websiteArray );
 
 			if ( videoIntersects.length > 0) {
 				if(video.paused == true){
@@ -182,6 +235,8 @@
 				}else{
 					video.pause();
 				}
+			}else if(websiteIntersects.length > 0){
+				window.location.href = 'https://resosante.ca';
 			}
 		}
 		</script>
