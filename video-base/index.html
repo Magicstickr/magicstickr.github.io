@@ -134,10 +134,10 @@
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
-			var url	= './content/RS_VidInst.m4v';
+			var url	= 'content/RS_VidInst.m4v';
 		}else	alert('cant play mp4')
 
-		var thumbnail = './content/thumbnail.png';
+		var thumbnail = 'content/thumbnail.png';
 
 		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
 		var video	= videoTexture.video;

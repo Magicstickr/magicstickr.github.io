@@ -6,7 +6,7 @@ THREEx.VideoTexture	= function(url, thumbnail){
 	video.width	= 320;
 	video.height	= 240;
 	video.setAttribute("playsinline", true);
-	//video.setAttribute("poster", thumbnail);
+	video.setAttribute("poster", thumbnail);
 	video.setAttribute("controls", true);
 	video.src	= url;
 	// expose video as this.video
