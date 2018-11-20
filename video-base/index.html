@@ -10,7 +10,7 @@
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.3
+		V 1.1.4
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -87,6 +87,9 @@
 		var arToolkitContext = new THREEx.ArToolkitContext({
 			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
 		})
 		// initialize it
 		arToolkitContext.init(function onCompleted(){
