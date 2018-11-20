@@ -107,8 +107,10 @@
 		var markerRoot = new THREE.Group
 		scene.add(markerRoot)
 		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-			type: 'barcode',
-			barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
+			//type: 'barcode',
+			//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt'
 		})
 
 		// build a smoothedControls
