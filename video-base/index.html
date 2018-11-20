@@ -129,14 +129,17 @@
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
+		var isVideoPlay = false;
 
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
-			var url	= 'content/RS_VidInst.m4v'
+			var url	= './content/RS_VidInst.m4v';
 		}else	alert('cant play mp4')
 
-		var videoTexture= new THREEx.VideoTexture(url);
+		var thumbnail = './content/thumbnail.png';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
 		var video	= videoTexture.video;
 
 		onRenderFcts.push(function(delta, now){
@@ -168,6 +171,9 @@
 				if(arToolkitContext.arController.patternMarkers[0] != null){
 					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
 						video.pause();
+					}
+					else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
+						video.play();
 					}
 				}
 			}
@@ -217,8 +223,10 @@
 			if ( videoIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
 				if(video.paused == true){
 					video.play();
+					isVideoPlay = true;
 				}else{
 					video.pause();
+					isVideoPlay = false;
 				}
 			}
 		}

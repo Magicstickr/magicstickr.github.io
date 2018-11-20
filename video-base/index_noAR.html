@@ -83,13 +83,14 @@
 		/////////////////////////////
 
 		// create the videoTexture
-		// var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
-		// if( canPlayMp4 ){
-		// 	var url	= 'content/test.mp4'
-		// }else	alert('cant play mp4')
+		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
+		if( canPlayMp4 ){
+			var url	= './content/RS_VidInst.m4v'
+		}else	alert('cant play mp4')
 
-		var url = "https://www.youtube.com/embed/SZ2rjudcD4s?playsinline=1&HTML5=1";
-		var videoTexture= new THREEx.YoutubeVideoTexture(url);
+		var thumbnail = './content/thumbnail.png';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
 		var video	= videoTexture.video;
 
 		onRenderFcts.push(function(delta, now){
@@ -100,10 +101,10 @@
 		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
-		console.log(videoTexture);
-		// var texture = new THREE.VideoTexture( video );
-		 var parameters = { color: 0xffffff, map: videoTexture.texture };
-		 var material = new THREE.MeshBasicMaterial( parameters );
+
+		var texture = new THREE.VideoTexture( video );
+		var parameters = { color: 0xffffff, map: videoTexture.texture };
+		var material = new THREE.MeshBasicMaterial( parameters );
 
 		var videoPlane = new THREE.Mesh( geometry, material );
 		videoPlane.scale.multiplyScalar(3);
