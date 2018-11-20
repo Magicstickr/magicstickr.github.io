@@ -132,6 +132,8 @@
 		var mouse = new THREE.Vector2();
 		var isVideoPlay = false;
 
+		var all = new THREE.Group();
+
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
@@ -159,7 +161,7 @@
 		var videoPlane = new THREE.Mesh( geometry, material );
 		videoPlane.scale.multiplyScalar(3);
 		videoPlane.rotation.x = - Math.PI / 2
-		arWorldRoot.add( videoPlane );
+		all.add( videoPlane );
 
 		// website button
 		var geometry = new THREE.PlaneGeometry(2, 0.3);
@@ -174,7 +176,7 @@
 		var website = new THREE.Mesh(geometry, material);
 		website.rotation.x = - Math.PI / 2;
 		website.position.z = -1.2;
-		arWorldRoot.add(website);
+		all.add(website);
 
 		//link buttons
 		var geometry = new THREE.PlaneGeometry(0.3, 0.3);
@@ -210,7 +212,10 @@
 
 		groupButton.rotation.x = - Math.PI / 2;
 		groupButton.position.z = 1.2;
-		arWorldRoot.add(groupButton);
+		all.add(groupButton);
+
+		all.scale.multiplyScalar(4);
+		arWorldRoot.add(all);
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		render the whole thing on the page
