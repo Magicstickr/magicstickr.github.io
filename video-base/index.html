@@ -164,6 +164,15 @@
 		videoPlane.rotation.x = - Math.PI / 2
 		all.add( videoPlane );
 
+		//image in case of no video
+		var tbLoader = new THREE.TextureLoader().load('content/thumbnail.png', (imgLoader) => {});
+		var tbMaterial = new THREE.MeshLambertMaterial({ map: tbLoader });
+		var tbImage = new THREE.Mesh( geometry, tbMaterial );
+		tbImage.scale.multiplyScalar(3);
+		tbImage.rotation.x = - Math.PI / 2;
+		tbImage.position.y = -0.05;
+		all.add( tbImage );
+
 		// website button
 		var geometry = new THREE.PlaneGeometry(2, 0.3);
 		var loader = new THREE.TextureLoader().load('content/website.png', (imgLoader) => {
