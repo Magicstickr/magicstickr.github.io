@@ -35,12 +35,13 @@ THREEx.VideoTexture	= function(url){
 
 //<iframe width="560" height="315" src="https://www.youtube.com/embed/SZ2rjudcD4s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-THREEx.YoutubeVideoTexture	= function(url){
+THREEx.YoutubeVideoTexture	= function(url, thumbnail){
 	// create the video element
 	var video	= document.createElement('iframe');
 	video.width	= 560;
 	video.height	= 315;
 	video.setAttribute("playsinline", true);
+	video.setAttribute("poster", thumbnail);
 	video.src	= url;
 	video.frameborder = 0;
 	video.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";

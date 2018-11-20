@@ -141,7 +141,9 @@
 			var url	= 'content/video.mp4';
 		}else	alert('cant play mp4')
 
-		var videoTexture= new THREEx.VideoTexture(url);
+		var thumbnail = 'content/thumbnail.png';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
 		var video	= videoTexture.video;
 
 		onRenderFcts.push(function(delta, now){
