@@ -8,6 +8,7 @@
 		<script src="lib/WebGL.js"></script>
 		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/OrbitControls.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/josephg/noisejs/master/perlin.js"></script>
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -76,25 +77,26 @@
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
+		var isVideoPlay = false;
 
-		/////////////////////////////
-		// VIDEO OBJECT
-		/////////////////////////////
+		var all = new THREE.Group();
 
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
-			var url	= 'content/video.mp4'
+			var url	= 'content/video.mp4';
 		}else	alert('cant play mp4')
 
-		var videoTexture= new THREEx.VideoTexture(url);
+		var thumbnail = 'content/thumbnail.png';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
 		var video	= videoTexture.video;
 
 		onRenderFcts.push(function(delta, now){
 			videoTexture.update(delta, now)
 		})
 
-		var xsize = 3;
+		var xsize = 1;
 		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
@@ -104,9 +106,31 @@
 		var material = new THREE.MeshBasicMaterial( parameters );
 
 		var videoPlane = new THREE.Mesh( geometry, material );
+		videoPlane.scale.multiplyScalar(3);
 		videoPlane.rotation.x = - Math.PI / 2
-		arWorldRoot.add( videoPlane );
+		all.add( videoPlane );
 
+		var fftSize = 128;
+		var listener = new THREE.AudioListener();
+		var audio = new THREE.Audio( listener );
+		var mediaElement = new Audio( url );
+		audio.source =  mediaElement;
+		var analyser = new THREE.AudioAnalyser( audio, fftSize );
+		console.log(audio);
+
+		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		var cube = new THREE.Mesh( geometry, material );
+		all.add( cube );
+
+		onRenderFcts.push(function(delta, now){
+	        analyser.getFrequencyData();
+	        var sum = analyser.data.reduce(function(a,b){return a+b;});
+	        var avg = sum/analyser.data.length;
+
+	        cube.position.y = sum;
+	        //console.log(analyser);
+    	});
 
 		// website button
 		var geometry = new THREE.PlaneGeometry(2, 0.3);
@@ -121,7 +145,7 @@
 		var website = new THREE.Mesh(geometry, material);
 		website.rotation.x = - Math.PI / 2;
 		website.position.z = -1.2;
-		arWorldRoot.add(website);
+		all.add(website);
 
 		//link buttons
 		var geometry = new THREE.PlaneGeometry(0.3, 0.3);
@@ -157,7 +181,10 @@
 
 		groupButton.rotation.x = - Math.PI / 2;
 		groupButton.position.z = 1.2;
-		arWorldRoot.add(groupButton);
+		all.add(groupButton);
+
+		all.scale.multiplyScalar(1.5);
+		arWorldRoot.add(all);
 
 
 		/////////////////////////////

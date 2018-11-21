@@ -16,6 +16,7 @@ THREEx.VideoTexture	= function(url, thumbnail){
 
 	// create the texture
 	var texture	= new THREE.Texture( video );
+	
 	// expose texture as this.texture
 	this.texture	= texture
 
