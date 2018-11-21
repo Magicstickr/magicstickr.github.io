@@ -169,7 +169,7 @@
 
 		var all = new THREE.Group();
 		
-		var xsize = 1;
+		var xsize = 3;
 		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
@@ -177,14 +177,16 @@
 		var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, "#FFFFFF");
 
 		var videoPlane = new THREE.Mesh( geometry, movieMaterial );
-		videoPlane.scale.multiplyScalar(3);
+		videoPlane.scale.multiplyScalar(1);
+		videoPlane.position.y = ysize/2;
+
 		all.add( videoPlane );	
 
 		onRenderFcts.push(function(delta, now){
 			movieMaterial.update();
 		})
 
-		all.scale.multiplyScalar(1.5);
+		all.scale.multiplyScalar(1);
 		arWorldRoot.add(all);
 
 		//////////////////////////////////////////////////////////////////////////////////
