@@ -49,6 +49,8 @@ ChromaKeyMaterial = function (url, width, height, keyColor) {
 
 		transparent: true
 	});
+
+	
 }
 
 ChromaKeyMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
