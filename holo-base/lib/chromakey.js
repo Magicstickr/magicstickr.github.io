@@ -4,13 +4,14 @@ ChromaKeyMaterial = function (url, width, height, keyColor) {
 	video = document.createElement('video');
 	video.loop = true;
 	video.src = url;
+	video.setAttribute("playsinline", ""); 
 	video.load();
-	video.play();
 
 	var videoImage = document.createElement('canvas');
 	if (window["webkitURL"]) document.body.appendChild(videoImage);
 	videoImage.width = width;
 	videoImage.height = height;
+	videoImage.style.display="none";
 	
 	var keyColorObject = new THREE.Color(keyColor);
 
@@ -50,7 +51,7 @@ ChromaKeyMaterial = function (url, width, height, keyColor) {
 		transparent: true
 	});
 
-	
+
 }
 
 ChromaKeyMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
