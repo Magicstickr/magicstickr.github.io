@@ -8,6 +8,7 @@
 		<script src="lib/WebGL.js"></script>
 		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/chromakey.js"></script>
+
 		<title>Holo Mini Yann</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -173,6 +174,8 @@
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
 		var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, 0xd432);
+		// green: 0xd432
+		// white: 0xffff
 
 		var videoPlane = new THREE.Mesh( geometry, movieMaterial );
 		videoPlane.scale.multiplyScalar(1);
@@ -183,6 +186,20 @@
 		onRenderFcts.push(function(delta, now){
 			movieMaterial.update();
 		})
+
+		//add logo floor
+		var geometry = new THREE.PlaneGeometry(2,2);
+		var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
+		});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader,
+		  transparent: true,
+		});
+		
+		var logo = new THREE.Mesh(geometry, material);
+		logo.rotation.x = - Math.PI / 2;
+		all.add(logo);
 
 		all.scale.multiplyScalar(1);
 		arWorldRoot.add(all);
