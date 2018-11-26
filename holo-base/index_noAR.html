@@ -9,7 +9,11 @@
 		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/OrbitControls.js"></script>
 		<script src="lib/chromakey.js"></script>
-		<title>ResoSante Videos</title>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		V 1.1.5
@@ -49,6 +53,11 @@
 		if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
+
+		//init screen mode
+		var screen_mode = isScreenMode();
+
+		//console.log(screen_mode);
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -219,6 +228,31 @@
 					video.pause();
 				}
 			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Where is your Magic Stickr?',
+			        	type: 'question',
+				    	showCancelButton: true,
+						confirmButtonColor: '#3085d6',
+						cancelButtonColor: '#3085d6',
+						confirmButtonText: 'On my screen!',
+						cancelButtonText: 'On a paper!',
+						preConfirm: () => {
+    						all.rotation.x = - Math.PI / 2;
+      					}
+					})
+				}
+			}])
 		}
 		</script>
 	</body>
