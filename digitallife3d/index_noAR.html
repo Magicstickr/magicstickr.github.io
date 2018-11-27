@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+		<title>Your letter from the future</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<audio id="sound">
+		  <source src="content/sound.mp3" type="audio/mpeg">
+		  Your browser does not support the audio element.
+		</audio>
+		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
+			<img src="mute.png" alt="mute" height="30" width="30"> 
+		</div>
+		<div id="audioOn" style="display: none; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(false)">
+			<img src="soundy.png" alt="soundy" height="30" width="30"> 
+		</div>
+		<script>
+			function audioControl(soundNeeded){
+				if(soundNeeded == true){
+					document.getElementById("sound").play();
+					//document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'none';
+    				document.getElementById("audioOn").style.display = 'block';
+				}
+				else{
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'block';
+    				document.getElementById("audioOn").style.display = 'none';
+				}
+			}
+		</script>
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		//if ( WEBGL.isWebGLAvailable() === false ) {
+		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		//}
+
+		///////////////////////////
+		// Sound var init
+		///////////////////////////
+		var isSoundOn = false;
+		var soundOffCountDown = 0;
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			autoResize : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		// renderer.setPixelRatio( 1/2 );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var arWorldRoot	= new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 10, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 2, 10 );
+		arWorldRoot.add(camera);
+		//
+
+		// controls
+
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+		//controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+		controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+		controls.dampingFactor = 0.25;
+
+		controls.screenSpacePanning = false;
+
+		controls.minDistance = 0;
+		controls.maxDistance = 500;
+
+		controls.maxPolarAngle = Math.PI / 2;
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          Initialize the Text objects
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Add some light
+		light = new THREE.HemisphereLight( 0xffffff, 0x000000 );
+		light.position.set( 1, 1, 0 );
+		arWorldRoot.add( light );
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
+		// Load 3D object
+		var loader = new THREE.GLTFLoader();
+		loader.load('content/scene.gltf', function ( gltf ) {
+			//add it to the scene
+			arWorldRoot.add( gltf.scene );
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
+			bbox.setFromObject(gltf.scene);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			gltf.scene.position.copy(cent).multiplyScalar(-1);
+			gltf.scene.position.y = (size.y * 0.5);
+			gltf.scene.rotation.x = -0.1*Math.PI;
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		// Load main text
+		var textMesh = new THREE.Mesh();
+		var Fontloader = new THREE.FontLoader();
+		Fontloader.load( 'lib/optimer_regular.typeface.json', function ( font ) {	
+			//Get the Text from mainText.txt file
+			var theText ="";
+			var rawFile = new XMLHttpRequest();
+			rawFile.open("GET", 'content/mainText.txt', false);
+			rawFile.onreadystatechange = function (){
+			        if(rawFile.readyState === 4){
+			            if(rawFile.status === 200 || rawFile.status == 0)
+			            {
+			                theText = rawFile.responseText;
+			            }
+			        }
+			    }
+			rawFile.send(null);
+			//Hash the text
+			var hash = document.location.hash.substr( 1 );
+			if ( hash.length !== 0 ) {
+				theText = hash;
+			}
+			//Add the text to geometry
+			var textGeom = new THREE.TextBufferGeometry( theText, {
+				font: font,
+				size: 80,
+				height: 20,
+				curveSegments: 2,
+				bevelEnabled: true,
+				bevelThickness: 4,
+				bevelSize: 8,
+				bevelSegments: 8
+			});
+			textGeom.computeBoundingBox();
+			var centerOffset = -0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x );
+			//Build material (color,etc) for the text
+			var materials = [
+				new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } ),
+				new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+			];
+			//Add the text to the scene
+			textMesh = new THREE.Mesh( textGeom, materials );
+			arWorldRoot.add( textMesh );
+
+			//Rescale the object to normalized space
+			var bbox = new THREE.Box3().setFromObject(textMesh);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+			
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			textMesh.scale.multiplyScalar(1.0 / maxAxis);
+			bbox.setFromObject(textMesh);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY+1, 2
+			textMesh.position.copy(cent).multiplyScalar(-1);
+			textMesh.position.y = (size.y * 0.5) + 0.8;
+			textMesh.position.z = 0.3;
+			textMesh.rotation.x = -0.1*Math.PI;
+		});
+
+		//Load image
+		var geometry = new THREE.PlaneGeometry(1, 1);
+		var material = new THREE.MeshLambertMaterial();
+		var imgMesh = new THREE.Mesh(geometry, material);
+		//Get image from image.jpg
+		var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
+			//Rescale and position image
+			var targetWidth = 1;
+			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+			imgMesh.scale.set(targetWidth, targetHeight, 1.0);
+			imgMesh.position.x = (targetWidth * 0.5) + 0.1;
+			imgMesh.position.y = (targetHeight * 0.5);
+			imgMesh.position.z = -0.5;
+		});
+
+		//Load the image into a custom material
+		material = new THREE.MeshLambertMaterial({
+		  map: imageLoader
+		});
+		//Add material to the image mesh
+		imgMesh.material = material;
+
+		//Rotate a bit the image
+		imgMesh.rotation.x = -0.1*Math.PI;
+		imgMesh.rotation.y = -0.1*Math.PI;
+
+		// add the image to the scene
+		arWorldRoot.add(imgMesh);
+
+		//Load the message on a paper
+
+		//Create the Text message
+		var geometry = new THREE.PlaneGeometry(1, 1);
+		var material = new THREE.MeshLambertMaterial();
+		var paper = new THREE.Mesh(geometry, material);
+
+		var imageTextLoader = new THREE.TextureLoader().load('content/baseMessageText.jpg', (imgLoader) => {
+			//Rescale and position image
+			var targetWidth = 1;
+			var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+			paper.scale.set(targetWidth, targetHeight, 1.0);
+			paper.position.x = (targetWidth * 0.5) - 1.1;
+			paper.position.y = (targetHeight * 0.5);
+			paper.position.z = -0.5;
+		});
+
+		//Load the image into a custom material
+		material = new THREE.MeshLambertMaterial({
+		  map: imageTextLoader
+		});
+		//Add material to the image mesh
+		paper.material = material;
+
+		//Rotate a bit the image
+		paper.rotation.x = -0.1*Math.PI;
+		paper.rotation.y = 0.1*Math.PI;
+
+		// add the image to the scene
+		arWorldRoot.add(paper);
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( arWorldRoot, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var images = [imgMesh];
+			var letters =[paper];
+
+			var imagesIntersects = raycaster.intersectObjects( images );
+			var letterIntersects = raycaster.intersectObjects( letters );
+
+			if ( imagesIntersects.length > 0 ) {
+				window.location.href = './images.html';
+			}
+			if ( letterIntersects.length > 0 ) {
+				window.location.href = './message.html';
+			}
+		}
+		</script>
+	</body>
+</html>

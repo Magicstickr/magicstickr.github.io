@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+
+		<title>The Pixie frog</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<audio id="sound" loop>
+		  <source src="content/sound.mp3" type="audio/mpeg">
+		  Your browser does not support the audio element.
+		</audio>
+		<div id="audioOff" style="display: none; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
+			<img src="mute.png" alt="mute" height="30" width="30"> 
+		</div>
+		<div id="audioOn" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(false)">
+			<img src="soundy.png" alt="soundy" height="30" width="30"> 
+		</div>
+		<script>
+			function audioControl(soundNeeded){
+				if(soundNeeded == true){
+					document.getElementById("sound").play();
+					//document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'none';
+    				document.getElementById("audioOn").style.display = 'block';
+				}
+				else{
+					document.getElementById("sound").pause();
+					document.getElementById("audioOff").style.display = 'block';
+    				document.getElementById("audioOn").style.display = 'none';
+				}
+			}
+		</script>
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		//if ( WEBGL.isWebGLAvailable() === false ) {
+		//		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		//}
+
+		///////////////////////////
+		// Sound var init
+		///////////////////////////
+		var isSoundOn = true;
+
+		//init screen mode
+		var screen_mode = isScreenMode();
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			autoResize : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		// renderer.setPixelRatio( 1/2 );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var scene	= new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+		scene.add(camera);
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          handle arToolkitSource
+		////////////////////////////////////////////////////////////////////////////////
+
+		var arToolkitSource = new THREEx.ArToolkitSource({
+			// to read from the webcam 
+			sourceType : 'webcam'	
+		})
+
+		arToolkitSource.init(function onReady(){
+			onResize()
+		})
+		
+		// handle resize
+		window.addEventListener('resize', function(){
+			onResize()
+		})
+		function onResize(){
+			arToolkitSource.onResize()	
+			arToolkitSource.copySizeTo(renderer.domElement)	
+			if( arToolkitContext.arController !== null ){
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+			}	
+		}
+		////////////////////////////////////////////////////////////////////////////////
+		//          initialize arToolkitContext
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		// create atToolkitContext
+		var arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
+		})
+		// initialize it
+		arToolkitContext.init(function onCompleted(){
+			// copy projection matrix to camera
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		})
+
+		// update artoolkit on every frame
+		onRenderFcts.push(function(){
+			if( arToolkitSource.ready === false )	return
+			arToolkitContext.update( arToolkitSource.domElement )
+		})
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//          Create a ArMarkerControls
+		////////////////////////////////////////////////////////////////////////////////
+		
+		var markerRoot = new THREE.Group
+		scene.add(markerRoot)
+		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt'
+		})
+
+		// build a smoothedControls
+		var smoothedRoot = new THREE.Group()
+		scene.add(smoothedRoot)
+		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			lerpPosition: 0.4,
+			lerpQuaternion: 0.3,
+			lerpScale: 1,
+		})
+		onRenderFcts.push(function(delta){
+			smoothedControls.update(markerRoot)
+		})
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var arWorldRoot = smoothedRoot;
+
+		var all = new THREE.Group();
+
+		//Add some light
+		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+		scene.add( light );
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
+		// Load 3D object
+		var loader = new THREE.GLTFLoader();
+		loader.load('content/scene.gltf', function ( gltf ) {
+			//add it to the scene
+			all.add( gltf.scene );
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			gltf.scene.scale.multiplyScalar(2.0 / maxAxis);
+			bbox.setFromObject(gltf.scene);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			gltf.scene.position.copy(cent).multiplyScalar(-1);
+			gltf.scene.position.y = (size.y/1.5);
+			//gltf.scene.rotation.x = -0.1*Math.PI;
+
+			onRenderFcts.push(function(){
+				gltf.scene.rotation.y += - 0.005*Math.PI;
+				//console.log(gltf.scene.rotation.y);
+			})
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		//add logo floor
+		var geometry = new THREE.PlaneGeometry(2,2);
+		var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
+		});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader,
+		  transparent: true,
+		});
+		
+		var logo = new THREE.Mesh(geometry, material);
+		logo.rotation.x = - Math.PI / 2;
+		logo.scale.multiplyScalar(2);
+		all.add(logo);
+
+		all.scale.multiplyScalar(1);
+		if(screen_mode == true){
+			all.rotation.x = - Math.PI / 2;
+		}
+		arWorldRoot.add(all);
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+			renderer.render( scene, camera );
+
+			///////////////////////////
+			//Sound playing
+			///////////////////////////
+			if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && document.getElementById("audioOn").style.display == "block"){
+				
+				if(isSoundOn == false){
+					document.getElementById("sound").play();
+					isSoundOn = true;
+				}
+				
+			}
+			else if(arToolkitContext.arController.patternMarkers[0].inCurrent == false && isSoundOn == true){
+				document.getElementById("sound").pause();
+				isSoundOn = false;
+			}
+
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Where is your Magic Stickr?',
+			        	type: 'question',
+				    	showCancelButton: true,
+						confirmButtonColor: '#3085d6',
+						cancelButtonColor: '#3085d6',
+						confirmButtonText: 'On my screen!',
+						cancelButtonText: 'On a paper!',
+						//footer: 'Tips: tap the levitating objects for more interactions!',
+						preConfirm: () => {
+    						all.rotation.x = - 0.8 * Math.PI / 2;
+    						all.position.z = ysize/2;
+    						swal.insertQueueStep({
+							  position: 'top-end',
+							  type: 'info',
+							  title: 'Tap the levitating objects for more interactions!',
+							  showConfirmButton: false,
+							  timer: 2000
+							})
+      					}
+					})
+				}
+			}])
+		}
+		</script>
+	</body>
+</html>
