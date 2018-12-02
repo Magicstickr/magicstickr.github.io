@@ -268,12 +268,7 @@
 
 				event.preventDefault();
 
-				event.clientX = event.touches[0].clientX;
-				event.clientY = event.touches[0].clientY;
 				var touch = false; //zero touch
-				
-				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
-				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 				mouse.down = touch;
 
 		}
