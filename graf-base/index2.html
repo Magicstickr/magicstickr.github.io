@@ -247,7 +247,7 @@
 		document.addEventListener ('mousemove', onDocumentMouseDown, false);
 
 		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		document.addEventListener ('touchend', onDocumentTouchStart, false);
+		document.addEventListener ('touchend', onDocumentTouchEnd, false);
 		document.addEventListener ('touchmove', onDocumentTouchStart, false);
 
 		function onDocumentTouchStart( event ) {
@@ -256,7 +256,18 @@
 
 				event.clientX = event.touches[0].clientX;
 				event.clientY = event.touches[0].clientY;
-				event.buttons = event.touches[0].buttons;
+				event.buttons = 1; //one touch
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentTouchEnd( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				event.buttons = 0; //zero touch
 				onDocumentMouseDown( event );
 
 		}
