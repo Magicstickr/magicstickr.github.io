@@ -32,12 +32,16 @@
 		    overflow: hidden;
 		    width: 100%;
 		}	
+		#canvas {
+		    position: static; /* fixed or static */
+		}
 		</style>
-		
+
 		<title>Chinese Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
 		<!-- V 1.1.9 -->
+		<div id="canvas">
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -51,6 +55,9 @@
 		//init screen mode
 		//var screen_mode = isScreenMode();
 
+		var container = document.getElementById( 'canvas' );
+		document.body.appendChild( container );
+
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			antialias	: true,
@@ -63,7 +70,7 @@
 		renderer.domElement.style.position = 'absolute'
 		renderer.domElement.style.top = '0px'
 		renderer.domElement.style.left = '0px'
-		document.body.appendChild( renderer.domElement );
+		container.appendChild( renderer.domElement );
 
 		// array of functions for the rendering loop
 		var onRenderFcts= [];
@@ -182,14 +189,14 @@
 		dotImg.src = 'content/dot.png';
 
 		//Customizable texture
-		var canvas = document.createElement ('canvas');
-		canvas.width = 256; canvas.height = 256;
-		var context = canvas.getContext ('2d');
-		context.rect (0, 0, canvas.width, canvas.height);
-		context.fillStyle = 'aliceblue';
-		context.fill ();
+		var texture_canvas = document.createElement ('canvas');
+		texture_canvas.width = 256; texture_canvas.height = 256;
+		var texture_context = texture_canvas.getContext ('2d');
+		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
+		texture_context.fillStyle = 'aliceblue';
+		texture_context.fill ();
 
-		var texture = new THREE.Texture (canvas);
+		var texture = new THREE.Texture (texture_canvas);
 		texture.needsUpdate = true;
 		//texture.flipY = false;
 
@@ -249,8 +256,11 @@
 
 			event.preventDefault();
 
-			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+			// mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			// mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+			mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
 			//Graffiti update
 	    	raycaster.setFromCamera( mouse, camera );
@@ -260,11 +270,11 @@
 			var meshIntersects = raycaster.intersectObjects( mesh_array );
 
 			if ( meshIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
-				var x = meshIntersects[0].uv.x * canvas.width;
-	            var y = (1 - meshIntersects[0].uv.y) * canvas.height;
+				var x = meshIntersects[0].uv.x * texture_canvas.width;
+	            var y = (1 - meshIntersects[0].uv.y) * texture_canvas.height;
 	            
 	            var size = 1;
-        		context.drawImage(dotImg, x - size/2, y - size/2);
+        		texture_context.drawImage(dotImg, x - size/2, y - size/2);
 
 	            texture.needsUpdate = true;
 			}
