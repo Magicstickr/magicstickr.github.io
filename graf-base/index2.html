@@ -11,7 +11,29 @@
 		<script src="lib/sweetalert2.all.min.js"></script>
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+		<style>
+		html, body {
+		    position: fixed;
+		}
 
+		html, body {
+		    position: relative;
+		    overflow: hidden;
+		}
+
+		body {
+		    position: fixed;
+		    overflow: hidden;
+		}
+
+		body {
+		    position: fixed;
+		    height: 100%;
+		    overflow: hidden;
+		    width: 100%;
+		}	
+		</style>
+		
 		<title>Chinese Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
@@ -209,8 +231,9 @@
 			})
 		})
 
-		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'mousedown', onDocumentMouseDown );
 		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		ocument.addEventListener ('mousemove', onDocumentMouseDown);
 
 		function onDocumentTouchStart( event ) {
 
