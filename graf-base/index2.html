@@ -246,9 +246,9 @@
 		document.addEventListener( 'mouseup', onDocumentMouseDown, false );
 		document.addEventListener ('mousemove', onDocumentMouseDown, false);
 
-		document.addEventListener( 'touchstart', onDocumentMouseDown, false );
-		document.addEventListener ('touchend', onDocumentMouseDown, false);
-		document.addEventListener ('touchmove', onDocumentMouseDown, false);
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		document.addEventListener ('touchend', onDocumentTouchStart, false);
+		document.addEventListener ('touchmove', onDocumentTouchStart, false);
 
 		function onDocumentTouchStart( event ) {
 
