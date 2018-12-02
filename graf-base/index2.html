@@ -230,25 +230,21 @@
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 			//Graffiti update
-	    	var canvasRect = renderer.domElement.getBoundingClientRect ();
+	    	raycaster.setFromCamera( mouse, camera );
 
-	        raycaster.ray.origin.set (0, 0, 0);
-	        camera.localToWorld (raycaster.ray.origin);
-	        raycaster.ray.direction.set (
-	            ((mouse.x - canvasRect.left) / canvasRect.width) * 2 - 1,
-	            ((canvasRect.top - mouse.y) / canvasRect.height) * 2 + 1,
-	        0.5).unproject (camera).sub (raycaster.ray.origin).normalize ();
+			var mesh_array =[mesh];
 
-	        var intersects = raycaster.intersectObject (arWorldRoot, true);
-	        if (intersects && intersects[0]) {
-	            var x = intersects[0].uv.x * canvas.width;
-	            var y = (1 - intersects[0].uv.y) * canvas.height;
+			var meshIntersects = raycaster.intersectObjects( mesh_array );
+
+			if ( meshIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
+				var x = meshIntersects[0].uv.x * canvas.width;
+	            var y = (1 - meshIntersects[0].uv.y) * canvas.height;
 	            
 	            var size = 1;
         		context.drawImage(dotImg, x - size/2, y - size/2);
 
 	            texture.needsUpdate = true;
-	        }
+			}
 		}
 
 		function isScreenMode(){
