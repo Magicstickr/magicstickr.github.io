@@ -261,6 +261,7 @@
 		})
 
 		var handler = function (e) {
+		    console.log("Handler");
 		    mouse.down = (e.buttons != 0);
 		    mouse.x = e.clientX;
 		    mouse.y = e.clientY;
