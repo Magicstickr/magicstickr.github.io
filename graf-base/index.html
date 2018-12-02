@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+
+		<title>Chinese Graffiti</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		<!-- V 1.1.9 -->
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		if ( WEBGL.isWebGLAvailable() === false ) {
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		}
+
+		//init screen mode
+		//var screen_mode = isScreenMode();
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			autoResize : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init scene and camera
+
+		var scene = new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+		scene.add(camera);
+
+		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+		scene.add( light );
+
+		////////////////////////////////////////////////////////////////////////////////
+		//          handle arToolkitSource
+		////////////////////////////////////////////////////////////////////////////////
+
+		var arToolkitSource = new THREEx.ArToolkitSource({
+			// to read from the webcam 
+			sourceType : 'webcam'	
+		})
+
+		arToolkitSource.init(function onReady(){
+			onResize()
+		})
+		
+		// handle resize
+		window.addEventListener('resize', function(){
+			onResize()
+		})
+		function onResize(){
+			arToolkitSource.onResizeElement()	
+			arToolkitSource.copyElementSizeTo(renderer.domElement)	
+			if( arToolkitContext.arController !== null ){
+				arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+			}	
+		}
+		////////////////////////////////////////////////////////////////////////////////
+		//          initialize arToolkitContext
+		////////////////////////////////////////////////////////////////////////////////
+		
+
+		// create atToolkitContext
+		var arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+			detectionMode: 'mono',
+			maxDetectionRate: 30,
+			canvasWidth: 80*3,
+			canvasHeight: 60*3,
+		})
+		// initialize it
+		arToolkitContext.init(function onCompleted(){
+			// copy projection matrix to camera
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		})
+
+		// update artoolkit on every frame
+		onRenderFcts.push(function(){
+			if( arToolkitSource.ready === false )	return
+			arToolkitContext.update( arToolkitSource.domElement )
+		})
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//          Create a ArMarkerControls
+		////////////////////////////////////////////////////////////////////////////////
+		
+		var markerRoot = new THREE.Group
+		scene.add(markerRoot)
+		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			//type: 'barcode',
+			//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
+			//barcodeValue: 'localhost:4001/my_stickr/NCOPYJDC',
+			type : 'pattern',
+			patternUrl : 'marker/marker.patt',
+			//minConfidence: 1,
+		})
+
+		// build a smoothedControls
+		var smoothedRoot = new THREE.Group()
+		scene.add(smoothedRoot)
+		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			lerpPosition: 0.4,
+			lerpQuaternion: 0.3,
+			lerpScale: 1,
+		})
+		onRenderFcts.push(function(delta){
+			smoothedControls.update(markerRoot);
+		})
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the scene
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var arWorldRoot = smoothedRoot;
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+		var isVideoPlay = false;
+
+		var all = new THREE.Group();
+		
+		
+		/////////////////////
+		/// Objects /////////
+		/////////////////////
+
+		// Load 3D object
+
+		var dotImg = new Image();
+		dotImg.src = '/content/dot.png';
+
+		//Customizable texture
+		var canvas = document.createElement ('canvas');
+		canvas.width = 1024; canvas.height = 1024;
+		var context = canvas.getContext ('2d');
+		context.rect (0, 0, canvas.width, canvas.height);
+		context.fillStyle = 'aliceblue';
+		context.fill ();
+
+		var texture = new THREE.Texture (canvas);
+		texture.needsUpdate = true;
+		//texture.flipY = false;
+
+		var loader3Dobj = new THREE.GLTFLoader();
+		loader3Dobj.load('content/scene.gltf', function ( gltf ) {
+
+			//update texture
+			var gltfObj = gltf.scene;
+		  	gltfObj.traverse ( ( o ) => {
+		    	if ( o.isMesh ) {
+		      		o.material.map = texture;
+		   	 	}
+		  	});
+
+			//add it to the scene
+			all.add( gltfObj );
+			//Resize/rescale the 3D Object
+			var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			var cent = bbox.getCenter(new THREE.Vector3());
+			var size = bbox.getSize(new THREE.Vector3());
+			//Rescale the object to normalized space
+			var maxAxis = Math.max(size.x, size.y, size.z);
+			gltf.scene.scale.multiplyScalar(4.0 / maxAxis);
+			bbox.setFromObject(gltf.scene);
+			bbox.getCenter(cent);
+			bbox.getSize(size);
+			//Reposition to 0,halfY,0
+			gltf.scene.position.copy(cent).multiplyScalar(-1);
+			gltf.scene.position.y = (size.y * 0.5);
+
+
+		}, undefined, function ( e ) {
+			console.error( e );
+		} );
+
+		/////////////////////
+		/////////////////////
+
+		all.scale.multiplyScalar(1);
+		arWorldRoot.add(all);
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the scene
+		onRenderFcts.push(function(){
+
+			//Graffiti update
+			if (mouse.down) {
+		        var canvasRect = renderer.domElement.getBoundingClientRect ();
+
+		        raycaster.ray.origin.set (0, 0, 0);
+		        camera.localToWorld (raycaster.ray.origin);
+		        raycaster.ray.direction.set (
+		            ((mouse.x - canvasRect.left) / canvasRect.width) * 2 - 1,
+		            ((canvasRect.top - mouse.y) / canvasRect.height) * 2 + 1,
+		        0.5).unproject (camera).sub (raycaster.ray.origin).normalize ();
+
+		        var intersects = raycaster.intersectObject (arWorldRoot, true);
+		        if (intersects && intersects[0]) {
+		            var x = intersects[0].uv.x * canvas.width;
+		            var y = (1 - intersects[0].uv.y) * canvas.height;
+		            
+		            //context.beginPath ();
+		            var size = 1;
+            		context.drawImage(dotImg, x - size/2, y - size/2);
+		            //context.fillStyle = 'black';
+		            //context.fill ();
+
+		            texture.needsUpdate = true;
+		        }
+		    }
+
+			/////////////////
+
+			renderer.render( scene, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+
+		var handler = function (e) {
+		    mouse.down = (e.buttons != 0);
+		    mouse.x = e.clientX;
+		    mouse.y = e.clientY;
+		}
+
+		document.addEventListener ('mousemove', handler);
+		document.addEventListener ('mousedown', handler);
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Where is your Magic Stickr?',
+			        	type: 'question',
+				    	showCancelButton: true,
+						confirmButtonColor: '#3085d6',
+						cancelButtonColor: '#3085d6',
+						confirmButtonText: 'On my screen!',
+						cancelButtonText: 'On a paper!',
+						//footer: 'Tips: tap the levitating objects for more interactions!',
+						preConfirm: () => {
+    						all.rotation.x = - 0.8 * Math.PI / 2;
+    						all.position.z = ysize/2;
+    						swal.insertQueueStep({
+							  position: 'top-end',
+							  type: 'info',
+							  title: 'Tap the levitating objects for more interactions!',
+							  showConfirmButton: false,
+							  timer: 2000
+							})
+      					}
+					})
+				}
+			}])
+		}
+		</script>
+	</body>
+</html>

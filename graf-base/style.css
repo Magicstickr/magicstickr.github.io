@@ -1,0 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#container {
+    overflow: hidden;
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    outline: 1px dashed grey;
+    margin-left: -200px;
+    margin-top: -200px;
+    left: 50%;
+    top: 50%;
+}
+
+.balloon {
+    position: absolute;
+    color: white;
+    background: black;
+    border-radius: 100px;
+    font-family: sans-serif;
+    font-size: 20px;
+    width: 100px;
+    height: 30px;
+    text-align: center;
+    padding-top: 10px;
+}
+
+
+.balloon .text {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 80px;
+    margin-left: 10px;
+    /* fix chrome gap */
+    height: 21px;
+}
+
+.balloon .arrow {
+    left: 40px;
+    margin-top: 9px;
+    border-width: 10px 10px 0px;
+    border-color: black transparent transparent;
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+}
