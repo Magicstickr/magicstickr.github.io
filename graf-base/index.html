@@ -32,11 +32,15 @@
 		    overflow: hidden;
 		    width: 100%;
 		}	
+		#canvas {
+		    position: static; /* fixed or static */
+		}
 		</style>
 		<title>Chinese Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
 		<!-- V 1.1.9 -->
+		<div id="canvas">
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -50,6 +54,9 @@
 		//init screen mode
 		//var screen_mode = isScreenMode();
 
+		var container = document.getElementById( 'canvas' );
+		document.body.appendChild( container );
+
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
 			antialias	: true,
@@ -62,7 +69,7 @@
 		renderer.domElement.style.position = 'absolute'
 		renderer.domElement.style.top = '0px'
 		renderer.domElement.style.left = '0px'
-		document.body.appendChild( renderer.domElement );
+		container.appendChild( renderer.domElement );
 
 		// array of functions for the rendering loop
 		var onRenderFcts= [];
@@ -79,8 +86,11 @@
 		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
 		scene.add(camera);
 
-		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-		scene.add( light );
+		var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+		hemiLight.color.setHSL( 0.6, 1, 0.6 );
+		hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+		hemiLight.position.set( 0, 50, 0 );
+		scene.add( hemiLight );
 
 		////////////////////////////////////////////////////////////////////////////////
 		//          handle arToolkitSource
@@ -167,6 +177,7 @@
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
 		var isVideoPlay = false;
+		var mousePos = null;
 
 		var all = new THREE.Group();
 		
@@ -177,18 +188,15 @@
 
 		// Load 3D object
 
-		var dotImg = new Image();
-		dotImg.src = 'content/dot.png';
-
 		//Customizable texture
-		var canvas = document.createElement ('canvas');
-		canvas.width = 1024; canvas.height = 1024;
-		var context = canvas.getContext ('2d');
-		context.rect (0, 0, canvas.width, canvas.height);
-		context.fillStyle = 'aliceblue';
-		context.fill ();
+		var texture_canvas = document.createElement ('canvas');
+		texture_canvas.width = 1024; texture_canvas.height = 1024;
+		var texture_context = texture_canvas.getContext ('2d');
+		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
+		texture_context.fillStyle = 'white';
+		texture_context.fill ();
 
-		var texture = new THREE.Texture (canvas);
+		var texture = new THREE.Texture (texture_canvas);
 		texture.needsUpdate = true;
 		//texture.flipY = false;
 
@@ -196,15 +204,14 @@
 		loader3Dobj.load('content/scene.gltf', function ( gltf ) {
 
 			//update texture
-			var gltfObj = gltf.scene;
-		  	gltfObj.traverse ( ( o ) => {
+		  	gltf.scene.traverse ( ( o ) => {
 		    	if ( o.isMesh ) {
 		      		o.material.map = texture;
 		   	 	}
 		  	});
 
 			//add it to the scene
-			all.add( gltfObj );
+			all.add( gltf.scene );
 			//Resize/rescale the 3D Object
 			var bbox = new THREE.Box3().setFromObject(gltf.scene);
 			var cent = bbox.getCenter(new THREE.Vector3());
@@ -237,34 +244,9 @@
 		// render the scene
 		onRenderFcts.push(function(){
 
-			//Graffiti update
-			if (mouse.down) {
-		        var canvasRect = renderer.domElement.getBoundingClientRect ();
-
-		        raycaster.ray.origin.set (0, 0, 0);
-		        camera.localToWorld (raycaster.ray.origin);
-		        raycaster.ray.direction.set (
-		            ((mouse.x - canvasRect.left) / canvasRect.width) * 2 - 1,
-		            ((canvasRect.top - mouse.y) / canvasRect.height) * 2 + 1,
-		        0.5).unproject (camera).sub (raycaster.ray.origin).normalize ();
-
-		        var intersects = raycaster.intersectObject (arWorldRoot, true);
-		        if (intersects && intersects[0]) {
-		            var x = intersects[0].uv.x * canvas.width;
-		            var y = (1 - intersects[0].uv.y) * canvas.height;
-		            
-		            //context.beginPath ();
-		            console.log("draw");
-		            var size = 3;
-            		context.drawImage(dotImg, x - size/2, y - size/2);
-		            //context.fillStyle = 'black';
-		            //context.fill ();
-
-		            texture.needsUpdate = true;
-		        }
-		    }
-
-			/////////////////
+			if(mouse.down){
+				graffitiUpdate();
+			}
 
 			renderer.render( scene, camera );
 		})
@@ -284,14 +266,71 @@
 			})
 		})
 
-		var handler = function (e) {
-		    mouse.down = (e.buttons != 0);
-		    mouse.x = e.clientX;
-		    mouse.y = e.clientY;
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'mouseup', onDocumentMouseDown, false );
+		document.addEventListener ('mousemove', onDocumentMouseDown, false);
+
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		document.addEventListener ('touchend', onDocumentTouchEnd, false);
+		document.addEventListener ('touchmove', onDocumentTouchStart, false);
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				var touch = true; //one touch
+				
+				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+				mouse.down = touch;
+
 		}
 
-		document.addEventListener ('mousemove', handler);
-		document.addEventListener ('mousedown', handler);
+		function onDocumentTouchEnd( event ) {
+
+				event.preventDefault();
+
+				var touch = false; //zero touch
+				mouse.down = touch;
+				mousePos = null;
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+			mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+			mouse.down = (event.buttons != 0);
+		}
+
+		function graffitiUpdate(){
+			//Graffiti update
+	    	raycaster.setFromCamera( mouse, camera );
+
+			var intersects = raycaster.intersectObject (arWorldRoot, true);
+
+			if ( intersects && intersects[0] && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
+				var x = intersects[0].uv.x * texture_canvas.width;
+	            var y = (1 - intersects[0].uv.y) * texture_canvas.height;
+	            
+	            var size = 1;
+	            texture_context.beginPath();
+	            if (mousePos == null){
+        			mousePos = {x, y};
+        		}else{
+					texture_context.moveTo(mousePos.x, mousePos.y);
+					texture_context.lineTo(x, y);
+					texture_context.strokeStyle = "black";
+					texture_context.stroke();
+					mousePos = {x, y};
+        		}
+	            texture.needsUpdate = true;
+			}
+		}
 
 		function isScreenMode(){
 			const ipAPI = 'https://api.ipify.org?format=json'
