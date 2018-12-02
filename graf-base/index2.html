@@ -256,8 +256,11 @@
 
 				event.clientX = event.touches[0].clientX;
 				event.clientY = event.touches[0].clientY;
-				event.buttons = 1; //one touch
-				onDocumentMouseDown( event );
+				var touch = true; //one touch
+				
+				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+				mouse.down = touch;
 
 		}
 
@@ -267,8 +270,11 @@
 
 				event.clientX = event.touches[0].clientX;
 				event.clientY = event.touches[0].clientY;
-				event.buttons = 0; //zero touch
-				onDocumentMouseDown( event );
+				var touch = false; //zero touch
+				
+				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
+				mouse.down = touch;
 
 		}
 
