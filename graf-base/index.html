@@ -12,17 +12,27 @@
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
-		html {
-			overflow: hidden;
-			height: 100%; 
+		html, body {
+		    position: fixed;
+		}
+
+		html, body {
+		    position: relative;
+		    overflow: hidden;
 		}
 
 		body {
-			height: 100%;
-			overflow: auto;
+		    position: fixed;
+		    overflow: hidden;
 		}
-		</style>
 
+		body {
+		    position: fixed;
+		    height: 100%;
+		    overflow: hidden;
+		    width: 100%;
+		}	
+		</style>
 		<title>Chinese Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
