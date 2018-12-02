@@ -175,6 +175,7 @@
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
 		var isVideoPlay = false;
+		var mousePos = null;
 
 		var all = new THREE.Group();
 		
@@ -270,6 +271,7 @@
 
 				var touch = false; //zero touch
 				mouse.down = touch;
+				mousePos = null;
 
 		}
 
@@ -295,8 +297,16 @@
 	            var y = (1 - meshIntersects[0].uv.y) * texture_canvas.height;
 	            
 	            var size = 1;
-        		texture_context.drawImage(dotImg, x - size/2, y - size/2);
-
+	            texture_context.beginPath();
+	            if (mousePos == null){
+        			mousePos = {x, y};
+        		}else{
+					texture_context.moveTo(mousePos.x, mousePos.y);
+					texture_context.lineTo(x, y);
+					texture_context.strokeStyle = "black";
+					texture_context.stroke();
+					mousePos = {x, y};
+        		}
 	            texture.needsUpdate = true;
 			}
 		}
