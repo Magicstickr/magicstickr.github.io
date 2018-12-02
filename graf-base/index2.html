@@ -212,36 +212,6 @@
 		// render the scene
 		onRenderFcts.push(function(){
 
-			//Graffiti update
-			if (mouse.down) {
-				console.log("down");
-		        var canvasRect = renderer.domElement.getBoundingClientRect ();
-
-		        raycaster.ray.origin.set (0, 0, 0);
-		        camera.localToWorld (raycaster.ray.origin);
-		        raycaster.ray.direction.set (
-		            ((mouse.x - canvasRect.left) / canvasRect.width) * 2 - 1,
-		            ((canvasRect.top - mouse.y) / canvasRect.height) * 2 + 1,
-		        0.5).unproject (camera).sub (raycaster.ray.origin).normalize ();
-
-		        var intersects = raycaster.intersectObject (arWorldRoot, true);
-		        if (intersects && intersects[0]) {
-		            var x = intersects[0].uv.x * canvas.width;
-		            var y = (1 - intersects[0].uv.y) * canvas.height;
-		            
-		            //context.beginPath ();
-		            console.log("draw");
-		            var size = 1;
-            		context.drawImage(dotImg, x - size/2, y - size/2);
-		            //context.fillStyle = 'black';
-		            //context.fill ();
-
-		            texture.needsUpdate = true;
-		        }
-		    }
-
-			/////////////////
-
 			renderer.render( scene, camera );
 		})
 
@@ -260,15 +230,47 @@
 			})
 		})
 
-		var handler = function (e) {
-		    console.log("Handler");
-		    mouse.down = (e.buttons != 0);
-		    mouse.x = e.clientX;
-		    mouse.y = e.clientY;
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
 		}
 
-		document.addEventListener ('mousemove', handler);
-		document.addEventListener ('mousedown', handler);
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			//Graffiti update
+	    	var canvasRect = renderer.domElement.getBoundingClientRect ();
+
+	        raycaster.ray.origin.set (0, 0, 0);
+	        camera.localToWorld (raycaster.ray.origin);
+	        raycaster.ray.direction.set (
+	            ((mouse.x - canvasRect.left) / canvasRect.width) * 2 - 1,
+	            ((canvasRect.top - mouse.y) / canvasRect.height) * 2 + 1,
+	        0.5).unproject (camera).sub (raycaster.ray.origin).normalize ();
+
+	        var intersects = raycaster.intersectObject (arWorldRoot, true);
+	        if (intersects && intersects[0]) {
+	            var x = intersects[0].uv.x * canvas.width;
+	            var y = (1 - intersects[0].uv.y) * canvas.height;
+	            
+	            var size = 1;
+        		context.drawImage(dotImg, x - size/2, y - size/2);
+
+	            texture.needsUpdate = true;
+	        }
+		}
 
 		function isScreenMode(){
 			const ipAPI = 'https://api.ipify.org?format=json'
