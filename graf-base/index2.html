@@ -242,9 +242,10 @@
 			})
 		})
 
-		document.addEventListener( 'mousedown', onDocumentMouseDown );
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'mouseup', onDocumentMouseDown, false );
 		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		document.addEventListener ('mousemove', onDocumentMouseDown);
+		document.addEventListener ('mousemove', onDocumentMouseDown, false);
 
 		function onDocumentTouchStart( event ) {
 
