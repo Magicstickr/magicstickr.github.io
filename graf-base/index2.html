@@ -188,8 +188,9 @@
 		// Load 3D object
 
 		//Customizable texture
+		canvasSize = 512;
 		var texture_canvas = document.createElement ('canvas');
-		texture_canvas.width = 256; texture_canvas.height = 256;
+		texture_canvas.width = canvasSize; texture_canvas.height = canvasSize;
 		var texture_context = texture_canvas.getContext ('2d');
 		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
 		texture_context.fillStyle = 'rgba(255, 255, 255, 0)';
@@ -200,7 +201,7 @@
 		//texture.flipY = false;
 
 		mesh = new THREE.Mesh(
-	        new THREE.PlaneGeometry( 256, 256 ),
+	        new THREE.PlaneGeometry( canvasSize, canvasSize ),
 	        new THREE.MeshBasicMaterial( { map: texture } )
     	);
     	mesh.rotation.x = - Math.PI / 2;
