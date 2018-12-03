@@ -247,7 +247,7 @@
 
 		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 		document.addEventListener ('touchend', onDocumentTouchEnd, false);
-		document.addEventListener ('touchmove', onDocumentTouchStart, false);
+		document.addEventListener ('touchmove', onDocumentTouchMove, false);
 
 		function onDocumentTouchStart( event ) {
 
@@ -259,6 +259,18 @@
 				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
 				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 				mouse.down = true;
+
+		}
+
+		function onDocumentTouchMove( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				
+				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 
 		}
 
