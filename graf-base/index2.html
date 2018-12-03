@@ -206,6 +206,8 @@
     	mesh.rotation.x = - Math.PI / 2;
     	all.add( mesh );
 
+    	var mesh_array =[mesh];
+
 		/////////////////////
 		/////////////////////
 
@@ -241,13 +243,13 @@
 			})
 		})
 
-		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		document.addEventListener( 'mouseup', onDocumentMouseDown, false );
-		document.addEventListener ('mousemove', onDocumentMouseDown, false);
+		document.addEventListener( 'mousedown', onDocumentMouseDown );
+		document.addEventListener( 'mouseup', onDocumentMouseDown );
+		document.addEventListener ('mousemove', onDocumentMouseDown );
 
-		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		document.addEventListener ('touchend', onDocumentTouchEnd, false);
-		document.addEventListener ('touchmove', onDocumentTouchStart, false);
+		document.addEventListener( 'touchstart', onDocumentTouchStart );
+		document.addEventListener ('touchend', onDocumentTouchEnd );
+		document.addEventListener ('touchmove', onDocumentTouchStart );
 
 		function onDocumentTouchStart( event ) {
 
@@ -287,9 +289,6 @@
 		function graffitiUpdate(){
 			//Graffiti update
 	    	raycaster.setFromCamera( mouse, camera );
-
-			var mesh_array =[mesh];
-
 			var meshIntersects = raycaster.intersectObjects( mesh_array );
 
 			if ( meshIntersects.length > 0) {
