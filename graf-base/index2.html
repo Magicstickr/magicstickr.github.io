@@ -176,6 +176,7 @@
 		var mouse = new THREE.Vector2();
 		var isVideoPlay = false;
 		var mousePos = null;
+		var strokeColor = [200,200,200];
 
 		var all = new THREE.Group();
 		
@@ -188,10 +189,10 @@
 
 		//Customizable texture
 		var texture_canvas = document.createElement ('canvas');
-		texture_canvas.width = 256; texture_canvas.height = 256;
+		texture_canvas.width = 512; texture_canvas.height = 512;
 		var texture_context = texture_canvas.getContext ('2d');
 		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
-		texture_context.fillStyle = 'aliceblue';
+		texture_context.fillStyle = 'rgba(255, 255, 255, 0)';
 		texture_context.fill ();
 
 		var texture = new THREE.Texture (texture_canvas);
@@ -268,7 +269,7 @@
 
 				var touch = false; //zero touch
 				mouse.down = touch;
-				mousePos = null;
+				var mousePos = null;
 
 		}
 
@@ -279,6 +280,7 @@
 			mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
 			mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 			mouse.down = (event.buttons != 0);
+			if(!mouse.down){mousePos = null}
 		}
 
 		function graffitiUpdate(){
@@ -300,7 +302,11 @@
         		}else{
 					texture_context.moveTo(mousePos.x, mousePos.y);
 					texture_context.lineTo(x, y);
-					texture_context.strokeStyle = "black";
+					strokeColor[0] += Math.random()*100-50;
+					strokeColor[1] += Math.random()*100-50;
+					strokeColor[2] += Math.random()*100-50;
+					texture_context.strokeStyle = 'rgb('+ strokeColor[0] +', '+ strokeColor[1] + ','+ strokeColor[2] +')';
+					texture_context.lineWidth = 2;
 					texture_context.stroke();
 					mousePos = {x, y};
         		}
