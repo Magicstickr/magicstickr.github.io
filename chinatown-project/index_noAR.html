@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src='lib/threex.videotexture.js'></script>
+		<script src="lib/OrbitControls.js"></script>
+		<script src="lib/chromakey.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+		<title>Holo Mini Sean</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		V 1.1.5 </br>
+		<div id=time>Time:</div>
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+		</script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform sampler2D texture;
+			uniform vec3 color;
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vec3 tColor = texture2D( texture, vUv ).rgb;
+				float a = (length(tColor - color) - 0.6) * 100.0;
+				gl_FragColor = vec4(tColor, a);
+			}
+		</script>
+		<script>
+
+		// Threejs/ARjs standard variables
+		var renderer, arWorldRoot, onRenderFcts, camera, controls;
+		// Control variables
+		var screen_mode;
+		// Object variables
+		var all, videoPlane, logo, floor, video, gltfObj;
+
+		initScene();
+		initCamera();
+		initLight();
+		initControl();
+
+		addObjects();
+		addFloor();
+
+		renderEngine();
+
+		function initScene(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Init
+			//////////////////////////////////////////////////////////////////////////////////
+
+			//Error if not WebGL compatible
+			if ( WEBGL.isWebGLAvailable() === false ) {
+					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+			}
+
+			//init screen mode
+			screen_mode = isScreenMode();
+
+			//console.log(screen_mode);
+
+			// init renderer
+			renderer	= new THREE.WebGLRenderer({
+				antialias	: true,
+				autoResize : true,
+				alpha: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.domElement.style.position = 'absolute'
+			renderer.domElement.style.top = '0px'
+			renderer.domElement.style.left = '0px'
+			document.body.appendChild( renderer.domElement );
+
+			// array of functions for the rendering loop
+			onRenderFcts= [];
+
+			// init arWorldRoot and camera
+
+			arWorldRoot = new THREE.Scene();
+		}
+		
+		function initCamera(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Initialize a basic camera
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// Create a camera
+			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+			camera.position.set( 0, 2, 10 );
+			arWorldRoot.add(camera);
+		}
+
+		function initLight(){
+			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+			arWorldRoot.add( light );
+		}
+
+		function initControl(){
+			// controls
+
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+			//controls.addEventListener( 'change', render ); // call this only in static arWorldRoots (i.e., if there is no animation loop)
+
+			controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+			controls.dampingFactor = 0.25;
+
+			controls.screenSpacePanning = false;
+
+			controls.minDistance = 0;
+			controls.maxDistance = 500;
+
+			controls.maxPolarAngle = Math.PI / 2;
+		}
+
+		function addObjects(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Add the objects in the arWorldRoot
+			//////////////////////////////////////////////////////////////////////////////////
+
+			all = new THREE.Group();
+			
+			var xsize = 1;
+			var ysize = xsize * 0.5625;
+
+			var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+			var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, 0xd432);
+			// green: 0xd432
+			// white: 0xffff
+
+			videoPlane = new THREE.Mesh( geometry, movieMaterial );
+			videoPlane.position.y = 1 - 0.1;
+			videoPlane.scale.multiplyScalar(3);
+			videoPlane.visible = false;
+
+			all.add( videoPlane );	
+
+			onRenderFcts.push(function(delta, now){
+				movieMaterial.update();
+			})
+
+			//add logo floor
+			var geometry = new THREE.PlaneGeometry(2,2);
+			var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
+			});
+			//Load the image into a custom material
+			var material = new THREE.MeshLambertMaterial({
+			  map: loader,
+			  transparent: true,
+			});
+			
+			logo = new THREE.Mesh(geometry, material);
+			logo.rotation.x = - Math.PI / 2;
+			logo.visible = false;
+			logo.material.opacity = 0;
+			all.add(logo);
+
+			// Load 3D object
+			var loader = new THREE.GLTFLoader();
+			loader.load('content/scene.gltf', function ( gltf ) {
+				//Resize/rescale the 3D Object
+				var bbox = new THREE.Box3().setFromObject(gltf.scene);
+				var cent = bbox.getCenter(new THREE.Vector3());
+				var size = bbox.getSize(new THREE.Vector3());
+				//Rescale the object to normalized space
+				var maxAxis = Math.max(size.x, size.y, size.z);
+				gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
+				bbox.setFromObject(gltf.scene);
+				bbox.getCenter(cent);
+				bbox.getSize(size);
+				//Reposition to 0,halfY,0
+				gltf.scene.position.copy(cent).multiplyScalar(-1);
+				gltf.scene.position.y = (size.y * 0.5);
+				gltf.scene.position.x += 1;
+				gltf.scene.visible = false;
+				gltf.scene.traverse( function( o ) {
+
+					if ( o.isMesh === true ) {
+
+						o.material.transparent = true;
+						o.material.opacity = 0;
+					
+					}
+
+				} );
+				
+				//gltf.scene.rotation.x = -0.1*Math.PI;
+
+				gltfObj = gltf.scene;
+				//add it to the scene
+				all.add( gltfObj );
+
+				onRenderFcts.push(function(){
+					gltfObj.rotation.y += - 0.005*Math.PI;
+					//console.log(gltf.scene.rotation.y);
+				})
+
+			}, undefined, function ( e ) {
+				console.error( e );
+			} );
+
+
+			all.scale.multiplyScalar(1.5);
+			arWorldRoot.add(all);
+		}
+
+		function addFloor(){
+			/////////////////////////////
+			// Floor OBJECT
+			/////////////////////////////
+			var geometry = new THREE.PlaneGeometry(20, 10);
+			var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+			//Load the image into a custom material
+			var material = new THREE.MeshLambertMaterial({
+			  map: loader
+			});
+			
+			var floor = new THREE.Mesh(geometry, material);
+			floor.rotation.x = - Math.PI / 2;
+			floor.position.y = -0.1;
+			arWorldRoot.add(floor);
+		}
+
+		function renderEngine(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		render the whole thing on the page
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// render the arWorldRoot
+			onRenderFcts.push(function(){
+				renderer.render( arWorldRoot, camera );
+			})
+
+			// run the rendering loop
+			var lastTimeMsec= null
+			requestAnimationFrame(function animate(nowMsec){
+				// keep looping
+				requestAnimationFrame( animate );
+				controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+				// measure time
+				lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+				var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+				lastTimeMsec	= nowMsec
+				// call each update function
+				onRenderFcts.forEach(function(onRenderFct){
+					onRenderFct(deltaMsec/1000, nowMsec/1000)
+				})
+			})
+
+			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		}
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			var mouse = new THREE.Vector2();
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			var raycaster = new THREE.Raycaster();
+			raycaster.setFromCamera( mouse, camera );
+
+			var videoPlaneArray = [videoPlane];
+
+			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+
+			if ( videoIntersects.length > 0) {
+				if(video.paused == true){
+					video.play();
+				}else{
+					video.pause();
+				}
+			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+  					initSequence();
+				}
+			}])
+		}
+
+		function initSequence(){
+			var time = 0;
+			var videoLaunched = false;
+			var videoShowed = false;
+			var logoShowed = false;
+			var gltfShowed = false;
+			var videoStopNHide = false;
+
+			onRenderFcts.push(function(){
+				
+				//Init chrono
+				time += 0.02;
+				document.getElementById("time").innerHTML = "Time: " +Math.round(time);
+
+				//Launch a video
+				if(videoShowed == false && Math.round(time) == 6 ){
+					videoPlane.visible = true;
+					video.style.opacity = 0.5;
+					videoShowed = true;
+				}
+				if(videoLaunched == false && Math.round(time) == 9 ){
+					video.play();
+					videoLaunched = true;
+				}
+				if(logoShowed == false && Math.round(time) == 4 ){
+					logo.visible = true;
+					if(Math.round(time) < 6){
+						logo.material.opacity += 0.05;
+					}else{
+						logoShowed = true;
+					}
+				}
+				if(gltfShowed == false && Math.round(time) == 1 ){				
+					gltfObj.visible = true;
+					if(Math.round(time) < 5){
+						gltfObj.traverse( function( o ) {
+							if ( o.isMesh === true) {
+								o.material.opacity += 0.02;
+								console.log(o.material.opacity);
+							}
+						});
+					}else{
+						gltfShowed = true;
+					}	
+				}
+				if(videoStopNHide == false && Math.round(time) == 16 ){				
+					videoPlane.visible = false;
+					video.pause();
+					videoStopNHide = true;
+				}
+			})
+		}
+		</script>
+	</body>
+</html>
