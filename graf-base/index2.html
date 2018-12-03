@@ -247,7 +247,7 @@
 
 		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 		document.addEventListener ('touchend', onDocumentTouchEnd, false);
-		document.addEventListener ('touchmove', onDocumentTouchMove, false);
+		document.addEventListener ('touchmove', onDocumentTouchStart, false);
 
 		function onDocumentTouchStart( event ) {
 
@@ -262,17 +262,6 @@
 
 		}
 
-		function onDocumentTouchMove( event ) {
-
-				event.preventDefault();
-
-				event.clientX = event.touches[0].clientX;
-				event.clientY = event.touches[0].clientY;
-				
-				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
-				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
-
-		}
 
 		function onDocumentTouchEnd( event ) {
 
@@ -314,15 +303,15 @@
         			texture_context.beginPath();
 					texture_context.moveTo(mousePos.x, mousePos.y);
 					texture_context.lineTo(x, y);
-					strokeColor[0] += Math.round(Math.random()*100-50);
-					if(strokeColor[0]<0){strokeColor[0]=0;}
-					if(strokeColor[0]>255){strokeColor[0]=255;}
-					strokeColor[1] += Math.round(Math.random()*100-50);
-					if(strokeColor[1]<0){strokeColor[1]=0;}
-					if(strokeColor[1]>255){strokeColor[1]=255;}
-					strokeColor[2] += Math.round(Math.random()*100-50);
-					if(strokeColor[2]<0){strokeColor[2]=0;}
-					if(strokeColor[2]>255){strokeColor[2]=255;}
+					// strokeColor[0] += Math.round(Math.random()*100-50);
+					// if(strokeColor[0]<0){strokeColor[0]=0;}
+					// if(strokeColor[0]>255){strokeColor[0]=255;}
+					// strokeColor[1] += Math.round(Math.random()*100-50);
+					// if(strokeColor[1]<0){strokeColor[1]=0;}
+					// if(strokeColor[1]>255){strokeColor[1]=255;}
+					// strokeColor[2] += Math.round(Math.random()*100-50);
+					// if(strokeColor[2]<0){strokeColor[2]=0;}
+					// if(strokeColor[2]>255){strokeColor[2]=255;}
 					texture_context.strokeStyle = 'rgb('+ strokeColor[0] +', '+ strokeColor[1] + ','+ strokeColor[2] +')';
 					texture_context.lineWidth = 2;
 					texture_context.stroke();
