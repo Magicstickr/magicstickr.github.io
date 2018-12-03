@@ -221,6 +221,8 @@
 
 			if(mouse.down){
 				graffitiUpdate();
+			}else{
+				mousePos = null;
 			}
 
 			renderer.render( scene, camera );
@@ -269,7 +271,7 @@
 
 				var touch = false; //zero touch
 				mouse.down = touch;
-				var mousePos = null;
+				mousePos = null;
 
 		}
 
