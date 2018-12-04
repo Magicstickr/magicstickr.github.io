@@ -13,7 +13,7 @@
 		<style>
 
 		body {
-		    position: fixed;
+		    position: static;
 		    height: 100%;
 		    overflow: hidden;
 		    width: 100%;
@@ -307,6 +307,7 @@
 		}
 
 		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
 
 			swal.queue([{
 			  	title: 'Scan successful!',
