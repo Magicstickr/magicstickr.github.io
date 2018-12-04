@@ -18,25 +18,19 @@
 		}
 
 		body {
-		    position: fixed;
+		   
 		    height: 100%;
 		    overflow: hidden;
 		    width: 100%;
 		}	
-		#canvas {
-		    position: static; /* fixed or static */
-		}
-
-		.swal2-container{
-			position: relative;
-		}
-
+		
 		</style>
 
 		<title>Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
 		<!-- V 1.1.9 -->
+		<div id="canvas"></div>
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -49,8 +43,8 @@
 
 		isScreenMode();
 
-		// var container = document.getElementById( 'canvas' );
-		// document.body.appendChild( container );
+		var container = document.getElementById( 'canvas' );
+		document.body.appendChild( container );
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -64,7 +58,7 @@
 		renderer.domElement.style.position = 'absolute'
 		renderer.domElement.style.top = '0px'
 		renderer.domElement.style.left = '0px'
-		document.body.appendChild( renderer.domElement );
+		container.appendChild( renderer.domElement );
 
 		// array of functions for the rendering loop
 		var onRenderFcts= [];
@@ -321,7 +315,7 @@
 			  	type: 'success',
 			  	confirmButtonText: 'OK',
 			  	footer: 'Please, allow the access to your camera',
-			  	showLoaderOnConfirm: true,
+			  	//showLoaderOnConfirm: true,
   				preConfirm: () => {
 				  	swal.insertQueueStep({
 			  			title: 'Point the QR code and draw something with your finger',
