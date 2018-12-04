@@ -6,19 +6,22 @@
 		<script src='lib/three.min.js'></script>
 		<script src="lib/ar.min.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<!-- script for popup message -->
-		<script src="lib/sweetalert2.all.min.js"></script>
-		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
-		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
+		html, body {
+		    position: fixed;
+		}
 
-		html {
+		html, body {
 		    position: relative;
 		    overflow: hidden;
 		}
 
 		body {
-		   
+		    position: fixed;
+		    overflow: hidden;
+		}
+
+		body {
 		    position: fixed;
 		    height: 100%;
 		    overflow: hidden;
@@ -27,13 +30,12 @@
 		#canvas {
 		    position: static; /* fixed or static */
 		}
-		
 		</style>
 
-		<title>Graffiti</title>
+		<title>Chinese Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
-		V 1.1.11
+		<!-- V 1.1.9 -->
 		<div id="canvas"></div>
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
@@ -44,8 +46,6 @@
 		if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
-
-		//isScreenMode();
 
 		var container = document.getElementById( 'canvas' );
 		document.body.appendChild( container );
@@ -166,6 +166,7 @@
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
+		var isVideoPlay = false;
 		var mousePos = null;
 		var strokeColor = [200,200,200];
 
@@ -180,7 +181,7 @@
 
 		//Customizable texture
 		canvasSize = 256;
-		var texture_canvas = document.createElement ('m_canvas');
+		var texture_canvas = document.createElement ('canvas');
 		texture_canvas.width = canvasSize; texture_canvas.height = canvasSize;
 		var texture_context = texture_canvas.getContext ('2d');
 		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
@@ -213,7 +214,7 @@
 		// render the scene
 		onRenderFcts.push(function(){
 
-			if(mouse.down){
+			if(mouse.down && arToolkitContext.arController.patternMarkers[0].inCurrent == true){
 				graffitiUpdate();
 			}
 
@@ -310,24 +311,6 @@
         		}
 	            texture.needsUpdate = true;
 			}
-		}
-
-		function isScreenMode(){
-
-			swal.queue([{
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	confirmButtonText: 'OK',
-			  	footer: 'Please, allow the access to your camera',
-			  	//showLoaderOnConfirm: true,
-  				preConfirm: () => {
-				  	swal.insertQueueStep({
-			  			title: 'Point the QR code and draw something with your finger',
-			        	type: 'info',
-				    	confirmButtonText: 'OK'
-					})
-				}
-			}])
 		}
 		</script>
 	</body>
