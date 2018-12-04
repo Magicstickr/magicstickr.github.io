@@ -3,8 +3,8 @@
 	<head>
 		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
-		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.min.js"></script>
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
 		<!-- script for popup message -->
 		<script src="lib/sweetalert2.all.min.js"></script>
@@ -12,7 +12,16 @@
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
 
-		
+		body {
+		    position: static;
+		    height: 100%;
+		    overflow: hidden;
+		    width: 100%;
+		}	
+		#canvas {
+		    position: static; /* fixed or static */
+		}
+
 		</style>
 
 		<title>Graffiti</title>
