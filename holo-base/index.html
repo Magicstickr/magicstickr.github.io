@@ -297,24 +297,8 @@
   				preConfirm: () => {
 				  	swal.insertQueueStep({
 			  			title: 'Where is your Magic Stickr?',
-			        	type: 'question',
-				    	showCancelButton: true,
-						confirmButtonColor: '#3085d6',
-						cancelButtonColor: '#3085d6',
-						confirmButtonText: 'On my screen!',
-						cancelButtonText: 'On a paper!',
-						//footer: 'Tips: tap the levitating objects for more interactions!',
-						preConfirm: () => {
-    						all.rotation.x = - 0.8 * Math.PI / 2;
-    						all.position.z = ysize/2;
-    						swal.insertQueueStep({
-							  position: 'top-end',
-							  type: 'info',
-							  title: 'Tap the levitating objects for more interactions!',
-							  showConfirmButton: false,
-							  timer: 2000
-							})
-      					}
+			        	type: 'info',
+						confirmButtonText: 'Tap Sean to make him talk!'
 					})
 				}
 			}])
