@@ -12,11 +12,6 @@
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
 
-		html {
-		    position: relative;
-		    overflow: hidden;
-		}
-
 		body {
 		    position: fixed;
 		    height: 100%;
@@ -27,7 +22,8 @@
 		    position: static; /* fixed or static */
 		}
 		.swal2-container{
-			position: static;
+			 z-index: 99;
+			position: relative;
 		}
 
 		</style>
