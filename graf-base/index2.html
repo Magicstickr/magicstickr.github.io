@@ -23,6 +23,9 @@
 		    overflow: hidden;
 		    width: 100%;
 		}	
+		#canvas {
+		    position: static; /* fixed or static */
+		}
 		
 		</style>
 
@@ -176,7 +179,7 @@
 
 		//Customizable texture
 		canvasSize = 256;
-		var texture_canvas = document.createElement ('canvas');
+		var texture_canvas = document.createElement ('m_canvas');
 		texture_canvas.width = canvasSize; texture_canvas.height = canvasSize;
 		var texture_context = texture_canvas.getContext ('2d');
 		texture_context.rect (0, 0, texture_canvas.width, texture_canvas.height);
