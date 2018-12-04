@@ -6,6 +6,10 @@
 		<script src='lib/three.min.js'></script>
 		<script src="lib/ar.min.js"></script>
 		<script src="lib/WebGL.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
 		html, body {
 		    position: fixed;
@@ -46,6 +50,8 @@
 		if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
+
+		isScreenMode();
 
 		var container = document.getElementById( 'canvas' );
 		document.body.appendChild( container );
@@ -311,6 +317,26 @@
         		}
 	            texture.needsUpdate = true;
 			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Point the QR code and draw something with your finger',
+			        	type: 'info',
+				    	confirmButtonText: 'OK'
+						//footer: 'Tips: tap the levitating objects for more interactions!',
+					})
+				}
+			}])
 		}
 		</script>
 	</body>

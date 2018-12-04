@@ -7,10 +7,14 @@
 		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
 		<script src='lib/threex.videotexture.js'></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<title>ResoSante Videos</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.7
+		//V 1.1.7
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Init
@@ -20,6 +24,8 @@
 		if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
+
+		isScreenMode();
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -297,6 +303,25 @@
 			if(websiteIntersects.length > 0){
 				window.location.href = 'https://resosante.ca';
 			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Tap on [Tapoter ici] to play the video',
+			        	type: 'info',
+				    	confirmButtonText: 'OK'
+					})
+				}
+			}])
 		}
 		</script>
 	</body>

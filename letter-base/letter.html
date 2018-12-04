@@ -7,6 +7,10 @@
 		<script src="lib/ar.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
 		<script src="lib/WebGL.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<title>Your letter from the future</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -14,7 +18,7 @@
 		  <source src="content/sound.mp3" type="audio/mpeg">
 		  Your browser does not support the audio element.
 		</audio>
-		<div>V. 1.0.6b</div>
+		<!--<div>V. 1.0.6b</div>-->
 		<div id="audioOff" style="display: block; position: absolute; z-index: 99; padding: 10px;" onclick="audioControl(true)">
 			<img src="mute.png" alt="mute" height="30" width="30"> 
 		</div>
@@ -51,6 +55,8 @@
 		///////////////////////////
 		var isSoundOn = false;
 		var soundOffCountDown = 0;
+
+		isScreenMode();
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -400,6 +406,25 @@
 			if ( letterIntersects.length > 0 && arToolkitContext.arController.patternMarkers[0].inCurrent == true) {
 				window.location.href = './message.html';
 			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Tap on the text & photo to see more',
+			        	type: 'info',
+				    	confirmButtonText: 'OK'
+					})
+				}
+			}])
 		}
 		</script>
 	</body>
