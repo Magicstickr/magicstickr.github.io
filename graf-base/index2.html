@@ -11,17 +11,8 @@
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<style>
-		html, body {
-		    position: fixed;
-		}
-
-		html, body {
+		html {
 		    position: relative;
-		    overflow: hidden;
-		}
-
-		body {
-		    position: fixed;
 		    overflow: hidden;
 		}
 
@@ -34,9 +25,13 @@
 		#canvas {
 		    position: static; /* fixed or static */
 		}
+
+		.swal2-container{
+			position: relative;
+		}
 		</style>
 
-		<title>Chinese Graffiti</title>
+		<title>Graffiti</title>
 	</head>
 	<body style='margin : 0px; font-family: Monospace;'>
 		<!-- V 1.1.9 -->
@@ -172,7 +167,6 @@
 
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
-		var isVideoPlay = false;
 		var mousePos = null;
 		var strokeColor = [200,200,200];
 
@@ -320,7 +314,6 @@
 		}
 
 		function isScreenMode(){
-			const ipAPI = 'https://api.ipify.org?format=json'
 
 			swal.queue([{
 			  	title: 'Scan successful!',
@@ -333,7 +326,6 @@
 			  			title: 'Point the QR code and draw something with your finger',
 			        	type: 'info',
 				    	confirmButtonText: 'OK'
-						//footer: 'Tips: tap the levitating objects for more interactions!',
 					})
 				}
 			}])
