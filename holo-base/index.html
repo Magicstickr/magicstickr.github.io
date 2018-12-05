@@ -16,7 +16,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		<!-- V 1.1.9 -->
+		V 1.1.10
 		<script id="vertexShader" type="x-shader/x-vertex">
 
 			varying vec2 vUv;
@@ -54,7 +54,7 @@
 		}
 
 		//init screen mode
-		var screen_mode = isScreenMode();
+		//var screen_mode = isScreenMode();
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -209,9 +209,9 @@
 		all.add(logo);
 
 		all.scale.multiplyScalar(1);
-		if(screen_mode == true){
-			all.rotation.x = - Math.PI / 2;
-		}
+		// if(screen_mode == true){
+		// 	all.rotation.x = - Math.PI / 2;
+		// }
 		arWorldRoot.add(all);
 
 		//////////////////////////////////////////////////////////////////////////////////

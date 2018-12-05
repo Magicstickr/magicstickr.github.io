@@ -149,7 +149,7 @@
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
-			var url	= 'content/video.mp4';
+			var url	= window.location.pathname + 'content/video.mp4';
 		}else	alert('cant play mp4')
 
 		var thumbnail = 'content/thumbnail.png';
@@ -306,7 +306,6 @@
 		}
 
 		function isScreenMode(){
-			const ipAPI = 'https://api.ipify.org?format=json'
 
 			swal.queue([{
 			  	title: 'Scan successful!',
