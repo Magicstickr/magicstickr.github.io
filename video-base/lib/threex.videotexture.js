@@ -10,9 +10,9 @@ THREEx.VideoTexture	= function(url, thumbnail){
 	video.autoplay	= true;
 	video.src	= url;
 	// expose video as this.video
-	this.video	= video
+	this.video	= video;
 
-	console.log(video);
+	//console.log(video);
 
 	// create the texture
 	var texture	= new THREE.Texture( video );

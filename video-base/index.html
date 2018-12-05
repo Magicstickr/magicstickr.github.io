@@ -311,14 +311,11 @@
 			swal.queue([{
 			  	title: 'Scan successful!',
 			  	type: 'success',
-			  	confirmButtonText: 'OK',
 			  	footer: 'Please, allow the access to your camera',
-			  	showLoaderOnConfirm: true,
   				preConfirm: () => {
 				  	swal.insertQueueStep({
 			  			title: 'Tap on [Tapoter ici] to play the video',
-			        	type: 'info',
-				    	confirmButtonText: 'OK'
+			        	type: 'info'
 					})
 				}
 			}])
