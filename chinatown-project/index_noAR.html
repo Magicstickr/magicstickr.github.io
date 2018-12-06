@@ -382,6 +382,8 @@
 			  	footer: 'Please, allow the access to your camera',
 			  	showLoaderOnConfirm: true,
   				preConfirm: () => {
+  					video.play();
+  					video.pause();
   					initSequence();
 				}
 			}])
