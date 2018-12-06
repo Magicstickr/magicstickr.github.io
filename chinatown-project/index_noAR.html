@@ -4,9 +4,8 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
 		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.min.js"></script>
+		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/OrbitControls.js"></script>
 		<script src="lib/chromakey.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
@@ -19,6 +18,7 @@
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		<!--V 1.1.5 </br>-->
 		<div id=time>Time:</div>
+		<div id=test></div>
 		<script id="vertexShader" type="x-shader/x-vertex">
 
 			varying vec2 vUv;
@@ -50,17 +50,18 @@
 		// Threejs/ARjs standard variables
 		var renderer, arWorldRoot, onRenderFcts, camera, controls;
 		// Control variables
-		var screen_mode;
+		var screen_mode, isSeqInit;
 		// Object variables
-		var all, videoPlane, logo, floor, video, gltfObj, tile, imgMesh;
+		var all, videoPlane, logo, floor, video, gltfObj, tile, pic1, pic2, pic3;
 
 		initScene();
 		initCamera();
 		initLight();
 		initControl();
 
-		addObjects();
 		addFloor();
+		addObjects();
+
 
 		renderEngine();
 
@@ -76,6 +77,7 @@
 
 			//init screen mode
 			screen_mode = isScreenMode();
+			//isSeqInit = false;
 
 			//console.log(screen_mode);
 
@@ -143,7 +145,6 @@
 			
 			var xsize = 1;
 			var ysize = xsize * 0.5625;
-			var tile_size = 2;
 
 			var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
@@ -157,7 +158,7 @@
 			videoPlane.position.y = 1.1;
 			videoPlane.position.z = 1;
 			videoPlane.scale.multiplyScalar(4);
-			videoPlane.visible = false;
+			//videoPlane.visible = false;
 			video.loop = false;
 
 			all.add( videoPlane );	
@@ -167,46 +168,49 @@
 			})
 
 			//add tile
-			var roundedRectShape = new THREE.Shape();
-				( function roundedRect( ctx, x, y, width, height, radius ) {
-					ctx.moveTo( x, y + radius );
-					ctx.lineTo( x, y + height - radius );
-					ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
-					ctx.lineTo( x + width - radius, y + height );
-					ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
-					ctx.lineTo( x + width, y + radius );
-					ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-					ctx.lineTo( x + radius, y );
-					ctx.quadraticCurveTo( x, y, x, y + radius );
-				} )( roundedRectShape, 0, 0, 0.5*tile_size, 0.7*tile_size, 0.01 );
-			var extrudeSettings = {
-				steps: 2,
-				depth: 0.2*tile_size,
-				bevelEnabled: true,
-				bevelThickness: 0.05,
-				bevelSize: 0.05,
-				bevelSegments: 1
-			};
-			var geometry = new THREE.ExtrudeGeometry( roundedRectShape, extrudeSettings );
-		    var materialFace = new THREE.MeshLambertMaterial({
-		        map: THREE.ImageUtils.loadTexture('content/tile.png')
-		    });
-		    var materialSide = new THREE.MeshLambertMaterial({
-		        color: '#EEEBDC'
-		    });
-		    var materials = new THREE.MeshFaceMaterial([materialFace, materialSide]);
+			var tile_size = 2;
+			// var roundedRectShape = new THREE.Shape();
+			// 	( function roundedRect( ctx, x, y, width, height, radius ) {
+			// 		ctx.moveTo( x, y + radius );
+			// 		ctx.lineTo( x, y + height - radius );
+			// 		ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+			// 		ctx.lineTo( x + width - radius, y + height );
+			// 		ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+			// 		ctx.lineTo( x + width, y + radius );
+			// 		ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+			// 		ctx.lineTo( x + radius, y );
+			// 		ctx.quadraticCurveTo( x, y, x, y + radius );
+			// 	} )( roundedRectShape, 0, 0, 1.5*tile_size, 1.7*tile_size, 0.1 );
+			// var extrudeSettings = {
+			// 	steps: 3,
+			// 	depth: 0.1*tile_size,
+			// 	bevelEnabled: true,
+			// 	bevelThickness: 0.05,
+			// 	bevelSize: 0.05,
+			// 	bevelSegments: 3
+			// };
+			// var geometry = new THREE.ExtrudeGeometry( roundedRectShape, extrudeSettings );
+			var geometry = new THREE.BoxGeometry( 0.6*tile_size, 0.3*tile_size, 0.8*tile_size );
+
+		    var texture = new THREE.TextureLoader().load( "content/tile.png" );
+		    var materials = [
+		    
+		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+		    new THREE.MeshLambertMaterial({ map: texture }),
+		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'})
+		    ];
 
 			tile = new THREE.Mesh(geometry, materials);
-			tile.rotation.x = - Math.PI/2;
-			tile.position.z = -1;
-			tile.position.x = -0.5*tile_size/2;
-			tile.position.y = -0.2*tile_size;
+			tile.position.y = -0.35;
+			tile.visible = false;
 			
 			all.add( tile );
 
 			// Load 3D object
-			var loader = new THREE.GLTFLoader();
-			loader.load('content/scene.gltf', function ( gltf ) {
+			var loader = new THREE.GLTFLoader().load('content/scene.gltf', function ( gltf ) {
 				//Resize/rescale the 3D Object
 				var bbox = new THREE.Box3().setFromObject(gltf.scene);
 				var cent = bbox.getCenter(new THREE.Vector3());
@@ -222,7 +226,7 @@
 				gltf.scene.position.y = (size.y * 0.2);
 				gltf.scene.position.x += 2.5;
 				gltf.scene.position.z = (size.z * 0.5);
-				gltf.scene.visible = false;
+				gltf.scene.visible = true;
 				gltf.scene.traverse( function( o ) {
 
 					if ( o.isMesh === true ) {
@@ -242,25 +246,24 @@
 
 				onRenderFcts.push(function(){
 					gltfObj.rotation.y += - 0.005*Math.PI;
-					//console.log(gltf.scene.rotation.y);
 				})
 
 			}, undefined, function ( e ) {
 				console.error( e );
 			} );
 
-			//Load image
+			//Load pic1
 			var geometry = new THREE.PlaneGeometry(1, 1);
 			var material = new THREE.MeshLambertMaterial();
-			imgMesh = new THREE.Mesh(geometry, material);
+			pic1 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 				//Rescale and position image
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				imgMesh.scale.set(targetWidth, targetHeight, 1.0);
-				imgMesh.position.x = -3;
-				imgMesh.position.z = 0.1;
+				pic1.scale.set(targetWidth, targetHeight, 1.0);
+				pic1.position.x = -3;
+				pic1.position.z = 0.1;
 			});
 
 			//Load the image into a custom material
@@ -268,10 +271,58 @@
 			  map: imageLoader
 			});
 			//Add material to the image mesh
-			imgMesh.material = material;
-			imgMesh.visible = false;
+			pic1.material = material;
+			pic1.visible = false;
 
-			all.add(imgMesh);
+			all.add(pic1);
+
+			//Load pic2
+			var geometry = new THREE.PlaneGeometry(1, 1);
+			var material = new THREE.MeshLambertMaterial();
+			pic2 = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image1.jpg', (imgLoader) => {
+				//Rescale and position image
+				var targetWidth = 4;
+				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				pic2.scale.set(targetWidth, targetHeight, 1.0);
+				pic2.position.x = 1.5;
+				pic2.position.z = 0.1;
+			});
+
+			//Load the image into a custom material
+			material = new THREE.MeshLambertMaterial({
+			  map: imageLoader
+			});
+			//Add material to the image mesh
+			pic2.material = material;
+			pic2.visible = false;
+
+			all.add(pic2);
+
+			//Load pic3
+			var geometry = new THREE.PlaneGeometry(1, 1);
+			var material = new THREE.MeshLambertMaterial();
+			pic3 = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
+				//Rescale and position image
+				var targetWidth = 4;
+				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				pic3.scale.set(targetWidth, targetHeight, 1.0);
+				pic3.position.x = -3;
+				pic3.position.z = 0.1;
+			});
+
+			//Load the image into a custom material
+			material = new THREE.MeshLambertMaterial({
+			  map: imageLoader
+			});
+			//Add material to the image mesh
+			pic3.material = material;
+			pic3.visible = false;
+
+			all.add(pic3);
 
 
 			all.scale.multiplyScalar(1.5);
@@ -302,6 +353,7 @@
 			// render the arWorldRoot
 			onRenderFcts.push(function(){
 				renderer.render( arWorldRoot, camera );
+
 			})
 
 			// run the rendering loop
@@ -319,42 +371,6 @@
 					onRenderFct(deltaMsec/1000, nowMsec/1000)
 				})
 			})
-
-			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		}
-
-		function onDocumentTouchStart( event ) {
-
-				event.preventDefault();
-
-				event.clientX = event.touches[0].clientX;
-				event.clientY = event.touches[0].clientY;
-				onDocumentMouseDown( event );
-		}
-
-		function onDocumentMouseDown( event ) {
-
-			event.preventDefault();
-
-			var mouse = new THREE.Vector2();
-			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-			var raycaster = new THREE.Raycaster();
-			raycaster.setFromCamera( mouse, camera );
-
-			var videoPlaneArray = [videoPlane];
-
-			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
-
-			if ( videoIntersects.length > 0) {
-				if(video.paused == true){
-					video.play();
-				}else{
-					video.pause();
-				}
-			}
 		}
 
 		function isScreenMode(){
@@ -375,12 +391,8 @@
 			var time = 0;
 			
 			var gltfShowed = false;
-			var tileShowed = false;
 			var videoStart = false;
 			var speechStopped = false;
-			var gltfHidden = false;
-			var pic1Showed = false;
-			var pic1Hidden = false;
 
 			onRenderFcts.push(function(){
 				
@@ -392,96 +404,142 @@
 				// The tile is appearing (2sec)
 				var start = 1;
 				var end = 3;
-				if(tileShowed == false && Math.round(time) == start ){
-					if(Math.round(time) < end){
-						//action after start
-						tile.position.z = 6 * (time-start)/(end-start);
-					}else{
-						tileShowed = true;
-					}
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					tile.visible = true;
+					tile.position.z = 5*Math.log(t+1) - 2.5;
+					// test(tile.position.z);
 				}
 
 				//Launch a Michelle speech at sec 3
-				var start = 3;
+				var start = 5;
 				if(videoStart == false && Math.round(time) == start ){
-					videoPlane.visible = true;
+					//videoPlane.visible = true;
 					video.play();
 					videoStart = true;
 				}
 
-				//Show Lion at sec 13
-				var start = 13;
+				//Show Lion 
+				var start = 12;
 				var end = 15;
-				if(gltfShowed == false && Math.round(time) == start ){				
-					gltfObj.visible = true;
-					if(Math.round(time) < end){
-						gltfObj.traverse( function( o ) {
-							if ( o.isMesh === true) {
-								o.material.opacity = 4 * (time-start)/(end-start);
-								console.log(o.material.opacity);
-							}
-						});
-					}else{
-						gltfShowed = true;
-					}	
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					//gltfObj.visible = true;
+					gltfObj.traverse( function( o ) {
+						if ( o.isMesh === true) {
+							o.material.opacity = t;
+							//test(o.material.opacity);
+						}
+					});
 				}
 
 				//Hide Lion at sec 23
-				var start = 23;
-				var end = 25;
-				if(gltfHidden == false && Math.round(time) == start ){				
-					gltfObj.visible = true;
-					if(Math.round(time) < end){
-						gltfObj.traverse( function( o ) {
-							if ( o.isMesh === true) {
-								o.material.opacity = 1 - (4 * (time-start)/(end-start));
-							}
-						});
-					}else{
-						gltfHidden = true;
-					}	
+				var start = 20;
+				var end = 22;
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					//gltfObj.visible = true;
+					gltfObj.traverse( function( o ) {
+						if ( o.isMesh === true) {
+							o.material.opacity = 1-t;
+						}
+					});
 				}
 
-				//Show Pic1 at sec 23
-				var start = 21;
-				var end = 23;
-				if(pic1Showed == false && Math.round(time) == start ){				
-					if(Math.round(time) < end){
-						imgMesh.position.y = 4 - (16 * (time-start)/(end-start));
-						imgMesh.visible = true;
-					}else{
-						pic1Showed = true;
-					}	
+				//Show Pic1
+				var start = 20; 
+				var end = 22; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_down = (10*t-10); //t_down goes from -10 to 0
+					t_lowered = t_down/3;
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					pic1.visible = true;
 				}
 
-				//Hide Pic1 at sec 23
-				var start = 25;
-				var end = 27;
-				if(pic1Hidden == false && Math.round(time) == start ){				
-					if(Math.round(time) < end){
-						imgMesh.position.y -= 0.2;
-						
-					}else{
-						imgMesh.visible = false;
-						pic1Hidden = true;
-					}	
-				}
-
-				// Stop speech at sec 30
-				var start = 30;
-				var end = 32;
-				if(speechStopped == false && Math.round(time) == start ){
-					videoPlane.visible = false;
-					//video.pause();
-					if(Math.round(time) < end){
-						//action after start
-						tile.position.z -= 0.05;
-					}else{
-						speechStopped = true;
+				//Hide Pic1
+				var start = 24; 
+				var end = 26; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_up = (10*t); // t_up goes from 0 to 10
+					t_lowered = t_up/3;
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					if (time >= end-0.1){
+						pic1.visible = false;
 					}
 				}
 
+				//Show Pic2 
+				var start = 23; 
+				var end = 25; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_down = (10*t-10); //t_down goes from -10 to 0
+					t_lowered = t_down/3;
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					pic2.visible = true;
+				}
+
+				//Hide Pic2 
+				var start = 27; 
+				var end = 28; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_up = (10*t); // t_up goes from 0 to 10
+					t_lowered = t_up/3;
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					if (time >= end-0.1){
+						pic2.visible = false;
+					}
+				}
+
+				//Show Pic3 
+				var start = 26; 
+				var end = 28; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_down = (10*t-10); //t_down goes from -10 to 0
+					t_lowered = t_down/3;
+					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
+					pic3.visible = true;
+				}
+
+				//Hide Pic3 
+				var start = 29; 
+				var end = 30; 
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					t_up = (10*t); // t_up goes from 0 to 10
+					t_lowered = t_up/3;
+					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
+					if (time >= end-0.1){
+						pic3.visible = false;
+					}
+				}
+
+				// Stop speech
+				var start = 33;
+				if(speechStopped == false && Math.round(time) == start ){
+					videoPlane.visible = false;
+					speechStopped = true;
+				}
+
+				// Tile disappears
+				var start = 32;
+				var end = 34;
+				var t = (time-start)/(end-start);
+				if(	time >= start && time < end ){
+					tile.visible = true;
+					tile.position.z -= 0.05;
+					// test(tile.position.z);
+				}
+
 			})
+		}
+
+		function test(test_var){
+			document.getElementById("test").innerHTML = "Test: " + test_var;
 		}
 		</script>
 	</body>
