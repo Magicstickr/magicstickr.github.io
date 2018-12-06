@@ -2,9 +2,10 @@ ChromaKeyMaterial = function (url, width, height, keyColor) {
 	THREE.ShaderMaterial.call(this);
 
 	video = document.createElement('video');
-	video.loop = true;
+	video.loop = false;
 	video.src = url;
 	video.setAttribute("playsinline", ""); 
+	viode.setAttribute("id", "video")
 	video.load();
 
 	var videoImage = document.createElement('canvas');

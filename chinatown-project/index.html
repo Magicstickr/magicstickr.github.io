@@ -3,11 +3,13 @@
 	<head>
 		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
-		<script src='lib/three.js'></script>
-		<script src="lib/ar.js"></script>
+		<script src='lib/three.min.js'></script>
+		<script src="lib/ar.min.js"></script>
 		<script src="lib/WebGL.js"></script>
 		<script src='lib/threex.videotexture.js'></script>
+		<script src="lib/OrbitControls.js"></script>
 		<script src="lib/chromakey.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
 		<!-- script for popup message -->
 		<script src="lib/sweetalert2.all.min.js"></script>
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
@@ -17,6 +19,7 @@
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		<!-- V 1.1.9 -->
+		<div id=time>Time:</div>
 		<script id="vertexShader" type="x-shader/x-vertex">
 
 			varying vec2 vUv;
@@ -44,212 +47,339 @@
 			}
 		</script>
 		<script>
-		//////////////////////////////////////////////////////////////////////////////////
-		//		Init
-		//////////////////////////////////////////////////////////////////////////////////
 
-		//Error if not WebGL compatible
-		if ( WEBGL.isWebGLAvailable() === false ) {
-				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		// Threejs/ARjs standard variables
+		var renderer, arWorldRoot, onRenderFcts, camera, controls, scene;
+		//ARjs standard variables
+		var arToolkitSource, arToolkitContext, artoolkitMarker, markerRoot, smoothedRoot;
+		// Control variables
+		var screen_mode, isVideoPlay;
+		// Object variables
+		var all, videoPlane, logo, floor, video, gltfObj, tile, imgMesh;
+
+		initScene();
+		initCamera();
+		initLight();
+		initAREngine();
+
+		addObjects();
+
+		renderEngine();
+
+		function initScene(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Init
+			//////////////////////////////////////////////////////////////////////////////////
+
+			//Error if not WebGL compatible
+			if ( WEBGL.isWebGLAvailable() === false ) {
+					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+			}
+
+			//init screen mode
+			screen_mode = isScreenMode();
+
+			//console.log(screen_mode);
+
+			// init renderer
+			renderer	= new THREE.WebGLRenderer({
+				antialias	: true,
+				autoResize : true,
+				alpha: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.domElement.style.position = 'absolute'
+			renderer.domElement.style.top = '0px'
+			renderer.domElement.style.left = '0px'
+			document.body.appendChild( renderer.domElement );
+
+			// array of functions for the rendering loop
+			onRenderFcts= [];
+
+			// init arWorldRoot and camera
+
+			scene = new THREE.Scene();
+		}
+		
+		function initCamera(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Initialize a basic camera
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// Create a camera
+			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+			camera.position.set( 0, 2, 10 );
+			scene.add(camera);
 		}
 
-		//init screen mode
-		var screen_mode = isScreenMode();
-
-		// init renderer
-		var renderer	= new THREE.WebGLRenderer({
-			antialias	: true,
-			autoResize : true,
-			alpha: true
-		});
-		renderer.setClearColor(new THREE.Color('lightgrey'), 0);
-		renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.domElement.style.position = 'absolute'
-		renderer.domElement.style.top = '0px'
-		renderer.domElement.style.left = '0px'
-		//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-		document.body.appendChild( renderer.domElement );
-
-		// array of functions for the rendering loop
-		var onRenderFcts= [];
-
-		// init scene and camera
-
-		var scene = new THREE.Scene();
-		
-		//////////////////////////////////////////////////////////////////////////////////
-		//		Initialize a basic camera
-		//////////////////////////////////////////////////////////////////////////////////
-
-		// Create a camera
-		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
-		scene.add(camera);
-
-		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-		scene.add( light );
-
-		////////////////////////////////////////////////////////////////////////////////
-		//          handle arToolkitSource
-		////////////////////////////////////////////////////////////////////////////////
-
-		var arToolkitSource = new THREEx.ArToolkitSource({
-			// to read from the webcam 
-			sourceType : 'webcam'	
-		})
-
-		arToolkitSource.init(function onReady(){
-			onResize()
-		})
-		
-		// handle resize
-		window.addEventListener('resize', function(){
-			onResize()
-		})
-		function onResize(){
-			arToolkitSource.onResizeElement()	
-			arToolkitSource.copyElementSizeTo(renderer.domElement)	
-			if( arToolkitContext.arController !== null ){
-				arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-			}	
+		function initLight(){
+			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+			scene.add( light );
 		}
-		////////////////////////////////////////////////////////////////////////////////
-		//          initialize arToolkitContext
-		////////////////////////////////////////////////////////////////////////////////
-		
 
-		// create atToolkitContext
-		var arToolkitContext = new THREEx.ArToolkitContext({
-			cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
-			detectionMode: 'mono',
-			maxDetectionRate: 30,
-			canvasWidth: 80*3,
-			canvasHeight: 60*3,
-		})
-		// initialize it
-		arToolkitContext.init(function onCompleted(){
-			// copy projection matrix to camera
-			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-		})
+		function initAREngine(){
+			////////////////////////////////////////////////////////////////////////////////
+			//          handle arToolkitSource
+			////////////////////////////////////////////////////////////////////////////////
 
-		// update artoolkit on every frame
-		onRenderFcts.push(function(){
-			if( arToolkitSource.ready === false )	return
-			arToolkitContext.update( arToolkitSource.domElement )
-		})
-		
-		////////////////////////////////////////////////////////////////////////////////
-		//          Create a ArMarkerControls
-		////////////////////////////////////////////////////////////////////////////////
-		
-		var markerRoot = new THREE.Group
-		scene.add(markerRoot)
-		var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-			//type: 'barcode',
-			//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
-			type : 'pattern',
-			patternUrl : 'marker/marker.patt'
-		})
+			arToolkitSource = new THREEx.ArToolkitSource({
+				// to read from the webcam 
+				sourceType : 'webcam'	
+			})
 
-		// build a smoothedControls
-		var smoothedRoot = new THREE.Group()
-		scene.add(smoothedRoot)
-		var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-			lerpPosition: 0.4,
-			lerpQuaternion: 0.3,
-			lerpScale: 1,
-		})
-		onRenderFcts.push(function(delta){
-			smoothedControls.update(markerRoot);
-		})
+			arToolkitSource.init(function onReady(){
+				onResize()
+			})
+			
+			// handle resize
+			window.addEventListener('resize', function(){
+				onResize()
+			})
+			function onResize(){
+				arToolkitSource.onResizeElement()	
+				arToolkitSource.copyElementSizeTo(renderer.domElement)	
+				if( arToolkitContext.arController !== null ){
+					arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+				}	
+			}
+			////////////////////////////////////////////////////////////////////////////////
+			//          initialize arToolkitContext
+			////////////////////////////////////////////////////////////////////////////////
+			
 
-		//////////////////////////////////////////////////////////////////////////////////
-		//		Add the objects in the scene
-		//////////////////////////////////////////////////////////////////////////////////
+			// create atToolkitContext
+			arToolkitContext = new THREEx.ArToolkitContext({
+				cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+				detectionMode: 'mono',
+				maxDetectionRate: 30,
+				canvasWidth: 80*3,
+				canvasHeight: 60*3,
+			})
+			// initialize it
+			arToolkitContext.init(function onCompleted(){
+				// copy projection matrix to camera
+				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			})
 
-		var arWorldRoot = smoothedRoot;
+			// update artoolkit on every frame
+			onRenderFcts.push(function(){
+				if( arToolkitSource.ready === false )	return
+				arToolkitContext.update( arToolkitSource.domElement )
+			})
+			
+			////////////////////////////////////////////////////////////////////////////////
+			//          Create a ArMarkerControls
+			////////////////////////////////////////////////////////////////////////////////
+			
+			markerRoot = new THREE.Group
+			scene.add(markerRoot)
+			artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+				//type: 'barcode',
+				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
+				type : 'pattern',
+				patternUrl : 'marker/marker.patt'
+			})
 
-		var raycaster = new THREE.Raycaster();
-		var mouse = new THREE.Vector2();
-		var isVideoPlay = false;
+			// build a smoothedControls
+			smoothedRoot = new THREE.Group()
+			scene.add(smoothedRoot)
+			var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+				lerpPosition: 0.4,
+				lerpQuaternion: 0.3,
+				lerpScale: 1,
+			})
+			onRenderFcts.push(function(delta){
+				smoothedControls.update(markerRoot);
+			})
 
-		var all = new THREE.Group();
-		
-		var xsize = 6;
-		var ysize = xsize * 0.5625;
-
-		var geometry = new THREE.PlaneGeometry(xsize, ysize);
-
-		var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, 0xd432);
-		// green: 0xd432
-		// white: 0xffff
-
-		var videoPlane = new THREE.Mesh( geometry, movieMaterial );
-		videoPlane.scale.multiplyScalar(1);
-		videoPlane.position.y = ysize/2;
-
-		all.add( videoPlane );	
-
-		onRenderFcts.push(function(delta, now){
-			movieMaterial.update();
-		})
-
-		//add logo floor
-		var geometry = new THREE.PlaneGeometry(2,2);
-		var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
-		});
-		//Load the image into a custom material
-		var material = new THREE.MeshLambertMaterial({
-		  map: loader,
-		  transparent: true,
-		});
-		
-		var logo = new THREE.Mesh(geometry, material);
-		logo.rotation.x = - Math.PI / 2;
-		all.add(logo);
-
-		all.scale.multiplyScalar(1);
-		if(screen_mode == true){
-			all.rotation.x = - Math.PI / 2;
+			arWorldRoot = smoothedRoot;
 		}
-		arWorldRoot.add(all);
 
-		//////////////////////////////////////////////////////////////////////////////////
-		//		render the whole thing on the page
-		//////////////////////////////////////////////////////////////////////////////////
+		function addObjects(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Add the objects in the arWorldRoot
+			//////////////////////////////////////////////////////////////////////////////////
 
-		// render the scene
-		onRenderFcts.push(function(){
-			renderer.render( scene, camera );
-			if(arToolkitContext.arController != null){
-				if(arToolkitContext.arController.patternMarkers[0] != null){
-					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-						video.pause();
+			all = new THREE.Group();
+
+			isVideoPlay = false;
+			
+			var xsize = 1;
+			var ysize = xsize * 0.5625;
+			var tile_size = 2;
+
+			var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+			var location = window.location.href;
+			var directoryPath = location.substring(0, location.lastIndexOf("/")+1);
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/michelle.mp4', 1280, 720, 0xd432);
+			// green: 0xd432
+			// white: 0xffff
+
+			videoPlane = new THREE.Mesh( geometry, movieMaterial );
+			videoPlane.position.y = 1.1;
+			videoPlane.position.z = 1;
+			videoPlane.scale.multiplyScalar(4);
+			videoPlane.visible = false;
+			video.loop = false;
+
+			all.add( videoPlane );	
+
+			onRenderFcts.push(function(delta, now){
+				movieMaterial.update();
+			})
+
+			//add tile
+			var roundedRectShape = new THREE.Shape();
+				( function roundedRect( ctx, x, y, width, height, radius ) {
+					ctx.moveTo( x, y + radius );
+					ctx.lineTo( x, y + height - radius );
+					ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+					ctx.lineTo( x + width - radius, y + height );
+					ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+					ctx.lineTo( x + width, y + radius );
+					ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+					ctx.lineTo( x + radius, y );
+					ctx.quadraticCurveTo( x, y, x, y + radius );
+				} )( roundedRectShape, 0, 0, 0.5*tile_size, 0.7*tile_size, 0.01 );
+			var extrudeSettings = {
+				steps: 2,
+				depth: 0.2*tile_size,
+				bevelEnabled: true,
+				bevelThickness: 0.05,
+				bevelSize: 0.05,
+				bevelSegments: 1
+			};
+			var geometry = new THREE.ExtrudeGeometry( roundedRectShape, extrudeSettings );
+		    var materialFace = new THREE.MeshLambertMaterial({
+		        map: THREE.ImageUtils.loadTexture('content/tile.png')
+		    });
+		    var materialSide = new THREE.MeshLambertMaterial({
+		        color: '#EEEBDC'
+		    });
+		    var materials = new THREE.MeshFaceMaterial([materialFace, materialSide]);
+
+			tile = new THREE.Mesh(geometry, materials);
+			tile.rotation.x = - Math.PI/2;
+			tile.position.z = -1;
+			tile.position.x = -0.5*tile_size/2;
+			tile.position.y = -0.2*tile_size;
+			
+			all.add( tile );
+
+			// Load 3D object
+			var loader = new THREE.GLTFLoader();
+			loader.load('content/scene.gltf', function ( gltf ) {
+				//Resize/rescale the 3D Object
+				var bbox = new THREE.Box3().setFromObject(gltf.scene);
+				var cent = bbox.getCenter(new THREE.Vector3());
+				var size = bbox.getSize(new THREE.Vector3());
+				//Rescale the object to normalized space
+				var maxAxis = Math.max(size.x, size.y, size.z);
+				gltf.scene.scale.multiplyScalar(4.0 / maxAxis);
+				bbox.setFromObject(gltf.scene);
+				bbox.getCenter(cent);
+				bbox.getSize(size);
+				//Reposition to 0,halfY,0
+				gltf.scene.position.copy(cent).multiplyScalar(-1);
+				gltf.scene.position.y = (size.y * 0.2);
+				gltf.scene.position.x += 2.5;
+				gltf.scene.position.z = (size.z * 0.5);
+				gltf.scene.visible = false;
+				gltf.scene.traverse( function( o ) {
+
+					if ( o.isMesh === true ) {
+
+						o.material.transparent = true;
+						o.material.opacity = 0;
+					
 					}
-					else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
-						video.play();
+
+				} );
+				
+				//gltf.scene.rotation.x = -0.1*Math.PI;
+
+				gltfObj = gltf.scene;
+				//add it to the scene
+				all.add( gltfObj );
+
+				onRenderFcts.push(function(){
+					gltfObj.rotation.y += - 0.005*Math.PI;
+					//console.log(gltf.scene.rotation.y);
+				})
+
+			}, undefined, function ( e ) {
+				console.error( e );
+			} );
+
+			//Load image
+			var geometry = new THREE.PlaneGeometry(1, 1);
+			var material = new THREE.MeshLambertMaterial();
+			imgMesh = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
+				//Rescale and position image
+				var targetWidth = 4;
+				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				imgMesh.scale.set(targetWidth, targetHeight, 1.0);
+				imgMesh.position.x = -3;
+				imgMesh.position.z = 0.1;
+			});
+
+			//Load the image into a custom material
+			material = new THREE.MeshLambertMaterial({
+			  map: imageLoader
+			});
+			//Add material to the image mesh
+			imgMesh.material = material;
+			imgMesh.visible = false;
+
+			all.add(imgMesh);
+
+
+			all.scale.multiplyScalar(1.5);
+			arWorldRoot.add(all);
+		}
+
+		function renderEngine(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		render the whole thing on the page
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// render the arWorldRoot
+			onRenderFcts.push(function(){
+				renderer.render( arWorldRoot, camera );
+				if(arToolkitContext.arController != null){
+					if(arToolkitContext.arController.patternMarkers[0] != null){
+						if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
+							video.pause();
+						}
+						else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
+							video.play();
+						}
 					}
 				}
-			}
-		})
-
-		// run the rendering loop
-		var lastTimeMsec= null
-		requestAnimationFrame(function animate(nowMsec){
-			// keep looping
-			requestAnimationFrame( animate );
-			// measure time
-			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-			lastTimeMsec	= nowMsec
-			// call each update function
-			onRenderFcts.forEach(function(onRenderFct){
-				onRenderFct(deltaMsec/1000, nowMsec/1000)
 			})
-		})
 
-		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+			// run the rendering loop
+			var lastTimeMsec= null
+			requestAnimationFrame(function animate(nowMsec){
+				// keep looping
+				requestAnimationFrame( animate );
+				// measure time
+				lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+				var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+				lastTimeMsec	= nowMsec
+				// call each update function
+				onRenderFcts.forEach(function(onRenderFct){
+					onRenderFct(deltaMsec/1000, nowMsec/1000)
+				})
+			})
+
+			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		}
 
 		function onDocumentTouchStart( event ) {
 
@@ -258,16 +388,17 @@
 				event.clientX = event.touches[0].clientX;
 				event.clientY = event.touches[0].clientY;
 				onDocumentMouseDown( event );
-
 		}
 
 		function onDocumentMouseDown( event ) {
 
 			event.preventDefault();
 
+			var mouse = new THREE.Vector2();
 			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
+			var raycaster = new THREE.Raycaster();
 			raycaster.setFromCamera( mouse, camera );
 
 			var videoPlaneArray = [videoPlane];
@@ -277,16 +408,13 @@
 			if ( videoIntersects.length > 0) {
 				if(video.paused == true){
 					video.play();
-					isVideoPlay = true;
 				}else{
 					video.pause();
-					isVideoPlay = false;
 				}
 			}
 		}
 
 		function isScreenMode(){
-			const ipAPI = 'https://api.ipify.org?format=json'
 
 			swal.queue([{
 			  	title: 'Scan successful!',
@@ -295,29 +423,122 @@
 			  	footer: 'Please, allow the access to your camera',
 			  	showLoaderOnConfirm: true,
   				preConfirm: () => {
-				  	swal.insertQueueStep({
-			  			title: 'Where is your Magic Stickr?',
-			        	type: 'question',
-				    	showCancelButton: true,
-						confirmButtonColor: '#3085d6',
-						cancelButtonColor: '#3085d6',
-						confirmButtonText: 'On my screen!',
-						cancelButtonText: 'On a paper!',
-						//footer: 'Tips: tap the levitating objects for more interactions!',
-						preConfirm: () => {
-    						all.rotation.x = - 0.8 * Math.PI / 2;
-    						all.position.z = ysize/2;
-    						swal.insertQueueStep({
-							  position: 'top-end',
-							  type: 'info',
-							  title: 'Tap the levitating objects for more interactions!',
-							  showConfirmButton: false,
-							  timer: 2000
-							})
-      					}
-					})
+  					initSequence();
 				}
 			}])
+		}
+
+		function initSequence(){
+			var time = 0;
+			
+			var gltfShowed = false;
+			var tileShowed = false;
+			var videoStart = false;
+			var speechStopped = false;
+			var gltfHidden = false;
+			var pic1Showed = false;
+			var pic1Hidden = false;
+
+			onRenderFcts.push(function(){
+				
+				//Init chrono
+				time += 0.02;
+				document.getElementById("time").innerHTML = "Time: " +Math.round(time);
+
+
+				// The tile is appearing (2sec)
+				var start = 1;
+				var end = 3;
+				if(tileShowed == false && Math.round(time) == start ){
+					if(Math.round(time) < end){
+						//action after start
+						tile.position.z = 6 * (time-start)/(end-start);
+					}else{
+						tileShowed = true;
+					}
+				}
+
+				//Launch a Michelle speech at sec 3
+				var start = 3;
+				if(videoStart == false && Math.round(time) == start ){
+					videoPlane.visible = true;
+					video.play();
+					videoStart = true;
+				}
+
+				//Show Lion at sec 13
+				var start = 13;
+				var end = 15;
+				if(gltfShowed == false && Math.round(time) == start ){				
+					gltfObj.visible = true;
+					if(Math.round(time) < end){
+						gltfObj.traverse( function( o ) {
+							if ( o.isMesh === true) {
+								o.material.opacity = 4 * (time-start)/(end-start);
+								console.log(o.material.opacity);
+							}
+						});
+					}else{
+						gltfShowed = true;
+					}	
+				}
+
+				//Hide Lion at sec 23
+				var start = 23;
+				var end = 25;
+				if(gltfHidden == false && Math.round(time) == start ){				
+					gltfObj.visible = true;
+					if(Math.round(time) < end){
+						gltfObj.traverse( function( o ) {
+							if ( o.isMesh === true) {
+								o.material.opacity = 1 - (4 * (time-start)/(end-start));
+							}
+						});
+					}else{
+						gltfHidden = true;
+					}	
+				}
+
+				//Show Pic1 at sec 23
+				var start = 21;
+				var end = 23;
+				if(pic1Showed == false && Math.round(time) == start ){				
+					if(Math.round(time) < end){
+						imgMesh.position.y = 4 - (16 * (time-start)/(end-start));
+						imgMesh.visible = true;
+					}else{
+						pic1Showed = true;
+					}	
+				}
+
+				//Hide Pic1 at sec 23
+				var start = 25;
+				var end = 27;
+				if(pic1Hidden == false && Math.round(time) == start ){				
+					if(Math.round(time) < end){
+						imgMesh.position.y -= 0.2;
+						
+					}else{
+						imgMesh.visible = false;
+						pic1Hidden = true;
+					}	
+				}
+
+				// Stop speech at sec 30
+				var start = 30;
+				var end = 32;
+				if(speechStopped == false && Math.round(time) == start ){
+					videoPlane.visible = false;
+					//video.pause();
+					if(Math.round(time) < end){
+						//action after start
+						tile.position.z -= 0.05;
+					}else{
+						speechStopped = true;
+					}
+				}
+
+			})
 		}
 		</script>
 	</body>

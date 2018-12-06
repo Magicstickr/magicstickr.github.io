@@ -52,7 +52,7 @@
 		// Control variables
 		var screen_mode;
 		// Object variables
-		var all, videoPlane, logo, floor, video, gltfObj;
+		var all, videoPlane, logo, floor, video, gltfObj, tile, imgMesh;
 
 		initScene();
 		initCamera();
@@ -143,17 +143,22 @@
 			
 			var xsize = 1;
 			var ysize = xsize * 0.5625;
+			var tile_size = 2;
 
 			var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
-			var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, 0xd432);
+			var location = window.location.href;
+			var directoryPath = location.substring(0, location.lastIndexOf("/")+1);
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/michelle.mp4', 1280, 720, 0xd432);
 			// green: 0xd432
 			// white: 0xffff
 
 			videoPlane = new THREE.Mesh( geometry, movieMaterial );
-			videoPlane.position.y = 1 - 0.1;
-			videoPlane.scale.multiplyScalar(3);
+			videoPlane.position.y = 1.1;
+			videoPlane.position.z = 1;
+			videoPlane.scale.multiplyScalar(4);
 			videoPlane.visible = false;
+			video.loop = false;
 
 			all.add( videoPlane );	
 
@@ -161,21 +166,43 @@
 				movieMaterial.update();
 			})
 
-			//add logo floor
-			var geometry = new THREE.PlaneGeometry(2,2);
-			var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
-			});
-			//Load the image into a custom material
-			var material = new THREE.MeshLambertMaterial({
-			  map: loader,
-			  transparent: true,
-			});
+			//add tile
+			var roundedRectShape = new THREE.Shape();
+				( function roundedRect( ctx, x, y, width, height, radius ) {
+					ctx.moveTo( x, y + radius );
+					ctx.lineTo( x, y + height - radius );
+					ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
+					ctx.lineTo( x + width - radius, y + height );
+					ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
+					ctx.lineTo( x + width, y + radius );
+					ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
+					ctx.lineTo( x + radius, y );
+					ctx.quadraticCurveTo( x, y, x, y + radius );
+				} )( roundedRectShape, 0, 0, 0.5*tile_size, 0.7*tile_size, 0.01 );
+			var extrudeSettings = {
+				steps: 2,
+				depth: 0.2*tile_size,
+				bevelEnabled: true,
+				bevelThickness: 0.05,
+				bevelSize: 0.05,
+				bevelSegments: 1
+			};
+			var geometry = new THREE.ExtrudeGeometry( roundedRectShape, extrudeSettings );
+		    var materialFace = new THREE.MeshLambertMaterial({
+		        map: THREE.ImageUtils.loadTexture('content/tile.png')
+		    });
+		    var materialSide = new THREE.MeshLambertMaterial({
+		        color: '#EEEBDC'
+		    });
+		    var materials = new THREE.MeshFaceMaterial([materialFace, materialSide]);
+
+			tile = new THREE.Mesh(geometry, materials);
+			tile.rotation.x = - Math.PI/2;
+			tile.position.z = -1;
+			tile.position.x = -0.5*tile_size/2;
+			tile.position.y = -0.2*tile_size;
 			
-			logo = new THREE.Mesh(geometry, material);
-			logo.rotation.x = - Math.PI / 2;
-			logo.visible = false;
-			logo.material.opacity = 0;
-			all.add(logo);
+			all.add( tile );
 
 			// Load 3D object
 			var loader = new THREE.GLTFLoader();
@@ -186,14 +213,15 @@
 				var size = bbox.getSize(new THREE.Vector3());
 				//Rescale the object to normalized space
 				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
+				gltf.scene.scale.multiplyScalar(4.0 / maxAxis);
 				bbox.setFromObject(gltf.scene);
 				bbox.getCenter(cent);
 				bbox.getSize(size);
 				//Reposition to 0,halfY,0
 				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = (size.y * 0.5);
-				gltf.scene.position.x += 1;
+				gltf.scene.position.y = (size.y * 0.2);
+				gltf.scene.position.x += 2.5;
+				gltf.scene.position.z = (size.z * 0.5);
 				gltf.scene.visible = false;
 				gltf.scene.traverse( function( o ) {
 
@@ -221,6 +249,30 @@
 				console.error( e );
 			} );
 
+			//Load image
+			var geometry = new THREE.PlaneGeometry(1, 1);
+			var material = new THREE.MeshLambertMaterial();
+			imgMesh = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
+				//Rescale and position image
+				var targetWidth = 4;
+				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				imgMesh.scale.set(targetWidth, targetHeight, 1.0);
+				imgMesh.position.x = -3;
+				imgMesh.position.z = 0.1;
+			});
+
+			//Load the image into a custom material
+			material = new THREE.MeshLambertMaterial({
+			  map: imageLoader
+			});
+			//Add material to the image mesh
+			imgMesh.material = material;
+			imgMesh.visible = false;
+
+			all.add(imgMesh);
+
 
 			all.scale.multiplyScalar(1.5);
 			arWorldRoot.add(all);
@@ -231,15 +283,14 @@
 			// Floor OBJECT
 			/////////////////////////////
 			var geometry = new THREE.PlaneGeometry(20, 10);
-			var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+			var loader = new THREE.TextureLoader().load('content/wall.jpg', (imgLoader) => {});
 			//Load the image into a custom material
 			var material = new THREE.MeshLambertMaterial({
 			  map: loader
 			});
 			
 			var floor = new THREE.Mesh(geometry, material);
-			floor.rotation.x = - Math.PI / 2;
-			floor.position.y = -0.1;
+			floor.position.z = -0.1;
 			arWorldRoot.add(floor);
 		}
 
@@ -307,7 +358,6 @@
 		}
 
 		function isScreenMode(){
-			const ipAPI = 'https://api.ipify.org?format=json'
 
 			swal.queue([{
 			  	title: 'Scan successful!',
@@ -323,11 +373,14 @@
 
 		function initSequence(){
 			var time = 0;
-			var videoLaunched = false;
-			var videoShowed = false;
-			var logoShowed = false;
+			
 			var gltfShowed = false;
-			var videoStopNHide = false;
+			var tileShowed = false;
+			var videoStart = false;
+			var speechStopped = false;
+			var gltfHidden = false;
+			var pic1Showed = false;
+			var pic1Hidden = false;
 
 			onRenderFcts.push(function(){
 				
@@ -335,30 +388,36 @@
 				time += 0.02;
 				document.getElementById("time").innerHTML = "Time: " +Math.round(time);
 
-				//Launch a video
-				if(videoShowed == false && Math.round(time) == 6 ){
-					videoPlane.visible = true;
-					video.style.opacity = 0.5;
-					videoShowed = true;
-				}
-				if(videoLaunched == false && Math.round(time) == 9 ){
-					video.play();
-					videoLaunched = true;
-				}
-				if(logoShowed == false && Math.round(time) == 4 ){
-					logo.visible = true;
-					if(Math.round(time) < 6){
-						logo.material.opacity += 0.05;
+
+				// The tile is appearing (2sec)
+				var start = 1;
+				var end = 3;
+				if(tileShowed == false && Math.round(time) == start ){
+					if(Math.round(time) < end){
+						//action after start
+						tile.position.z = 6 * (time-start)/(end-start);
 					}else{
-						logoShowed = true;
+						tileShowed = true;
 					}
 				}
-				if(gltfShowed == false && Math.round(time) == 1 ){				
+
+				//Launch a Michelle speech at sec 3
+				var start = 3;
+				if(videoStart == false && Math.round(time) == start ){
+					videoPlane.visible = true;
+					video.play();
+					videoStart = true;
+				}
+
+				//Show Lion at sec 13
+				var start = 13;
+				var end = 15;
+				if(gltfShowed == false && Math.round(time) == start ){				
 					gltfObj.visible = true;
-					if(Math.round(time) < 5){
+					if(Math.round(time) < end){
 						gltfObj.traverse( function( o ) {
 							if ( o.isMesh === true) {
-								o.material.opacity += 0.02;
+								o.material.opacity = 4 * (time-start)/(end-start);
 								console.log(o.material.opacity);
 							}
 						});
@@ -366,11 +425,62 @@
 						gltfShowed = true;
 					}	
 				}
-				if(videoStopNHide == false && Math.round(time) == 16 ){				
-					videoPlane.visible = false;
-					video.pause();
-					videoStopNHide = true;
+
+				//Hide Lion at sec 23
+				var start = 23;
+				var end = 25;
+				if(gltfHidden == false && Math.round(time) == start ){				
+					gltfObj.visible = true;
+					if(Math.round(time) < end){
+						gltfObj.traverse( function( o ) {
+							if ( o.isMesh === true) {
+								o.material.opacity = 1 - (4 * (time-start)/(end-start));
+							}
+						});
+					}else{
+						gltfHidden = true;
+					}	
 				}
+
+				//Show Pic1 at sec 23
+				var start = 21;
+				var end = 23;
+				if(pic1Showed == false && Math.round(time) == start ){				
+					if(Math.round(time) < end){
+						imgMesh.position.y = 4 - (16 * (time-start)/(end-start));
+						imgMesh.visible = true;
+					}else{
+						pic1Showed = true;
+					}	
+				}
+
+				//Hide Pic1 at sec 23
+				var start = 25;
+				var end = 27;
+				if(pic1Hidden == false && Math.round(time) == start ){				
+					if(Math.round(time) < end){
+						imgMesh.position.y -= 0.2;
+						
+					}else{
+						imgMesh.visible = false;
+						pic1Hidden = true;
+					}	
+				}
+
+				// Stop speech at sec 30
+				var start = 30;
+				var end = 32;
+				if(speechStopped == false && Math.round(time) == start ){
+					videoPlane.visible = false;
+					//video.pause();
+					if(Math.round(time) < end){
+						//action after start
+						tile.position.z -= 0.05;
+					}else{
+						speechStopped = true;
+					}
+				}
+
 			})
 		}
 		</script>
