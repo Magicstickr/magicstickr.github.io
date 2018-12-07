@@ -644,6 +644,7 @@
 				if(speechStopped == false && Math.round(video_time) == start ){
 					videoPlane.visible = false;
 					speechStopped = true;
+					video.pause();
 					time = 100;
 				}
 
