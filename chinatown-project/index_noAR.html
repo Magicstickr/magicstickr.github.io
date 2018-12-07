@@ -169,41 +169,27 @@
 
 			//add tile
 			var tile_size = 2;
-			// var roundedRectShape = new THREE.Shape();
-			// 	( function roundedRect( ctx, x, y, width, height, radius ) {
-			// 		ctx.moveTo( x, y + radius );
-			// 		ctx.lineTo( x, y + height - radius );
-			// 		ctx.quadraticCurveTo( x, y + height, x + radius, y + height );
-			// 		ctx.lineTo( x + width - radius, y + height );
-			// 		ctx.quadraticCurveTo( x + width, y + height, x + width, y + height - radius );
-			// 		ctx.lineTo( x + width, y + radius );
-			// 		ctx.quadraticCurveTo( x + width, y, x + width - radius, y );
-			// 		ctx.lineTo( x + radius, y );
-			// 		ctx.quadraticCurveTo( x, y, x, y + radius );
-			// 	} )( roundedRectShape, 0, 0, 1.5*tile_size, 1.7*tile_size, 0.1 );
-			// var extrudeSettings = {
-			// 	steps: 3,
-			// 	depth: 0.1*tile_size,
-			// 	bevelEnabled: true,
-			// 	bevelThickness: 0.05,
-			// 	bevelSize: 0.05,
-			// 	bevelSegments: 3
-			// };
-			// var geometry = new THREE.ExtrudeGeometry( roundedRectShape, extrudeSettings );
-			var geometry = new THREE.BoxGeometry( 0.6*tile_size, 0.3*tile_size, 0.8*tile_size );
 
+			var geometry = new THREE.BoxGeometry( 0.6*tile_size, 0.3*tile_size, 0.8*tile_size );
 		    var texture = new THREE.TextureLoader().load( "content/tile.png" );
 		    var materials = [
-		    
-		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
-		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
-		    new THREE.MeshLambertMaterial({ map: texture }),
-		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
-		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
-		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'})
+			    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+			    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+			    new THREE.MeshLambertMaterial({ map: texture }),
+			    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+			    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
+			    new THREE.MeshLambertMaterial({ color: '#EEEBDC'})
 		    ];
+			var tile_white = new THREE.Mesh(geometry, materials);
 
-			tile = new THREE.Mesh(geometry, materials);
+			var geometry = new THREE.BoxGeometry( 0.6*tile_size, 0.1*tile_size, 0.8*tile_size );
+		    var material = new THREE.MeshLambertMaterial({ color: '#4E9E69'});
+		    var tile_green = new THREE.Mesh(geometry, material);
+		    tile_green.position.y = -tile_green.scale.y/2.5;
+
+		    tile = new THREE.Group();
+		    tile.add(tile_white);
+		    tile.add(tile_green);
 			tile.position.y = -0.35;
 			tile.visible = false;
 			

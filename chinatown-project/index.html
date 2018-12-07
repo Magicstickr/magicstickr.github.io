@@ -245,8 +245,16 @@
 		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'}),
 		    new THREE.MeshLambertMaterial({ color: '#EEEBDC'})
 		    ];
+			var tile_white = new THREE.Mesh(geometry, materials);
 
-			tile = new THREE.Mesh(geometry, materials);
+			var geometry = new THREE.BoxGeometry( 0.6*tile_size, 0.1*tile_size, 0.8*tile_size );
+		    var material = new THREE.MeshLambertMaterial({ color: '#4E9E69'});
+		    var tile_green = new THREE.Mesh(geometry, material);
+		    tile_green.position.y = -tile_green.scale.y/2.5;
+
+		    tile = new THREE.Group();
+		    tile.add(tile_white);
+		    tile.add(tile_green);
 			tile.position.y = -0.35;
 			tile.visible = false;
 			
