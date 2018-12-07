@@ -17,7 +17,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.20
+		V 1.1.21
 		<div id="time">Time:</div>
 		<div id="test"></div>
 		<div class="swal2-container">/</div>
@@ -374,7 +374,8 @@
 			all.add(pic3);
 
 			all.rotation.x = -Math.PI/2;
-			all.scale.multiplyScalar(1);
+			all.position.y = -0.3;
+			all.scale.multiplyScalar(0.7);
 			arWorldRoot.add(all);
 		}
 
