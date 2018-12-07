@@ -18,8 +18,9 @@
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		V 1.1.16
-		<div id=time>Time:</div>
-		<div id=test></div>
+		<div id="time">Time:</div>
+		<div id="test"></div>
+		<div class="swal2-container">/</div>
 		<script id="vertexShader" type="x-shader/x-vertex">
 
 			varying vec2 vUv;
@@ -485,7 +486,6 @@
 				if (result.value) {
 					video.play();
   					video.pause();
-  					swal.close();
 				}
 			})
 		}
