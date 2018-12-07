@@ -4,9 +4,8 @@
 		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
 		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.js"></script>
+		<script src="lib/ar.min.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/chromakey.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
 		<!-- script for popup message -->
@@ -14,12 +13,11 @@
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 
-		<title>Holo Mini Sean</title>
+		<title>Chinatown project</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.10
+		<!-- V 1.1.9 -->
 		<div id=time>Time:</div>
-		<div id=test></div>
 		<script id="vertexShader" type="x-shader/x-vertex">
 
 			varying vec2 vUv;
@@ -30,7 +28,6 @@
 				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
 			}
-
 		</script>
 		<script id="fragmentShader" type="x-shader/x-fragment">
 
@@ -48,24 +45,16 @@
 		</script>
 		<script>
 
+		// Threejs/ARjs standard variables
+		//var renderer, arWorldRoot, onRenderFcts, camera, controls, scene;
+		//ARjs standard variables
+		//var markerRoot, smoothedControls;
+		// Control variables
+		var screen_mode, isVideoPlay, isSeqInit;
+		// Object variables
+		var videoPlane, logo, video, gltfObj, tile, pic1, pic2, pic3;
 
-		var renderer, scene, camera;
-		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var tile, videoPlane, pic1, pic2, pic3, gltfObj, wall;
-		var isVideoPlay, time, video_time;
 
-		var isSeqInit = false;
-
-		initScene();
-		initCameraLight();
-		initAREngine();
-
-		addObjects();
-		addWall();
-
-		renderEngine();
-
-		function initScene(){
 			//////////////////////////////////////////////////////////////////////////////////
 			//		Init
 			//////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +71,7 @@
 			//console.log(screen_mode);
 
 			// init renderer
-			renderer	= new THREE.WebGLRenderer({
+			var renderer	= new THREE.WebGLRenderer({
 				antialias	: true,
 				autoResize : true,
 				alpha: true
@@ -95,36 +84,32 @@
 			document.body.appendChild( renderer.domElement );
 
 			// array of functions for the rendering loop
-			onRenderFcts= [];
+			var onRenderFcts= [];
 
 			// init arWorldRoot and camera
 
-			scene = new THREE.Scene();
-		}
-		
-		function initCameraLight(){
+			var scene = new THREE.Scene();
+
 			//////////////////////////////////////////////////////////////////////////////////
 			//		Initialize a basic camera
 			//////////////////////////////////////////////////////////////////////////////////
 
 			// Create a camera
-			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+			var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+			//camera.position.set( 0, 2, 10 );
 			scene.add(camera);
 
 			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
 			scene.add( light );
-		}
 
-		function initAREngine(){
 			////////////////////////////////////////////////////////////////////////////////
 			//          handle arToolkitSource
 			////////////////////////////////////////////////////////////////////////////////
 
-			arToolkitSource = new THREEx.ArToolkitSource({
+			var arToolkitSource = new THREEx.ArToolkitSource({
 				// to read from the webcam 
 				sourceType : 'webcam'	
 			})
-			
 
 			arToolkitSource.init(function onReady(){
 				onResize()
@@ -147,7 +132,7 @@
 			
 
 			// create atToolkitContext
-			arToolkitContext = new THREEx.ArToolkitContext({
+			var arToolkitContext = new THREEx.ArToolkitContext({
 				cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 				detectionMode: 'mono',
 				maxDetectionRate: 30,
@@ -170,9 +155,9 @@
 			//          Create a ArMarkerControls
 			////////////////////////////////////////////////////////////////////////////////
 			
-			markerRoot = new THREE.Group
-			scene.add(markerRoot)
-			artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			var markerRoot = new THREE.Group;
+			scene.add(markerRoot);
+			var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
 				//type: 'barcode',
 				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
 				type : 'pattern',
@@ -180,9 +165,9 @@
 			})
 
 			// build a smoothedControls
-			smoothedRoot = new THREE.Group()
-			scene.add(smoothedRoot)
-			smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+			var smoothedRoot = new THREE.Group();
+			scene.add(smoothedRoot);
+			var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
 				lerpPosition: 0.4,
 				lerpQuaternion: 0.3,
 				lerpScale: 1,
@@ -190,14 +175,12 @@
 			onRenderFcts.push(function(delta){
 				smoothedControls.update(markerRoot);
 			})
-		}
 
-		function addObjects(){
-			//////////////////////////////////////////////////////////////////////////////////
-			//		Add the objects in the scene
-			//////////////////////////////////////////////////////////////////////////////////
+			var arWorldRoot = smoothedRoot;
 
-			arWorldRoot = smoothedRoot;
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Add the objects in the arWorldRoot
+			//////////////////////////////////////////////////////////////////////////////////
 
 			var all = new THREE.Group();
 
@@ -244,7 +227,7 @@
 
 			tile = new THREE.Mesh(geometry, materials);
 			tile.position.y = -0.35;
-			tile.visible = false;
+			tile.visible = true;
 			
 			all.add( tile );
 
@@ -276,7 +259,9 @@
 					}
 
 				} );
-			
+				
+				//gltf.scene.rotation.x = -0.1*Math.PI;
+
 				gltfObj = gltf.scene;
 				//add it to the scene
 				all.add( gltfObj );
@@ -361,39 +346,19 @@
 
 			all.add(pic3);
 
-			all.rotation.x = -Math.PI/2;
+
 			all.scale.multiplyScalar(0.5);
 			arWorldRoot.add(all);
-		}
 
-		function addWall(){
-			/////////////////////////////
-			// Floor OBJECT
-			/////////////////////////////
-			var geometry = new THREE.PlaneGeometry(20, 10);
-			var loader = new THREE.TextureLoader().load('content/wall.png', (imgLoader) => {});
-			//Load the image into a custom material
-			var material = new THREE.MeshLambertMaterial({
-			  map: loader,
-			  //colorWrite: false
-			});
-			
-			wall = new THREE.Mesh(geometry, material);
+			initSequence();
 
-			wall.rotation.x = -Math.PI/2;
-			wall.position.z = -0.1;
-			arWorldRoot.add(wall);
-		}
-
-		function renderEngine(){
 			//////////////////////////////////////////////////////////////////////////////////
 			//		render the whole thing on the page
 			//////////////////////////////////////////////////////////////////////////////////
 
-			// render the scene
+			// render the arWorldRoot
 			onRenderFcts.push(function(){
-				renderer.render( scene, camera );
-
+				renderer.render( arWorldRoot, camera );
 				if (isSeqInit == false){
 					if(arToolkitContext.arController != null){
 						if(arToolkitContext.arController.patternMarkers[0] != null){
@@ -433,45 +398,6 @@
 				})
 			})
 
-			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		}
-
-		function onDocumentTouchStart( event ) {
-
-				event.preventDefault();
-
-				event.clientX = event.touches[0].clientX;
-				event.clientY = event.touches[0].clientY;
-				onDocumentMouseDown( event );
-		}
-
-		function onDocumentMouseDown( event ) {
-
-			event.preventDefault();
-
-			var raycaster = new THREE.Raycaster();
-			var mouse = new THREE.Vector2();
-
-			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-			raycaster.setFromCamera( mouse, camera );
-
-			var videoPlaneArray = [videoPlane];
-
-			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
-
-			if ( videoIntersects.length > 0) {
-				if(video.paused == true){
-					video.play();
-					isVideoPlay = true;
-				}else{
-					video.pause();
-					isVideoPlay = false;
-				}
-			}
-		}
 
 		function isScreenMode(){
 
@@ -488,8 +414,8 @@
 		}
 
 		function initSequence(){
-			time = 0;
-			video_time = 0;
+			var time = 0;
+			var video_time = 0;
 
 			var videoStart = false;
 			var speechStopped = false;
@@ -509,7 +435,7 @@
 				if(	time >= start && time < end ){
 					tile.visible = true;
 					tile.position.z = 5*Math.log(t+1) - 2.5;
-					test(tile.position.z);
+					// test(tile.position.z);
 				}
 
 				//Launch a Michelle speech at sec 3
@@ -640,9 +566,6 @@
 			})
 		}
 
-		function test(test_var){
-			document.getElementById("test").innerHTML = "Test: " + test_var;
-		}
 		</script>
 	</body>
 </html>

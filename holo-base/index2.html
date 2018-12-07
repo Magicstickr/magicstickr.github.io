@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src='lib/threex.videotexture.js'></script>
+		<script src="lib/chromakey.js"></script>
+		<script src="lib/GLTFLoader.js"></script>
+		<!-- script for popup message -->
+		<script src="lib/sweetalert2.all.min.js"></script>
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+
+		<title>Holo Mini Sean</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		V 1.1.10
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+
+		</script>
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform sampler2D texture;
+			uniform vec3 color;
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vec3 tColor = texture2D( texture, vUv ).rgb;
+				float a = (length(tColor - color) - 0.6) * 100.0;
+				gl_FragColor = vec4(tColor, a);
+			}
+		</script>
+		<script>
+
+
+		var renderer, scene, camera;
+		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
+		initScene();
+		initCameraLight();
+		initAREngine();
+
+		addObjects();
+
+		renderEngine();
+
+		function initScene(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Init
+			//////////////////////////////////////////////////////////////////////////////////
+
+			//Error if not WebGL compatible
+			if ( WEBGL.isWebGLAvailable() === false ) {
+					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+			}
+
+			//init screen mode
+			//screen_mode = isScreenMode();
+			isSeqInit = false;
+
+			//console.log(screen_mode);
+
+			// init renderer
+			renderer	= new THREE.WebGLRenderer({
+				antialias	: true,
+				autoResize : true,
+				alpha: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.domElement.style.position = 'absolute'
+			renderer.domElement.style.top = '0px'
+			renderer.domElement.style.left = '0px'
+			document.body.appendChild( renderer.domElement );
+
+			// array of functions for the rendering loop
+			onRenderFcts= [];
+
+			// init arWorldRoot and camera
+
+			scene = new THREE.Scene();
+		}
+		
+		function initCameraLight(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Initialize a basic camera
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// Create a camera
+			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+			scene.add(camera);
+
+			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+			scene.add( light );
+		}
+
+		function initAREngine(){
+			////////////////////////////////////////////////////////////////////////////////
+			//          handle arToolkitSource
+			////////////////////////////////////////////////////////////////////////////////
+
+			arToolkitSource = new THREEx.ArToolkitSource({
+				// to read from the webcam 
+				sourceType : 'webcam'	
+			})
+			
+
+			arToolkitSource.init(function onReady(){
+				onResize()
+			})
+			
+			// handle resize
+			window.addEventListener('resize', function(){
+				onResize()
+			})
+			function onResize(){
+				arToolkitSource.onResizeElement()	
+				arToolkitSource.copyElementSizeTo(renderer.domElement)	
+				if( arToolkitContext.arController !== null ){
+					arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+				}	
+			}
+			////////////////////////////////////////////////////////////////////////////////
+			//          initialize arToolkitContext
+			////////////////////////////////////////////////////////////////////////////////
+			
+
+			// create atToolkitContext
+			arToolkitContext = new THREEx.ArToolkitContext({
+				cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+				detectionMode: 'mono',
+				maxDetectionRate: 30,
+				canvasWidth: 80*3,
+				canvasHeight: 60*3,
+			})
+			// initialize it
+			arToolkitContext.init(function onCompleted(){
+				// copy projection matrix to camera
+				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			})
+
+			// update artoolkit on every frame
+			onRenderFcts.push(function(){
+				if( arToolkitSource.ready === false )	return
+				arToolkitContext.update( arToolkitSource.domElement )
+			})
+			
+			////////////////////////////////////////////////////////////////////////////////
+			//          Create a ArMarkerControls
+			////////////////////////////////////////////////////////////////////////////////
+			
+			markerRoot = new THREE.Group
+			scene.add(markerRoot)
+			artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+				//type: 'barcode',
+				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
+				type : 'pattern',
+				patternUrl : 'marker/marker_holo.patt'
+			})
+
+			// build a smoothedControls
+			smoothedRoot = new THREE.Group()
+			scene.add(smoothedRoot)
+			smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+				lerpPosition: 0.4,
+				lerpQuaternion: 0.3,
+				lerpScale: 1,
+			})
+			onRenderFcts.push(function(delta){
+				smoothedControls.update(markerRoot);
+			})
+		}
+
+		function addObjects(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Add the objects in the scene
+			//////////////////////////////////////////////////////////////////////////////////
+
+			arWorldRoot = smoothedRoot;
+
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2();
+			var isVideoPlay = false;
+
+			var all = new THREE.Group();
+			
+			var xsize = 6;
+			var ysize = xsize * 0.5625;
+
+			var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+			var movieMaterial = new ChromaKeyMaterial('content/yann.mp4', 1280, 720, 0xd432);
+			// green: 0xd432
+			// white: 0xffff
+
+			var videoPlane = new THREE.Mesh( geometry, movieMaterial );
+			videoPlane.scale.multiplyScalar(1);
+			videoPlane.position.y = ysize/2;
+
+			all.add( videoPlane );	
+
+			onRenderFcts.push(function(delta, now){
+				movieMaterial.update();
+			})
+
+			//add logo floor
+			var geometry = new THREE.PlaneGeometry(2,2);
+			var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
+			});
+			//Load the image into a custom material
+			var material = new THREE.MeshLambertMaterial({
+			  map: loader,
+			  transparent: true,
+			});
+			
+			var logo = new THREE.Mesh(geometry, material);
+			logo.rotation.x = - Math.PI / 2;
+			all.add(logo);
+
+			all.scale.multiplyScalar(1);
+			// if(screen_mode == true){
+			// 	all.rotation.x = - Math.PI / 2;
+			// }
+			arWorldRoot.add(all);
+		}
+
+		function renderEngine(){
+			//////////////////////////////////////////////////////////////////////////////////
+			//		render the whole thing on the page
+			//////////////////////////////////////////////////////////////////////////////////
+
+			// render the scene
+			onRenderFcts.push(function(){
+				renderer.render( scene, camera );
+				if(arToolkitContext.arController != null){
+					if(arToolkitContext.arController.patternMarkers[0] != null){
+						if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
+							video.pause();
+						}
+						else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
+							video.play();
+						}
+					}
+				}
+			})
+
+			// run the rendering loop
+			var lastTimeMsec= null
+			requestAnimationFrame(function animate(nowMsec){
+				// keep looping
+				requestAnimationFrame( animate );
+				// measure time
+				lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+				var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+				lastTimeMsec	= nowMsec
+				// call each update function
+				onRenderFcts.forEach(function(onRenderFct){
+					onRenderFct(deltaMsec/1000, nowMsec/1000)
+				})
+			})
+
+			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		}
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var videoPlaneArray = [videoPlane];
+
+			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+
+			if ( videoIntersects.length > 0) {
+				if(video.paused == true){
+					video.play();
+					isVideoPlay = true;
+				}else{
+					video.pause();
+					isVideoPlay = false;
+				}
+			}
+		}
+
+		function isScreenMode(){
+			const ipAPI = 'https://api.ipify.org?format=json'
+
+			swal.queue([{
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+				  	swal.insertQueueStep({
+			  			title: 'Tap Sean to make him talk!',
+			        	type: 'info',
+						confirmButtonText: 'OK'
+					})
+				}
+			}])
+		}
+		</script>
+	</body>
+</html>
