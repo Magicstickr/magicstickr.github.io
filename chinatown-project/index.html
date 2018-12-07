@@ -76,7 +76,7 @@
 			}
 
 			//init screen mode
-			//screen_mode = isScreenMode();
+			isScreenMode();
 			isSeqInit = false;
 
 			//console.log(screen_mode);
@@ -482,7 +482,8 @@
 			  	footer: 'Please, allow the access to your camera',
 			  	showLoaderOnConfirm: true,
   				preConfirm: () => {
-  					//initSequence();
+  					video.play();
+  					video.pause();
 				}
 			}])
 		}
