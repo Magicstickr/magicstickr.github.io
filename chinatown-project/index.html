@@ -374,7 +374,7 @@
 			all.add(pic3);
 
 			all.rotation.x = -Math.PI/2;
-			all.position.z = -1;
+			all.position.z = 1;
 			all.scale.multiplyScalar(0.7);
 			arWorldRoot.add(all);
 		}
@@ -513,7 +513,6 @@
 			video_time = 0;
 
 			var videoStart = false;
-			var speechStopped = false;
 
 			onRenderFcts.push(function(){
 				
@@ -642,9 +641,10 @@
 
 				// Stop speech
 				var start = 45;
-				if(speechStopped == false && Math.round(video_time) == start ){
+				if(Math.round(video_time) == start ){
 					videoPlane.visible = false;
 					speechStopped = true;
+					isVideoPlay == false;
 					video.pause();
 					time = 100;
 				}
