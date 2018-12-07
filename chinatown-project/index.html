@@ -17,7 +17,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.10
+		V 1.1.11
 		<div id=time>Time:</div>
 		<div id=test></div>
 		<script id="vertexShader" type="x-shader/x-vertex">
@@ -76,7 +76,7 @@
 			}
 
 			//init screen mode
-			isScreenMode();
+			var screenmode = isScreenMode();
 			isSeqInit = false;
 
 			//console.log(screen_mode);
@@ -475,17 +475,17 @@
 
 		function isScreenMode(){
 
-			swal({
+			Swal({
 			  	title: 'Scan successful!',
 			  	type: 'success',
 			  	confirmButtonText: 'OK',
-			  	footer: 'Please, allow the access to your camera',
-			  	showLoaderOnConfirm: true,
-  				preConfirm: () => {
-  					video.play();
+				}).then((result) => {
+				if (result.value) {
+					video.play();
   					video.pause();
-				}
-			})
+  					return true;    
+				  }
+				})
 		}
 
 		function initSequence(){
