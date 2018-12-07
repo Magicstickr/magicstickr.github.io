@@ -458,27 +458,28 @@
   				video.pause();
   				swal.close();
   				isStart = false;
-  			}
+  			}else{
 
-			var raycaster = new THREE.Raycaster();
-			var mouse = new THREE.Vector2();
+				var raycaster = new THREE.Raycaster();
+				var mouse = new THREE.Vector2();
 
-			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-			raycaster.setFromCamera( mouse, camera );
+				raycaster.setFromCamera( mouse, camera );
 
-			var videoPlaneArray = [videoPlane];
+				var videoPlaneArray = [videoPlane];
 
-			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+				var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
 
-			if ( videoIntersects.length > 0) {
-				if(video.paused == true){
-					video.play();
-					isVideoPlay = true;
-				}else{
-					video.pause();
-					isVideoPlay = false;
+				if ( videoIntersects.length > 0) {
+					if(video.paused == true){
+						video.play();
+						isVideoPlay = true;
+					}else{
+						video.pause();
+						isVideoPlay = false;
+					}
 				}
 			}
 		}
