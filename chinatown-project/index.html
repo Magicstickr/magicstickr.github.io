@@ -55,6 +55,7 @@
 		var tile, videoPlane, pic1, pic2, pic3, gltfObj, wall;
 		var isVideoPlay, time, video_time;
 
+		var isStart = true;
 		var isSeqInit = false;
 
 		initScene();
@@ -452,10 +453,11 @@
 
 			event.preventDefault();
 
-			if(video.paused){
+			if(isStart = true){
 				video.play();
   				video.pause();
   				swal.close();
+  				isStart = false;
   			}
 
 			var raycaster = new THREE.Raycaster();
