@@ -17,7 +17,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.19
+		V 1.1.20
 		<div id="time">Time:</div>
 		<div id="test"></div>
 		<div class="swal2-container">/</div>
@@ -374,7 +374,7 @@
 			all.add(pic3);
 
 			all.rotation.x = -Math.PI/2;
-			all.scale.multiplyScalar(0.5);
+			all.scale.multiplyScalar(1);
 			arWorldRoot.add(all);
 		}
 
@@ -529,7 +529,7 @@
 				if(	time >= start && time < end ){
 					tile.visible = true;
 					tile.position.z = 5*Math.log(t+1) - 2.5;
-					test(tile.position.z);
+					//test(tile.position.z);
 				}
 
 				//Launch a Michelle speech at sec 3
