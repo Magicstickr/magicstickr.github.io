@@ -17,7 +17,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.18
+		V 1.1.19
 		<div id="time">Time:</div>
 		<div id="test"></div>
 		<div class="swal2-container">/</div>
@@ -438,6 +438,7 @@
 			})
 
 			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 		}
 
 		function onDocumentTouchStart( event ) {
