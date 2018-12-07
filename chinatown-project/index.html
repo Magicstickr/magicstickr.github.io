@@ -6,7 +6,6 @@
 		<script src='lib/three.min.js'></script>
 		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<script src='lib/threex.videotexture.js'></script>
 		<script src="lib/chromakey.js"></script>
 		<script src="lib/GLTFLoader.js"></script>
 		<!-- script for popup message -->
@@ -18,7 +17,7 @@
 		<title>Holo Mini Sean</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.15
+		V 1.1.16
 		<div id=time>Time:</div>
 		<div id=test></div>
 		<script id="vertexShader" type="x-shader/x-vertex">
@@ -66,6 +65,8 @@
 
 		renderEngine();
 
+		var screenmode = isScreenMode();
+
 		function initScene(){
 			//////////////////////////////////////////////////////////////////////////////////
 			//		Init
@@ -77,7 +78,7 @@
 			}
 
 			//init screen mode
-			var screenmode = isScreenMode();
+			
 			isSeqInit = false;
 
 			//console.log(screen_mode);
@@ -476,23 +477,17 @@
 
 		function isScreenMode(){
 
-			Swal(
-			  'Good job!',
-			  'You clicked the button!',
-			  'success'
-			)
-
-			// Swal({
-			//   	title: 'Scan successful!',
-			//   	type: 'success',
-			//   	confirmButtonText: 'OK'
-			// 	}).then( function (result) {
-			// 	if (result.value) {
-			// 		video.play();
-  	// 				video.pause();
-  	// 				swal.close();
-			// 	}
-			// })
+			Swal({
+			  	title: 'Scan successful!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK'
+				}).then( function (result) {
+				if (result.value) {
+					video.play();
+  					video.pause();
+  					swal.close();
+				}
+			})
 		}
 
 		function initSequence(){
