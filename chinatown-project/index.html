@@ -475,7 +475,7 @@
 
 		function isScreenMode(){
 
-			swal.queue([{
+			swal({
 			  	title: 'Scan successful!',
 			  	type: 'success',
 			  	confirmButtonText: 'OK',
@@ -485,7 +485,7 @@
   					video.play();
   					video.pause();
 				}
-			}])
+			})
 		}
 
 		function initSequence(){
