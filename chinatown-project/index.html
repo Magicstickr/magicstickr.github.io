@@ -437,7 +437,6 @@
 			})
 
 			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 		}
 
 		function onDocumentTouchStart( event ) {
@@ -452,6 +451,12 @@
 		function onDocumentMouseDown( event ) {
 
 			event.preventDefault();
+
+			if(video.paused){
+				video.play();
+  				video.pause();
+  				swal.close();
+  			}
 
 			var raycaster = new THREE.Raycaster();
 			var mouse = new THREE.Vector2();
