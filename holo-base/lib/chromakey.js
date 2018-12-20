@@ -5,7 +5,7 @@ ChromaKeyMaterial = function (url, width, height, keyColor) {
 	video.loop = false;
 	video.src = url;
 	video.setAttribute("playsinline", ""); 
-	viode.setAttribute("id", "video")
+	video.setAttribute("id", "video")
 	video.load();
 
 	var videoImage = document.createElement('canvas');
