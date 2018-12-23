@@ -154,7 +154,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#675F53");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
 			// green: 0xd432
 			// white: 0xffff
 
@@ -488,8 +488,8 @@
 				}
 
 				//Show Pic2 
-				var start = 21; 
-				var end = 24; 
+				var start = 30; 
+				var end = 33; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -499,8 +499,8 @@
 				}
 
 				//Hide Pic2 
-				var start = 26; 
-				var end = 29; 
+				var start = 36; 
+				var end = 39; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -512,8 +512,8 @@
 				}
 
 				//Show Pic3 
-				var start = 32; 
-				var end = 35; 
+				var start = 41; 
+				var end = 44; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -523,8 +523,8 @@
 				}
 
 				//Hide Pic3 
-				var start = 38; 
-				var end = 41; 
+				var start = 47; 
+				var end = 50; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -536,7 +536,7 @@
 				}
 
 				// Stop speech
-				var start = 49;
+				var start = 51;
 				if(Math.round(video_time) == start && stopAnim == false){
 					videoPlane.visible = false;
 					speechStopped = true;
