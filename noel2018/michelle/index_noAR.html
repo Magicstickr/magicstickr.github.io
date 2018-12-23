@@ -242,33 +242,33 @@
 				console.error( e );
 			} );
 
-			// Load House
-			var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = 0;
-				gltf.scene.position.x += -3.5;
-				gltf.scene.position.z = 0;
-				gltf.scene.visible = true;
+			// // Load House
+			// var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
+			// 	//Resize/rescale the 3D Object
+			// 	var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			// 	var cent = bbox.getCenter(new THREE.Vector3());
+			// 	var size = bbox.getSize(new THREE.Vector3());
+			// 	//Rescale the object to normalized space
+			// 	var maxAxis = Math.max(size.x, size.y, size.z);
+			// 	gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
+			// 	bbox.setFromObject(gltf.scene);
+			// 	bbox.getCenter(cent);
+			// 	bbox.getSize(size);
+			// 	//Reposition to 0,halfY,0
+			// 	gltf.scene.position.copy(cent).multiplyScalar(-1);
+			// 	gltf.scene.position.y = 0;
+			// 	gltf.scene.position.x += -3.5;
+			// 	gltf.scene.position.z = 0;
+			// 	gltf.scene.visible = true;
 			
-				house = gltf.scene;
-				house.rotation.y = - 0.3 * Math.PI;
-				//add it to the scene
-				all.add( house );
+			// 	house = gltf.scene;
+			// 	house.rotation.y = - 0.3 * Math.PI;
+			// 	//add it to the scene
+			// 	all.add( house );
 
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
+			// }, undefined, function ( e ) {
+			// 	console.error( e );
+			// } );
 
 			//Load pic1
 			var geometry = new THREE.PlaneGeometry(1, 1);
