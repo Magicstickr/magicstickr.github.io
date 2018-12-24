@@ -425,18 +425,42 @@
 
 		function isScreenMode(){
 
-			swal.queue([{
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	confirmButtonText: 'OK',
-			  	footer: 'Please, allow the access to your camera',
-			  	showLoaderOnConfirm: true,
-  				preConfirm: () => {
-  					video.play();
-  					video.pause();
-  					initSequence();
-				}
-			}])
+			// Swal({
+			//   	title: 'Scan reussi, patientez un ptit peu!',
+			//   	type: 'success',
+			//   	confirmButtonText: 'OK'
+			// 	}).then( function (result) {
+			// 	if (result.value) {
+			// 		video.play();
+  	// 				video.pause();
+			// 	}
+			// })
+
+			let timerInterval
+			Swal({
+			  title: 'Scan reussi, patientez un ptit peu!',
+			  html:
+			    'Pret dans <strong></strong> seconds.<br/><br/>',
+			  timer: 10000,
+			  onBeforeOpen: () => {
+			    const content = Swal.getContent()
+			    const $ = content.querySelector.bind(content)
+
+			    Swal.showLoading()
+
+			    timerInterval = setInterval(() => {
+			      Swal.getContent().querySelector('strong')
+			        .textContent = (Swal.getTimerLeft() / 1000)
+			          .toFixed(0)
+			    }, 100)
+			  },
+			  onClose: () => {
+			    clearInterval(timerInterval)
+			    video.play();
+  	 			video.pause();
+  	 			initSequence();
+			  }
+			})
 		}
 
 		function initSequence(){
