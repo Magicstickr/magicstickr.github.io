@@ -522,7 +522,7 @@
 			  title: 'Scan reussi, patientez un ptit peu!',
 			  html:
 			    'Pret dans <strong></strong> seconds.<br/><br/>',
-			  timer: 20000,
+			  timer: 25000,
 			  onBeforeOpen: () => {
 			    const content = Swal.getContent()
 			    const $ = content.querySelector.bind(content)
@@ -537,9 +537,16 @@
 			  },
 			  onClose: () => {
 			    clearInterval(timerInterval)
-			    video.play();
-  	 			video.pause();
-  	 			//initSequence();
+			    Swal({
+				  	title: 'C\'est parti!',
+				  	type: 'success',
+				  	confirmButtonText: 'OK'
+					}).then( function (result) {
+					if (result.value) {
+						video.play();
+	  					video.pause();
+					}
+				})
 			  }
 			})
 		}
