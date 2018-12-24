@@ -404,7 +404,7 @@
 			all.add(pic3);
 
 			all.scale.multiplyScalar(0.4);
-			all.position.z = 0.5;
+			//all.position.z = 0.5;
 			arWorldRoot.add(all);
 		}
 
@@ -506,15 +506,37 @@
 
 		function isScreenMode(){
 
+			let timerInterval
 			Swal({
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	confirmButtonText: 'OK'
-				}).then( function (result) {
-				if (result.value) {
-					video.play();
-  					video.pause();
-				}
+			  title: 'Scan reussi, patientez un ptit peu!',
+			  html:
+			    'Pret dans <strong></strong> seconds.<br/><br/>',
+			  timer: 25000,
+			  onBeforeOpen: () => {
+			    const content = Swal.getContent()
+			    const $ = content.querySelector.bind(content)
+
+			    Swal.showLoading()
+
+			    timerInterval = setInterval(() => {
+			      Swal.getContent().querySelector('strong')
+			        .textContent = (Swal.getTimerLeft() / 1000)
+			          .toFixed(0)
+			    }, 100)
+			  },
+			  onClose: () => {
+			    clearInterval(timerInterval)
+			    Swal({
+				  	title: 'C\'est parti!',
+				  	type: 'success',
+				  	confirmButtonText: 'OK'
+					}).then( function (result) {
+					if (result.value) {
+						video.play();
+	  					video.pause();
+					}
+				})
+			  }
 			})
 		}
 
