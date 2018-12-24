@@ -213,7 +213,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann2.mp4', 1280, 720, "#5BA551");
 			// green: 0xd432
 			// white: 0xffff
 
@@ -421,7 +421,7 @@
 					if(arToolkitContext.arController != null){
 						if(arToolkitContext.arController.patternMarkers[0] != null){
 							if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
-								console.log("seq init");
+								//console.log("seq init");
 								initSequence();
 								isSeqInit = true;
 							}
@@ -522,7 +522,7 @@
 			  title: 'Scan reussi, patientez un ptit peu!',
 			  html:
 			    'Pret dans <strong></strong> seconds.<br/><br/>',
-			  timer: 10000,
+			  timer: 20000,
 			  onBeforeOpen: () => {
 			    const content = Swal.getContent()
 			    const $ = content.querySelector.bind(content)
@@ -539,7 +539,7 @@
 			    clearInterval(timerInterval)
 			    video.play();
   	 			video.pause();
-  	 			initSequence();
+  	 			//initSequence();
 			  }
 			})
 		}
