@@ -251,18 +251,21 @@ function addObjects(){
 	all.add( icbPlane );
 
 	var geometry = new THREE.CircleGeometry( 0.2 );
-	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
 	icbCirc1 = new THREE.Mesh( geometry, material );
 	icbCirc1.rotation.x = -Math.PI/2;
 	icbCirc1.position.set(posX - 0.5,posY,posZ + 0.5);
+	icbCirc1.visible = false;
 	all.add( icbCirc1 );
 	icbCirc2 = new THREE.Mesh( geometry, material );
 	icbCirc2.rotation.x = -Math.PI/2;
-	icbCirc2.position.set(posX,posY,posZ + 0.8);
+	icbCirc2.position.set(posX,posY,posZ + 0.6);
+	icbCirc2.visible = false;
 	all.add( icbCirc2 );
 	icbCirc3 = new THREE.Mesh( geometry, material );
 	icbCirc3.rotation.x = -Math.PI/2;
 	icbCirc3.position.set(posX + 0.5,posY,posZ + 0.5);
+	icbCirc3.visible = false;
 	all.add( icbCirc3 );
 
 	// GTA plane
@@ -277,18 +280,21 @@ function addObjects(){
 	all.add( gtaPlane );
 
 	var geometry = new THREE.CircleGeometry( 0.2 );
-	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
 	gtaCirc1 = new THREE.Mesh( geometry, material );
 	gtaCirc1.rotation.x = -Math.PI/2;
 	gtaCirc1.position.set(posX - 0.5,posY,posZ + 0.5);
+	gtaCirc1.visible = false;
 	all.add( gtaCirc1 );
 	gtaCirc2 = new THREE.Mesh( geometry, material );
 	gtaCirc2.rotation.x = -Math.PI/2;
-	gtaCirc2.position.set(posX,posY,posZ + 0.8);
+	gtaCirc2.position.set(posX,posY,posZ + 0.6);
+	gtaCirc2.visible = false;
 	all.add( gtaCirc2 );
 	gtaCirc3 = new THREE.Mesh( geometry, material );
 	gtaCirc3.rotation.x = -Math.PI/2;
 	gtaCirc3.position.set(posX + 0.5,posY,posZ + 0.5);
+	gtaCirc3.visible = false;
 	all.add( gtaCirc3 );
 
 	// Load marijuana
@@ -369,27 +375,27 @@ function onDocumentMouseDown( event ) {
 	if ( icbIntersects.length > 0) {
 		if(marijuana1.visible == false){
 			marijuana1.visible = true;
-			icbCirc1.material.opacity = 1.0;
-			icbCirc2.material.opacity = 1.0;
-			icbCirc3.material.opacity = 1.0;
+			icbCirc1.visible = true;
+			icbCirc2.visible = true;
+			icbCirc3.visible = true;;
 		}else{
 			marijuana1.visible = false;
-			icbCirc1.material.opacity = 0.0;
-			icbCirc2.material.opacity = 0.0;
-			icbCirc3.material.opacity = 0.0;
+			icbCirc1.visible = false;
+			icbCirc2.visible = false;
+			icbCirc3.visible = false;
 		}
 	}
 	if ( gtaIntersects.length > 0) {
 		if(marijuana2.visible == false){
 			marijuana2.visible = true;
-			gtaCirc1.material.opacity = 1.0;
-			gtaCirc2.material.opacity = 1.0;
-			gtaCirc3.material.opacity = 1.0;
+			gtaCirc1.visible = true;
+			gtaCirc2.visible = true;
+			gtaCirc3.visible = true;
 		}else{
 			marijuana2.visible = false;
-			gtaCirc1.material.opacity = 0.0;
-			gtaCirc2.material.opacity = 0.0;
-			gtaCirc3.material.opacity = 0.0;
+			gtaCirc1.visible = false;
+			gtaCirc2.visible = false;
+			gtaCirc3.visible = false;
 		}
 	}
 }
