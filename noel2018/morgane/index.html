@@ -16,8 +16,8 @@
 
 		<title>Holo Mini Sean</title>
 	</head>
-	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.22
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK()'>
+		V 1.1.23
 		<div id="time">Time:</div>
 		<div id="test"></div>
 		<div class="swal2-container">/</div>
@@ -66,7 +66,27 @@
 
 		renderEngine();
 
-		var screenmode = isScreenMode();
+		swal({
+		  	title: 'Scan successful and... loading on progress!',
+		  	type: 'info',
+		  	footer: 'Please, allow the access to your camera',
+		  	showConfirmButton: false,
+  			timer: 1500000
+		});
+
+		function loadOK(){
+			swal({
+			  	title: 'Loading completed!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+  					video.play();
+  					video.pause();
+				}
+			});
+		}
 
 		function initScene(){
 			//////////////////////////////////////////////////////////////////////////////////
@@ -504,42 +524,6 @@
 			}
 		}
 
-		function isScreenMode(){
-
-			let timerInterval
-			Swal({
-			  title: 'Scan reussi, patientez un ptit peu!',
-			  html:
-			    'Pret dans <strong></strong> seconds.<br/><br/>',
-			  timer: 25000,
-			  onBeforeOpen: () => {
-			    const content = Swal.getContent()
-			    const $ = content.querySelector.bind(content)
-
-			    Swal.showLoading()
-
-			    timerInterval = setInterval(() => {
-			      Swal.getContent().querySelector('strong')
-			        .textContent = (Swal.getTimerLeft() / 1000)
-			          .toFixed(0)
-			    }, 100)
-			  },
-			  onClose: () => {
-			    clearInterval(timerInterval)
-			    Swal({
-				  	title: 'C\'est parti!',
-				  	type: 'success',
-				  	confirmButtonText: 'OK'
-					}).then( function (result) {
-					if (result.value) {
-						video.play();
-	  					video.pause();
-					}
-				})
-			  }
-			})
-		}
-
 		function initSequence(){
 			time = 0;
 			video_time = 0;
@@ -587,8 +571,8 @@
 				}
 
 				//Show Pic2 
-				var start = 23; 
-				var end = 27; 
+				var start = 25; 
+				var end = 29; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -598,8 +582,8 @@
 				}
 
 				//Hide Pic2 
-				var start = 29; 
-				var end = 31; 
+				var start = 31; 
+				var end = 33; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -611,8 +595,8 @@
 				}
 
 				//Show Pic3 
-				var start = 32; 
-				var end = 35; 
+				var start = 44; 
+				var end = 47; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -622,8 +606,8 @@
 				}
 
 				//Hide Pic3 
-				var start = 38; 
-				var end = 41; 
+				var start = 51; 
+				var end = 53; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -657,7 +641,6 @@
 
 			})
 		}
-
 
 		function test(test_var){
 			document.getElementById("test").innerHTML = "Test: " + test_var;

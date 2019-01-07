@@ -48,7 +48,7 @@
 		<script>
 
 		// Threejs/ARjs standard variables
-		var manager, renderer, arWorldRoot, onRenderFcts, camera, controls, directionalLight;
+		var renderer, arWorldRoot, onRenderFcts, camera, controls, directionalLight;
 		// Control variables
 		var screen_mode, isSeqInit;
 		// Object variables
@@ -482,8 +482,8 @@
 				}
 
 				//Show Pic3 
-				var start = 38; 
-				var end = 41; 
+				var start = 44; 
+				var end = 47; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -493,8 +493,8 @@
 				}
 
 				//Hide Pic3 
-				var start = 44; 
-				var end = 47; 
+				var start = 51; 
+				var end = 53; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
