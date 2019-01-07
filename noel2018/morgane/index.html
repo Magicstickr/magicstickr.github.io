@@ -587,8 +587,8 @@
 				}
 
 				//Show Pic2 
-				var start = 21; 
-				var end = 24; 
+				var start = 23; 
+				var end = 27; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -598,8 +598,8 @@
 				}
 
 				//Hide Pic2 
-				var start = 26; 
-				var end = 29; 
+				var start = 29; 
+				var end = 31; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -635,7 +635,7 @@
 				}
 
 				// Stop speech
-				var start = 49;
+				var start = 63;
 				if(Math.round(video_time) == start && stopAnim == false){
 					videoPlane.visible = false;
 					speechStopped = true;
