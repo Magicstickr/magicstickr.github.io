@@ -240,18 +240,56 @@ function addObjects(){
 	all.add( qrPlane );
 
 	// Incredible Bulk Auto plane
+	var posX= 1;
+	var posY= 0;
+	var posZ= 1.3;
 	var geometry = new THREE.PlaneGeometry( 0.8, 0.7 );
 	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
 	icbPlane = new THREE.Mesh( geometry, material );
 	icbPlane.rotation.x = -Math.PI/2;
-	icbPlane.position.set(1,0,1.3);
+	icbPlane.position.set(posX,posY - 0.2,posZ);
 	all.add( icbPlane );
 
+	var geometry = new THREE.CircleGeometry( 0.2 );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
+	icbCirc1 = new THREE.Mesh( geometry, material );
+	icbCirc1.rotation.x = -Math.PI/2;
+	icbCirc1.position.set(posX - 0.5,posY,posZ + 0.5);
+	all.add( icbCirc1 );
+	icbCirc2 = new THREE.Mesh( geometry, material );
+	icbCirc2.rotation.x = -Math.PI/2;
+	icbCirc2.position.set(posX,posY,posZ + 0.8);
+	all.add( icbCirc2 );
+	icbCirc3 = new THREE.Mesh( geometry, material );
+	icbCirc3.rotation.x = -Math.PI/2;
+	icbCirc3.position.set(posX + 0.5,posY,posZ + 0.5);
+	all.add( icbCirc3 );
+
 	// GTA plane
+	var posX= 1;
+	var posY= 0;
+	var posZ= 2.7;
+	var geometry = new THREE.PlaneGeometry( 0.8, 0.7 );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
 	gtaPlane = new THREE.Mesh( geometry, material );
 	gtaPlane.rotation.x = -Math.PI/2;
-	gtaPlane.position.set(1,0,2.7);
+	gtaPlane.position.set(posX,posY - 0.2,posZ);
 	all.add( gtaPlane );
+
+	var geometry = new THREE.CircleGeometry( 0.2 );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
+	gtaCirc1 = new THREE.Mesh( geometry, material );
+	gtaCirc1.rotation.x = -Math.PI/2;
+	gtaCirc1.position.set(posX - 0.5,posY,posZ + 0.5);
+	all.add( gtaCirc1 );
+	gtaCirc2 = new THREE.Mesh( geometry, material );
+	gtaCirc2.rotation.x = -Math.PI/2;
+	gtaCirc2.position.set(posX,posY,posZ + 0.8);
+	all.add( gtaCirc2 );
+	gtaCirc3 = new THREE.Mesh( geometry, material );
+	gtaCirc3.rotation.x = -Math.PI/2;
+	gtaCirc3.position.set(posX + 0.5,posY,posZ + 0.5);
+	all.add( gtaCirc3 );
 
 	// Load marijuana
 	var loader = new THREE.GLTFLoader().load('content/cb/scene.gltf', function ( gltf ) {
@@ -331,15 +369,27 @@ function onDocumentMouseDown( event ) {
 	if ( icbIntersects.length > 0) {
 		if(marijuana1.visible == false){
 			marijuana1.visible = true;
+			icbCirc1.material.opacity = 1.0;
+			icbCirc2.material.opacity = 1.0;
+			icbCirc3.material.opacity = 1.0;
 		}else{
 			marijuana1.visible = false;
+			icbCirc1.material.opacity = 0.0;
+			icbCirc2.material.opacity = 0.0;
+			icbCirc3.material.opacity = 0.0;
 		}
 	}
 	if ( gtaIntersects.length > 0) {
 		if(marijuana2.visible == false){
 			marijuana2.visible = true;
+			gtaCirc1.material.opacity = 1.0;
+			gtaCirc2.material.opacity = 1.0;
+			gtaCirc3.material.opacity = 1.0;
 		}else{
 			marijuana2.visible = false;
+			gtaCirc1.material.opacity = 0.0;
+			gtaCirc2.material.opacity = 0.0;
+			gtaCirc3.material.opacity = 0.0;
 		}
 	}
 }

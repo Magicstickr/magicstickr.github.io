@@ -15,7 +15,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7"></script>
 		<script src="lib/ar-ms-kit1.0.js"></script>
 
-		<title>Joyeux Noel</title>
+		<title>CB Project</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK(lang)'>
 		V 1.1.26
@@ -50,16 +50,12 @@
 		<script>
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var qrPlane, icbPlane, gtaPlane, marijuana1, marijuana2;
+		var qrPlane, icbPlane, gtaPlane, marijuana1, marijuana2, icbCirc2, icbCirc3, icbCirc1, gtaCirc2, gtaCirc3, gtaCirc1;
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isStart = true;
 		var isSeqInit = false;
 		var lang = "eng";
-		var startVideo = 3;
-		var startPic1 = 9;
-		var startPic2 = 29;
-		var startPic3 = 47;
 		var markerPatt = 'marker/marker_cb.patt';
 
 		initScene();
