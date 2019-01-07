@@ -240,12 +240,18 @@ function addObjects(){
 	all.add( qrPlane );
 
 	// Incredible Bulk Auto plane
-	var geometry = new THREE.PlaneGeometry( 0.8, 0.5 );
+	var geometry = new THREE.PlaneGeometry( 0.8, 0.7 );
 	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
 	icbPlane = new THREE.Mesh( geometry, material );
 	icbPlane.rotation.x = -Math.PI/2;
 	icbPlane.position.set(1,0,1.3);
 	all.add( icbPlane );
+
+	// GTA plane
+	gtaPlane = new THREE.Mesh( geometry, material );
+	gtaPlane.rotation.x = -Math.PI/2;
+	gtaPlane.position.set(1,0,2.7);
+	all.add( gtaPlane );
 
 	// Load marijuana
 	var loader = new THREE.GLTFLoader().load('content/cb/scene.gltf', function ( gltf ) {
@@ -265,9 +271,35 @@ function addObjects(){
 		gltf.scene.position.set(1,0,1.3);
 		gltf.scene.visible = false;
 	
-		marijuana = gltf.scene;
+		marijuana1 = gltf.scene;
 		//add it to the scene
-		all.add( marijuana );
+		all.add( marijuana1 );
+
+	}, undefined, function ( e ) {
+		console.error( e );
+	} );
+
+	// Load marijuana
+	var loader = new THREE.GLTFLoader().load('content/cb/scene.gltf', function ( gltf ) {
+		//Resize/rescale the 3D Object
+		var bbox = new THREE.Box3().setFromObject(gltf.scene);
+		var cent = bbox.getCenter(new THREE.Vector3());
+		var size = bbox.getSize(new THREE.Vector3());
+		//Rescale the object to normalized space
+		var maxAxis = Math.max(size.x, size.y, size.z);
+		gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
+		bbox.setFromObject(gltf.scene);
+		bbox.getCenter(cent);
+		bbox.getSize(size);
+		gltf.scene.position.copy(cent).multiplyScalar(1);
+
+		gltf.scene.scale.multiplyScalar(4);
+		gltf.scene.position.set(1,0,2.7);
+		gltf.scene.visible = false;
+	
+		marijuana2 = gltf.scene;
+		//add it to the scene
+		all.add( marijuana2 );
 
 	}, undefined, function ( e ) {
 		console.error( e );
@@ -291,14 +323,23 @@ function onDocumentMouseDown( event ) {
 	raycaster.setFromCamera( mouse, camera );
 
 	var icbArray = [icbPlane];
+	var gtaArray = [gtaPlane];
 
 	var icbIntersects = raycaster.intersectObjects( icbArray );
+	var gtaIntersects = raycaster.intersectObjects( gtaArray );
 
 	if ( icbIntersects.length > 0) {
-		if(marijuana.visible == false){
-			marijuana.visible = true;
+		if(marijuana1.visible == false){
+			marijuana1.visible = true;
 		}else{
-			marijuana.visible = false;
+			marijuana1.visible = false;
+		}
+	}
+	if ( gtaIntersects.length > 0) {
+		if(marijuana2.visible == false){
+			marijuana2.visible = true;
+		}else{
+			marijuana2.visible = false;
 		}
 	}
 }
