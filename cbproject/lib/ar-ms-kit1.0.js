@@ -8,9 +8,9 @@ function loadOK(lang){
 			  	footer: 'STP, autorise l\'acces a ta camera!',
 			  	showLoaderOnConfirm: true,
 					preConfirm: () => {
-						video.play();
-						video.pause();
-						initSequence();
+						// video.play();
+						// video.pause();
+						// initSequence();
 				}
 			});
 			break;
@@ -22,9 +22,9 @@ function loadOK(lang){
 			  	footer: 'Please, enable the camera access',
 			  	showLoaderOnConfirm: true,
 					preConfirm: () => {
-						video.play();
-						video.pause();
-						initSequence();
+						// video.play();
+						// video.pause();
+						// initSequence();
 				}
 			});
 		break;
@@ -196,29 +196,6 @@ function renderEngine(){
 	// render the scene
 	onRenderFcts.push(function(){
 		renderer.render( scene, camera );
-
-		if (isSeqInit == false){
-			if(arToolkitContext.arController != null){
-				if(arToolkitContext.arController.patternMarkers[0] != null){
-					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
-						console.log("seq init");
-						initSequence();
-						isSeqInit = true;
-					}
-				}
-			}
-		}
-
-		if(arToolkitContext.arController != null){
-			if(arToolkitContext.arController.patternMarkers[0] != null){
-				if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-					video.pause();
-				}
-				else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
-					video.play();
-				}
-			}
-		}
 	})
 
 	// run the rendering loop
@@ -249,206 +226,49 @@ function addObjects(){
 
 	var all = new THREE.Group();
 
-	isVideoPlay = false;
-	
-	var xsize = 1;
-	var ysize = xsize * 0.5625;
+	// QR code plane
+	var geometry = new THREE.PlaneGeometry( 1, 1 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	qrPlane = new THREE.Mesh( geometry, material );
+	qrPlane.rotation.x = -Math.PI/2;
+	all.add( qrPlane );
 
-	var geometry = new THREE.PlaneGeometry(xsize, ysize);
+	// Incredible Bulk Auto plane
+	var geometry = new THREE.PlaneGeometry( 0.8, 0.5 );
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
+	material.transparent = true;
+	icbPlane = new THREE.Mesh( geometry, material );
+	icbPlane.rotation.x = -Math.PI/2;
+	icbPlane.position.set(1,0,1.3);
+	all.add( icbPlane );
 
-	var loc = window.location.href;
-	var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-	var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
-	// green: 0xd432
-	// white: 0xffff
-
-	videoPlane = new THREE.Mesh( geometry, movieMaterial );
-	videoPlane.position.y = 1.3;
-	videoPlane.position.z = 2;
-	videoPlane.scale.multiplyScalar(5);
-	//videoPlane.visible = false;
-	video.loop = false;
-
-	all.add( videoPlane );	
-
-	onRenderFcts.push(function(delta, now){
-		movieMaterial.update();
-	})
-
-	//add snow
-	var tile_size = 2;
-	var geometry = new THREE.PlaneGeometry(13, 5);
-
-    var texture = new THREE.TextureLoader().load( "content/floor.png" );
-    var material = new THREE.MeshLambertMaterial({
-	  map: texture,
-	  transparent: true,
-	});
-	var snow = new THREE.Mesh(geometry, material);
-    snow.rotation.x = -Math.PI/2;
-    snow.position.z = 1;
-
-	snow.visible = true;
-	
-	all.add( snow );
-
-	// Load Gifts
-	var loader = new THREE.GLTFLoader().load('content/gift/scene.gltf', function ( gltf ) {
+	// Load marijuana
+	var loader = new THREE.GLTFLoader().load('content/cb/scene.gltf', function ( gltf ) {
 		//Resize/rescale the 3D Object
 		var bbox = new THREE.Box3().setFromObject(gltf.scene);
 		var cent = bbox.getCenter(new THREE.Vector3());
 		var size = bbox.getSize(new THREE.Vector3());
 		//Rescale the object to normalized space
 		var maxAxis = Math.max(size.x, size.y, size.z);
-		gltf.scene.scale.multiplyScalar(2.0 / maxAxis);
+		gltf.scene.scale.multiplyScalar(1.0 / maxAxis);
 		bbox.setFromObject(gltf.scene);
 		bbox.getCenter(cent);
 		bbox.getSize(size);
-		//Reposition to 0,halfY,0
-		gltf.scene.position.copy(cent).multiplyScalar(-1);
-		gltf.scene.position.y = 0;
-		gltf.scene.position.x += 3;
-		gltf.scene.position.z = 0;
-		gltf.scene.visible = true;
+		gltf.scene.position.copy(cent).multiplyScalar(1);
+
+		gltf.scene.scale.multiplyScalar(4);
+		gltf.scene.position.set(1,0,1.3);
+		gltf.scene.visible = false;
 	
-		gift = gltf.scene;
-		gift.position.z += 0.5;
+		marijuana = gltf.scene;
 		//add it to the scene
-		all.add( gift );
+		all.add( marijuana );
 
 	}, undefined, function ( e ) {
 		console.error( e );
 	} );
 
-	// Load Tree
-	var loader = new THREE.GLTFLoader().load('content/tree/scene.gltf', function ( gltf ) {
-		//Resize/rescale the 3D Object
-		var bbox = new THREE.Box3().setFromObject(gltf.scene);
-		var cent = bbox.getCenter(new THREE.Vector3());
-		var size = bbox.getSize(new THREE.Vector3());
-		//Rescale the object to normalized space
-		var maxAxis = Math.max(size.x, size.y, size.z);
-		gltf.scene.scale.multiplyScalar(5.0 / maxAxis);
-		bbox.setFromObject(gltf.scene);
-		bbox.getCenter(cent);
-		bbox.getSize(size);
-		//Reposition to 0,halfY,0
-		gltf.scene.position.copy(cent).multiplyScalar(-1);
-		gltf.scene.position.y = 0;
-		gltf.scene.position.x += 1;
-		gltf.scene.position.z -= 1;
-		gltf.scene.visible = true;
-	
-		tree = gltf.scene;
-		tree.position.y += 0.7;
-		//add it to the scene
-		all.add( tree );
-
-	}, undefined, function ( e ) {
-		console.error( e );
-	} );
-
-	// // Load House
-	// var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
-	// 	//Resize/rescale the 3D Object
-	// 	var bbox = new THREE.Box3().setFromObject(gltf.scene);
-	// 	var cent = bbox.getCenter(new THREE.Vector3());
-	// 	var size = bbox.getSize(new THREE.Vector3());
-	// 	//Rescale the object to normalized space
-	// 	var maxAxis = Math.max(size.x, size.y, size.z);
-	// 	gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
-	// 	bbox.setFromObject(gltf.scene);
-	// 	bbox.getCenter(cent);
-	// 	bbox.getSize(size);
-	// 	//Reposition to 0,halfY,0
-	// 	gltf.scene.position.copy(cent).multiplyScalar(-1);
-	// 	gltf.scene.position.y = 0;
-	// 	gltf.scene.position.x += -3.5;
-	// 	gltf.scene.position.z = 0;
-	// 	gltf.scene.visible = true;
-	
-	// 	house = gltf.scene;
-	// 	house.rotation.y = - 0.3 * Math.PI;
-	// 	//add it to the scene
-	// 	all.add( house );
-
-	// }, undefined, function ( e ) {
-	// 	console.error( e );
-	// } );
-
-	//Load pic1
-	var geometry = new THREE.PlaneGeometry(1, 1);
-	var material = new THREE.MeshLambertMaterial();
-	pic1 = new THREE.Mesh(geometry, material);
-	//Get image from image.jpg
-	var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
-		//Rescale and position image
-		var targetWidth = 4;
-		var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-		pic1.scale.set(targetWidth, targetHeight, 1.0);
-		pic1.position.x = -4;
-		pic1.position.z = -1;
-	});
-
-	//Load the image into a custom material
-	material = new THREE.MeshLambertMaterial({
-	  map: imageLoader
-	});
-	//Add material to the image mesh
-	pic1.material = material;
-	pic1.visible = false;
-
-	all.add(pic1);
-
-	//Load pic2
-	var geometry = new THREE.PlaneGeometry(1, 1);
-	var material = new THREE.MeshLambertMaterial();
-	pic2 = new THREE.Mesh(geometry, material);
-	//Get image from image.jpg
-	var imageLoader = new THREE.TextureLoader().load('content/image1.jpg', (imgLoader) => {
-		//Rescale and position image
-		var targetWidth = 4;
-		var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-		pic2.scale.set(targetWidth, targetHeight, 1.0);
-		pic2.position.x = 3;
-		pic2.position.z = -1;
-	});
-
-	//Load the image into a custom material
-	material = new THREE.MeshLambertMaterial({
-	  map: imageLoader
-	});
-	//Add material to the image mesh
-	pic2.material = material;
-	pic2.visible = false;
-
-	all.add(pic2);
-
-	//Load pic3
-	var geometry = new THREE.PlaneGeometry(1, 1);
-	var material = new THREE.MeshLambertMaterial();
-	pic3 = new THREE.Mesh(geometry, material);
-	//Get image from image.jpg
-	var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
-		//Rescale and position image
-		var targetWidth = 4;
-		var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-		pic3.scale.set(targetWidth, targetHeight, 1.0);
-		pic3.position.x = -4;
-		pic3.position.z = -1;
-	});
-
-	//Load the image into a custom material
-	material = new THREE.MeshLambertMaterial({
-	  map: imageLoader
-	});
-	//Add material to the image mesh
-	pic3.material = material;
-	pic3.visible = false;
-
-	all.add(pic3);
-
-	all.scale.multiplyScalar(0.4);
+	all.scale.multiplyScalar(1);
 	//all.position.z = 0.5;
 	arWorldRoot.add(all);
 }
@@ -457,33 +277,23 @@ function onDocumentMouseDown( event ) {
 
 	event.preventDefault();
 
-	if(isStart == true){
-		video.play();
-			video.pause();
-			swal.close();
-			isStart = false;
+	var raycaster = new THREE.Raycaster();
+	var mouse = new THREE.Vector2();
+
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+	raycaster.setFromCamera( mouse, camera );
+
+	var icbArray = [icbPlane];
+
+	var icbIntersects = raycaster.intersectObjects( icbArray );
+
+	if ( icbIntersects.length > 0) {
+		if(marijuana.visible == false){
+			marijuana.visible = true;
 		}else{
-
-		var raycaster = new THREE.Raycaster();
-		var mouse = new THREE.Vector2();
-
-		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-		raycaster.setFromCamera( mouse, camera );
-
-		var videoPlaneArray = [videoPlane];
-
-		var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
-
-		if ( videoIntersects.length > 0) {
-			if(video.paused == true){
-				video.play();
-				isVideoPlay = true;
-			}else{
-				video.pause();
-				isVideoPlay = false;
-			}
+			marijuana.visible = false;
 		}
 	}
 }

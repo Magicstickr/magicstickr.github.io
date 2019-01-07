@@ -50,12 +50,12 @@
 		<script>
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var tile, videoPlane, pic1, pic2, pic3, gltfObj, wall;
+		var qrPlane, icbPlane, marijuana;
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isStart = true;
 		var isSeqInit = false;
-		var lang = "fr";
+		var lang = "eng";
 		var startVideo = 3;
 		var startPic1 = 9;
 		var startPic2 = 29;
@@ -64,7 +64,7 @@
 
 		initScene();
 		initCameraLight();
-		initAREngine();
+		initAREngine(markerPatt);
 
 		addObjects();
 
