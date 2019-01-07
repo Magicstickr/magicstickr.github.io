@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='../lib/three.min.js'></script>
+		<script src="../lib/ar.js"></script>
+		<script src="../lib/WebGL.js"></script>
+		<script src="../lib/chromakey.js"></script>
+		<script src="../lib/GLTFLoader.js"></script>
+		<!-- script for popup message -->
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+  		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+		<!-- This is what you need -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7"></script>
+		<script src="../lib/ar-ms-kit1.0.js"></script>
+
+		<title>Joyeux Noel</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK(lang)'>
+		V 1.1.25
+		<div id="time">Time:</div>
+		<div id="test"></div>
+		<div class="swal2-container">/</div>
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+		</script>
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform sampler2D texture;
+			uniform vec3 color;
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vec3 tColor = texture2D( texture, vUv ).rgb;
+				float a = (length(tColor - color) - 0.3) * 50.0;
+				gl_FragColor = vec4(tColor, a);
+			}
+		</script>
+		<script>
+		var renderer, scene, camera;
+		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
+		var tile, videoPlane, pic1, pic2, pic3, gltfObj, wall;
+		var isVideoPlay, time, video_time, stopAnim, videoStart;
+
+		var isStart = true;
+		var isSeqInit = false;
+		var lang = "fr";
+		var startVideo = 3;
+		var startPic1 = 9;
+		var startPic2 = 29;
+		var startPic3 = 47;
+		var markerPatt = 'marker/marker_cb.patt';
+
+		initScene();
+		initCameraLight();
+		initAREngine();
+
+		addObjects();
+
+		renderEngine();
+		</script>
+	</body>
+</html>
