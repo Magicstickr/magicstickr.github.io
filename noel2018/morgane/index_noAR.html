@@ -65,19 +65,19 @@
 		renderEngine();
 
 		swal({
-		  	title: 'Scan successful and... loading on progress!',
+		  	title: 'Scan OK, patiente un petit peu!',
 		  	type: 'info',
-		  	footer: 'Please, allow the access to your camera',
+		  	footer: 'STP, autorise l\'acces a ta camera!',
 		  	showConfirmButton: false,
   			timer: 1500000
 		});
 
 		function loadOK(){
 			swal({
-			  	title: 'Loading completed!',
+			  	title: 'C\'est pret! Pointe le QR code avec ta camera',
 			  	type: 'success',
 			  	confirmButtonText: 'OK',
-			  	footer: 'Please, allow the access to your camera',
+			  	footer: 'STP, autorise l\'acces a ta camera!',
 			  	showLoaderOnConfirm: true,
   				preConfirm: () => {
   					video.play();
@@ -426,7 +426,7 @@
 				document.getElementById("time").innerHTML = "Time: " + Math.round(time) + " Video time: " + Math.round(video_time);
 
 				//Launch a Michelle speech at sec 3
-				var start = 5;
+				var start = 2;
 				if(videoStart == false && Math.round(time) == start ){
 					//videoPlane.visible = true;
 					video.play();
