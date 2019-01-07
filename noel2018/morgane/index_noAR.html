@@ -15,8 +15,8 @@
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<title>Holo Mini Sean</title>
 	</head>
-	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-		V 1.1.6
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK()'>
+		V 1.1.7
 		<div id=time>Time:</div>
 		<div id=test></div>
 		<script id="vertexShader" type="x-shader/x-vertex">
@@ -54,8 +54,6 @@
 		// Object variables
 		var all, videoPlane, logo, floor, video, gltfObj, tile, pic1, pic2, pic3, planeMesh;
 
-		
-		loadingMgr();
 		initScene();
 		initCamera();
 		initLight();
@@ -66,40 +64,27 @@
 
 		renderEngine();
 
-		function loadingMgr(){
-			manager = new THREE.LoadingManager();
-			manager.onLoad = function ( ) {
-				console.log("loaded");
-				swal({
-				  	title: 'Loading completed!',
-				  	type: 'success',
-				  	confirmButtonText: 'OK',
-				  	footer: 'Please, allow the access to your camera',
-				  	showLoaderOnConfirm: true,
-	  				preConfirm: () => {
-	  					video.play();
-	  					video.pause();
-	  					initSequence();
-					}
-				});
-			};
+		swal({
+		  	title: 'Scan successful and... loading on progress!',
+		  	type: 'info',
+		  	footer: 'Please, allow the access to your camera',
+		  	showConfirmButton: false,
+  			timer: 1500000
+		});
 
-			manager.onProgress = function () {
-				console.log("onProgress");
-				swal({
-				  	title: 'Loading on progress!',
-				  	type: 'info',
-				  	footer: 'Please, allow the access to your camera'
-				});
-			};
-
-			manager.onError = function () {
-
-				swal({
-				  	title: 'There was an error!',
-				  	type: 'error'
-				});
-			};
+		function loadOK(){
+			swal({
+			  	title: 'Loading completed!',
+			  	type: 'success',
+			  	confirmButtonText: 'OK',
+			  	footer: 'Please, allow the access to your camera',
+			  	showLoaderOnConfirm: true,
+  				preConfirm: () => {
+  					video.play();
+  					video.pause();
+  					initSequence();
+				}
+			});
 		}
 
 		function initScene(){
@@ -473,8 +458,8 @@
 				}
 
 				//Show Pic2 
-				var start = 23; 
-				var end = 27; 
+				var start = 25; 
+				var end = 29; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -484,8 +469,8 @@
 				}
 
 				//Hide Pic2 
-				var start = 29; 
-				var end = 31; 
+				var start = 31; 
+				var end = 33; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
@@ -497,8 +482,8 @@
 				}
 
 				//Show Pic3 
-				var start = 32; 
-				var end = 35; 
+				var start = 38; 
+				var end = 41; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
@@ -508,8 +493,8 @@
 				}
 
 				//Hide Pic3 
-				var start = 38; 
-				var end = 41; 
+				var start = 44; 
+				var end = 47; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
