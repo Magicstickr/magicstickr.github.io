@@ -43,7 +43,7 @@
 			void main()
 			{
 				vec3 tColor = texture2D( texture, vUv ).rgb;
-				float a = (length(tColor - color) - 0.6) * 100.0;
+				float a = (length(tColor - color) - 0.3) * 50.0;
 				gl_FragColor = vec4(tColor, a);
 			}
 		</script>
@@ -179,7 +179,7 @@
 				//type: 'barcode',
 				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
 				type : 'pattern',
-				patternUrl : 'marker/marker_holo.patt'
+				patternUrl : 'marker/marker_agathe.patt'
 			})
 
 			// build a smoothedControls
@@ -213,7 +213,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#675F53");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
 			// green: 0xd432
 			// white: 0xffff
 
@@ -303,33 +303,33 @@
 				console.error( e );
 			} );
 
-			// Load House
-			var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = 0;
-				gltf.scene.position.x += -3.5;
-				gltf.scene.position.z = 0;
-				gltf.scene.visible = true;
+			// // Load House
+			// var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
+			// 	//Resize/rescale the 3D Object
+			// 	var bbox = new THREE.Box3().setFromObject(gltf.scene);
+			// 	var cent = bbox.getCenter(new THREE.Vector3());
+			// 	var size = bbox.getSize(new THREE.Vector3());
+			// 	//Rescale the object to normalized space
+			// 	var maxAxis = Math.max(size.x, size.y, size.z);
+			// 	gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
+			// 	bbox.setFromObject(gltf.scene);
+			// 	bbox.getCenter(cent);
+			// 	bbox.getSize(size);
+			// 	//Reposition to 0,halfY,0
+			// 	gltf.scene.position.copy(cent).multiplyScalar(-1);
+			// 	gltf.scene.position.y = 0;
+			// 	gltf.scene.position.x += -3.5;
+			// 	gltf.scene.position.z = 0;
+			// 	gltf.scene.visible = true;
 			
-				house = gltf.scene;
-				house.rotation.y = - 0.3 * Math.PI;
-				//add it to the scene
-				all.add( house );
+			// 	house = gltf.scene;
+			// 	house.rotation.y = - 0.3 * Math.PI;
+			// 	//add it to the scene
+			// 	all.add( house );
 
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
+			// }, undefined, function ( e ) {
+			// 	console.error( e );
+			// } );
 
 			//Load pic1
 			var geometry = new THREE.PlaneGeometry(1, 1);
@@ -403,8 +403,8 @@
 
 			all.add(pic3);
 
-			all.scale.multiplyScalar(0.7);
-			all.position.z = 0.5;
+			all.scale.multiplyScalar(0.4);
+			//all.position.z = 0.5;
 			arWorldRoot.add(all);
 		}
 
@@ -506,15 +506,37 @@
 
 		function isScreenMode(){
 
+			let timerInterval
 			Swal({
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	confirmButtonText: 'OK'
-				}).then( function (result) {
-				if (result.value) {
-					video.play();
-  					video.pause();
-				}
+			  title: 'Scan reussi, patientez un ptit peu!',
+			  html:
+			    'Pret dans <strong></strong> seconds.<br/><br/>',
+			  timer: 25000,
+			  onBeforeOpen: () => {
+			    const content = Swal.getContent()
+			    const $ = content.querySelector.bind(content)
+
+			    Swal.showLoading()
+
+			    timerInterval = setInterval(() => {
+			      Swal.getContent().querySelector('strong')
+			        .textContent = (Swal.getTimerLeft() / 1000)
+			          .toFixed(0)
+			    }, 100)
+			  },
+			  onClose: () => {
+			    clearInterval(timerInterval)
+			    Swal({
+				  	title: 'C\'est parti!',
+				  	type: 'success',
+				  	confirmButtonText: 'OK'
+					}).then( function (result) {
+					if (result.value) {
+						video.play();
+	  					video.pause();
+					}
+				})
+			  }
 			})
 		}
 

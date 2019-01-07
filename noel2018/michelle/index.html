@@ -179,7 +179,7 @@
 				//type: 'barcode',
 				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
 				type : 'pattern',
-				patternUrl : 'marker/marker_holo.patt'
+				patternUrl : 'marker/marker_michelle.patt'
 			})
 
 			// build a smoothedControls
@@ -213,7 +213,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann2.mp4', 1280, 720, "#5BA551");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
 			// green: 0xd432
 			// white: 0xffff
 
@@ -421,7 +421,7 @@
 					if(arToolkitContext.arController != null){
 						if(arToolkitContext.arController.patternMarkers[0] != null){
 							if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
-								//console.log("seq init");
+								console.log("seq init");
 								initSequence();
 								isSeqInit = true;
 							}
@@ -556,7 +556,7 @@
 
 				//Launch a Michelle speech at sec 3
 				var start = 5;
-				if(videoStart == false && Math.round(time) >= start ){
+				if(videoStart == false && Math.round(time) == start ){
 					//videoPlane.visible = true;
 					video.play();
 					videoStart = true;

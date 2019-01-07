@@ -41,19 +41,21 @@
 			void main()
 			{
 				vec3 tColor = texture2D( texture, vUv ).rgb;
-				float a = (length(tColor - color) - 0.3) * 50.0;
+				float a = (length(tColor - color) - 0.6) * 100.0;
 				gl_FragColor = vec4(tColor, a);
 			}
 		</script>
 		<script>
 
 		// Threejs/ARjs standard variables
-		var renderer, arWorldRoot, onRenderFcts, camera, controls, directionalLight;
+		var manager, renderer, arWorldRoot, onRenderFcts, camera, controls, directionalLight;
 		// Control variables
 		var screen_mode, isSeqInit;
 		// Object variables
 		var all, videoPlane, logo, floor, video, gltfObj, tile, pic1, pic2, pic3, planeMesh;
 
+		
+		loadingMgr();
 		initScene();
 		initCamera();
 		initLight();
@@ -62,8 +64,43 @@
 		addFloor();
 		addObjects();
 
-
 		renderEngine();
+
+		function loadingMgr(){
+			manager = new THREE.LoadingManager();
+			manager.onLoad = function ( ) {
+				console.log("loaded");
+				swal({
+				  	title: 'Loading completed!',
+				  	type: 'success',
+				  	confirmButtonText: 'OK',
+				  	footer: 'Please, allow the access to your camera',
+				  	showLoaderOnConfirm: true,
+	  				preConfirm: () => {
+	  					video.play();
+	  					video.pause();
+	  					initSequence();
+					}
+				});
+			};
+
+			manager.onProgress = function () {
+				console.log("onProgress");
+				swal({
+				  	title: 'Loading on progress!',
+				  	type: 'info',
+				  	footer: 'Please, allow the access to your camera'
+				});
+			};
+
+			manager.onError = function () {
+
+				swal({
+				  	title: 'There was an error!',
+				  	type: 'error'
+				});
+			};
+		}
 
 		function initScene(){
 			//////////////////////////////////////////////////////////////////////////////////
@@ -74,12 +111,6 @@
 			if ( WEBGL.isWebGLAvailable() === false ) {
 					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 			}
-
-			//init screen mode
-			screen_mode = isScreenMode();
-			//isSeqInit = false;
-
-			//console.log(screen_mode);
 
 			// init renderer
 			renderer	= new THREE.WebGLRenderer({
@@ -143,8 +174,6 @@
 			//		Add the objects in the arWorldRoot
 			//////////////////////////////////////////////////////////////////////////////////
 
-			arWorldRoot.add( directionalLight );
-
 			all = new THREE.Group();
 			
 			var xsize = 1;
@@ -154,7 +183,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#675F53");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, 0xd432);
 			// green: 0xd432
 			// white: 0xffff
 
@@ -175,7 +204,7 @@
 			var tile_size = 2;
 			var geometry = new THREE.PlaneGeometry(13, 5);
 
-		    var texture = new THREE.TextureLoader().load( "content/floor.png" );
+		    var texture = new THREE.TextureLoader(manager).load( "content/floor.png" );
 		    var material = new THREE.MeshLambertMaterial({
 			  map: texture,
 			  transparent: true,
@@ -189,7 +218,7 @@
 			all.add( snow );
 
 			// Load Gifts
-			var loader = new THREE.GLTFLoader().load('content/gift/scene.gltf', function ( gltf ) {
+			var loader = new THREE.GLTFLoader(manager).load('content/gift/scene.gltf', function ( gltf ) {
 				//Resize/rescale the 3D Object
 				var bbox = new THREE.Box3().setFromObject(gltf.scene);
 				var cent = bbox.getCenter(new THREE.Vector3());
@@ -217,7 +246,7 @@
 			} );
 
 			// Load Tree
-			var loader = new THREE.GLTFLoader().load('content/tree/scene.gltf', function ( gltf ) {
+			var loader = new THREE.GLTFLoader(manager).load('content/tree/scene.gltf', function ( gltf ) {
 				//Resize/rescale the 3D Object
 				var bbox = new THREE.Box3().setFromObject(gltf.scene);
 				var cent = bbox.getCenter(new THREE.Vector3());
@@ -244,40 +273,12 @@
 				console.error( e );
 			} );
 
-			// Load House
-			var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = 0;
-				gltf.scene.position.x += -3.5;
-				gltf.scene.position.z = 0;
-				gltf.scene.visible = true;
-			
-				house = gltf.scene;
-				house.rotation.y = - 0.3 * Math.PI;
-				//add it to the scene
-				all.add( house );
-
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
-
 			//Load pic1
 			var geometry = new THREE.PlaneGeometry(1, 1);
 			var material = new THREE.MeshLambertMaterial();
 			pic1 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
-			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
+			var imageLoader = new THREE.TextureLoader(manager).load('content/image0.jpg', (imgLoader) => {
 				//Rescale and position image
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
@@ -301,7 +302,7 @@
 			var material = new THREE.MeshLambertMaterial();
 			pic2 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
-			var imageLoader = new THREE.TextureLoader().load('content/image1.jpg', (imgLoader) => {
+			var imageLoader = new THREE.TextureLoader(manager).load('content/image1.jpg', (imgLoader) => {
 				//Rescale and position image
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
@@ -325,7 +326,7 @@
 			var material = new THREE.MeshLambertMaterial();
 			pic3 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
-			var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
+			var imageLoader = new THREE.TextureLoader(manager).load('content/image2.jpg', (imgLoader) => {
 				//Rescale and position image
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
@@ -355,7 +356,7 @@
 			// Floor OBJECT
 			/////////////////////////////
 			var geometry = new THREE.PlaneGeometry(20, 10);
-			var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+			var loader = new THREE.TextureLoader(manager).load('content/table.jpg', (imgLoader) => {});
 			//Load the image into a custom material
 			var material = new THREE.MeshLambertMaterial({
 			  map: loader
@@ -423,22 +424,6 @@
 					}
 				}
 			}
-		}
-
-		function isScreenMode(){
-
-			swal.queue([{
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	confirmButtonText: 'OK',
-			  	footer: 'Please, allow the access to your camera',
-			  	showLoaderOnConfirm: true,
-  				preConfirm: () => {
-  					video.play();
-  					video.pause();
-  					initSequence();
-				}
-			}])
 		}
 
 		function initSequence(){
