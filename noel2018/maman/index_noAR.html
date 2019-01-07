@@ -3,14 +3,14 @@
 	<head>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<!-- three.js library -->
-		<script src='lib/three.min.js'></script>
-		<script src="lib/ar.js"></script>
-		<script src="lib/WebGL.js"></script>
-		<script src="lib/OrbitControls.js"></script>
-		<script src="lib/chromakey.js"></script>
-		<script src="lib/GLTFLoader.js"></script>
+		<script src='../lib/three.min.js'></script>
+		<script src="../lib/ar.js"></script>
+		<script src="../lib/WebGL.js"></script>
+		<script src="../lib/OrbitControls.js"></script>
+		<script src="../lib/chromakey.js"></script>
+		<script src="../lib/GLTFLoader.js"></script>
 		<!-- script for popup message -->
-		<script src="lib/sweetalert2.all.min.js"></script>
+		<script src="../lib/sweetalert2.all.min.js"></script>
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<title>Holo Mini Sean</title>
@@ -154,7 +154,7 @@
 
 			var loc = window.location.href;
 			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#675F53");
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5D5549");
 			// green: 0xd432
 			// white: 0xffff
 
