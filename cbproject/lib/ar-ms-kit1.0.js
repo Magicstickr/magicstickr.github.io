@@ -227,16 +227,21 @@ function addObjects(){
 	var all = new THREE.Group();
 
 	// QR code plane
-	var geometry = new THREE.PlaneGeometry( 1, 1 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var geometry = new THREE.PlaneGeometry( 1.5, 1.5 );
+	var loader = new THREE.TextureLoader().load('content/logo.png', (imgLoader) => {
+		});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader,
+		  transparent: true,
+		});
 	qrPlane = new THREE.Mesh( geometry, material );
 	qrPlane.rotation.x = -Math.PI/2;
 	all.add( qrPlane );
 
 	// Incredible Bulk Auto plane
 	var geometry = new THREE.PlaneGeometry( 0.8, 0.5 );
-	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
-	material.transparent = true;
+	var material = new THREE.MeshBasicMaterial( {color: 0x00ffff, opacity: 0.0, transparent: true} );
 	icbPlane = new THREE.Mesh( geometry, material );
 	icbPlane.rotation.x = -Math.PI/2;
 	icbPlane.position.set(1,0,1.3);
