@@ -6,193 +6,62 @@
 		<script src='lib/three.min.js'></script>
 		<script src="lib/ar.js"></script>
 		<script src="lib/WebGL.js"></script>
-		<script src="lib/chromakey.js"></script>
-		<script src="lib/GLTFLoader.js"></script>
+		<script src="../lib/ar-ms-kit1.0.js"></script>
 		<!-- script for popup message -->
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
   		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<!-- This is what you need -->
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7"></script>
 
-		<title>Holo Mini Sean</title>
+		<title></title>
 	</head>
-	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK(lang)'>
 		V 1.1.22
 		<div id="time">Time:</div>
-		<div id="test"></div>
-		<div class="swal2-container">/</div>
-		<script id="vertexShader" type="x-shader/x-vertex">
-
-			varying vec2 vUv;
-
-			void main()
-			{
-				vUv = uv;
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-				gl_Position = projectionMatrix * mvPosition;
-			}
-
-		</script>
-		<script id="fragmentShader" type="x-shader/x-fragment">
-
-			uniform sampler2D texture;
-			uniform vec3 color;
-
-			varying vec2 vUv;
-
-			void main()
-			{
-				vec3 tColor = texture2D( texture, vUv ).rgb;
-				float a = (length(tColor - color) - 0.3) * 50.0;
-				gl_FragColor = vec4(tColor, a);
-			}
-		</script>
 		<script>
 
 
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var tile, videoPlane, pic1, pic2, pic3, gltfObj, wall;
-		var isVideoPlay, time, video_time, stopAnim, videoStart;
+		var cube0, cube1, cube2, cube3, cube4, textGroup, sound, all;
 
-		var isStart = true;
-		var isSeqInit = false;
+		var lang = "fr";
+		var markerPatt = 'marker/marker_jules.patt';
 
 		initScene();
 		initCameraLight();
-		initAREngine();
+		initAREngine(markerPatt);
 
 		addObjects();
 
 		renderEngine();
 
-		var screenmode = isScreenMode();
+		function loadOK(lang){
+			switch(lang){
+				case "fr":
+					swal({
+					  	title: 'C\'est pret! Pointe le QR code avec ta camera et tape les photos',
+					  	type: 'success',
+					  	confirmButtonText: 'OK',
+					  	footer: 'STP, autorise l\'acces a ta camera!',
+					  	showLoaderOnConfirm: true,
+							preConfirm: () => {
 
-		function initScene(){
-			//////////////////////////////////////////////////////////////////////////////////
-			//		Init
-			//////////////////////////////////////////////////////////////////////////////////
-
-			//Error if not WebGL compatible
-			if ( WEBGL.isWebGLAvailable() === false ) {
-					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+						}
+					});
+					break;
+				case "eng":
+					swal({
+					  	title: 'Ready, point the QR code with your camera',
+					  	type: 'success',
+					  	confirmButtonText: 'OK',
+					  	footer: 'Please, enable the camera access',
+					  	showLoaderOnConfirm: true,
+							preConfirm: () => {
+						}
+					});
+				break;
 			}
-
-			//init screen mode
-			
-			isSeqInit = false;
-
-			//console.log(screen_mode);
-
-			// init renderer
-			renderer	= new THREE.WebGLRenderer({
-				antialias	: true,
-				autoResize : true,
-				alpha: true
-			});
-			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.domElement.style.position = 'absolute'
-			renderer.domElement.style.top = '0px'
-			renderer.domElement.style.left = '0px'
-			document.body.appendChild( renderer.domElement );
-
-			// array of functions for the rendering loop
-			onRenderFcts= [];
-
-			// init arWorldRoot and camera
-
-			scene = new THREE.Scene();
-		}
-		
-		function initCameraLight(){
-			//////////////////////////////////////////////////////////////////////////////////
-			//		Initialize a basic camera
-			//////////////////////////////////////////////////////////////////////////////////
-
-			// Create a camera
-			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
-			scene.add(camera);
-
-			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-			scene.add( light );
-		}
-
-		function initAREngine(){
-			////////////////////////////////////////////////////////////////////////////////
-			//          handle arToolkitSource
-			////////////////////////////////////////////////////////////////////////////////
-
-			arToolkitSource = new THREEx.ArToolkitSource({
-				// to read from the webcam 
-				sourceType : 'webcam'	
-			})
-			
-
-			arToolkitSource.init(function onReady(){
-				onResize()
-			})
-			
-			// handle resize
-			window.addEventListener('resize', function(){
-				onResize()
-			})
-			function onResize(){
-				arToolkitSource.onResizeElement()	
-				arToolkitSource.copyElementSizeTo(renderer.domElement)	
-				if( arToolkitContext.arController !== null ){
-					arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-				}	
-			}
-			////////////////////////////////////////////////////////////////////////////////
-			//          initialize arToolkitContext
-			////////////////////////////////////////////////////////////////////////////////
-			
-
-			// create atToolkitContext
-			arToolkitContext = new THREEx.ArToolkitContext({
-				cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
-				detectionMode: 'mono',
-				maxDetectionRate: 30,
-				canvasWidth: 80*3,
-				canvasHeight: 60*3,
-			})
-			// initialize it
-			arToolkitContext.init(function onCompleted(){
-				// copy projection matrix to camera
-				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-			})
-
-			// update artoolkit on every frame
-			onRenderFcts.push(function(){
-				if( arToolkitSource.ready === false )	return
-				arToolkitContext.update( arToolkitSource.domElement )
-			})
-			
-			////////////////////////////////////////////////////////////////////////////////
-			//          Create a ArMarkerControls
-			////////////////////////////////////////////////////////////////////////////////
-			
-			markerRoot = new THREE.Group
-			scene.add(markerRoot)
-			artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-				//type: 'barcode',
-				//barcodeValue: 'https://magicstickr.github.io/video-base/index.html',
-				type : 'pattern',
-				patternUrl : 'marker/marker_jules.patt'
-			})
-
-			// build a smoothedControls
-			smoothedRoot = new THREE.Group()
-			scene.add(smoothedRoot)
-			smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-				lerpPosition: 0.4,
-				lerpQuaternion: 0.3,
-				lerpScale: 1,
-			})
-			onRenderFcts.push(function(delta){
-				smoothedControls.update(markerRoot);
-			})
 		}
 
 		function addObjects(){
@@ -202,208 +71,171 @@
 
 			arWorldRoot = smoothedRoot;
 
-			var all = new THREE.Group();
+			all = new THREE.Group();
 
-			isVideoPlay = false;
-			
-			var xsize = 1;
-			var ysize = xsize * 0.5625;
+			// Audio System
+			var listener = new THREE.AudioListener();
+			camera.add( listener );
 
-			var geometry = new THREE.PlaneGeometry(xsize, ysize);
+			// create an Audio source
+			var fftSize = 128;
+			sound = new THREE.Audio( listener );
 
-			var loc = window.location.href;
-			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/yann.mp4', 1280, 720, "#5BA551");
-			// green: 0xd432
-			// white: 0xffff
-
-			videoPlane = new THREE.Mesh( geometry, movieMaterial );
-			videoPlane.position.y = 1.3;
-			videoPlane.position.z = 2;
-			videoPlane.scale.multiplyScalar(5);
-			//videoPlane.visible = false;
-			video.loop = false;
-
-			all.add( videoPlane );	
-
-			onRenderFcts.push(function(delta, now){
-				movieMaterial.update();
-			})
-
-			//add snow
-			var tile_size = 2;
-			var geometry = new THREE.PlaneGeometry(13, 5);
-
-		    var texture = new THREE.TextureLoader().load( "content/floor.png" );
-		    var material = new THREE.MeshLambertMaterial({
-			  map: texture,
-			  transparent: true,
+			// load a sound and set it as the Audio object's buffer
+			var audioLoader = new THREE.AudioLoader();
+			audioLoader.load( 'content/music.mp3', function( buffer ) {
+				sound.setBuffer( buffer );
+				sound.setVolume(1);
+				sound.play();
+				sound.pause();
 			});
-			var snow = new THREE.Mesh(geometry, material);
-		    snow.rotation.x = -Math.PI/2;
-		    snow.position.z = 1;
 
-			snow.visible = true;
-			
-			all.add( snow );
+			analyser = new THREE.AudioAnalyser( sound, fftSize );
 
-			// Load Gifts
-			var loader = new THREE.GLTFLoader().load('content/gift/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(2.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = 0;
-				gltf.scene.position.x += 3;
-				gltf.scene.position.z = 0;
-				gltf.scene.visible = true;
-			
-				gift = gltf.scene;
-				gift.position.z += 0.5;
-				//add it to the scene
-				all.add( gift );
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var targetWidth = 1;
+			var targetHeight = 0.5;
 
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
-
-			// Load Tree
-			var loader = new THREE.GLTFLoader().load('content/tree/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(5.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = 0;
-				gltf.scene.position.x += 1;
-				gltf.scene.position.z -= 1;
-				gltf.scene.visible = true;
-			
-				tree = gltf.scene;
-				tree.position.y += 0.7;
-				//add it to the scene
-				all.add( tree );
-
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
-
-			// // Load House
-			// var loader = new THREE.GLTFLoader().load('content/house/scene.gltf', function ( gltf ) {
-			// 	//Resize/rescale the 3D Object
-			// 	var bbox = new THREE.Box3().setFromObject(gltf.scene);
-			// 	var cent = bbox.getCenter(new THREE.Vector3());
-			// 	var size = bbox.getSize(new THREE.Vector3());
-			// 	//Rescale the object to normalized space
-			// 	var maxAxis = Math.max(size.x, size.y, size.z);
-			// 	gltf.scene.scale.multiplyScalar(3.0 / maxAxis);
-			// 	bbox.setFromObject(gltf.scene);
-			// 	bbox.getCenter(cent);
-			// 	bbox.getSize(size);
-			// 	//Reposition to 0,halfY,0
-			// 	gltf.scene.position.copy(cent).multiplyScalar(-1);
-			// 	gltf.scene.position.y = 0;
-			// 	gltf.scene.position.x += -3.5;
-			// 	gltf.scene.position.z = 0;
-			// 	gltf.scene.visible = true;
-			
-			// 	house = gltf.scene;
-			// 	house.rotation.y = - 0.3 * Math.PI;
-			// 	//add it to the scene
-			// 	all.add( house );
-
-			// }, undefined, function ( e ) {
-			// 	console.error( e );
-			// } );
-
-			//Load pic1
-			var geometry = new THREE.PlaneGeometry(1, 1);
+			//Load pic0
 			var material = new THREE.MeshLambertMaterial();
-			pic1 = new THREE.Mesh(geometry, material);
+			cube0 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
-				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic1.scale.set(targetWidth, targetHeight, 1.0);
-				pic1.position.x = -4;
-				pic1.position.z = -1;
+				var targetLength = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				cube0.scale.set(targetWidth, targetHeight, targetLength);
 			});
+			material = new THREE.MeshLambertMaterial({ map: imageLoader});
+			cube0.material = material;
 
-			//Load the image into a custom material
-			material = new THREE.MeshLambertMaterial({
-			  map: imageLoader
-			});
-			//Add material to the image mesh
-			pic1.material = material;
-			pic1.visible = false;
-
-			all.add(pic1);
-
-			//Load pic2
-			var geometry = new THREE.PlaneGeometry(1, 1);
+			//Load pic1
 			var material = new THREE.MeshLambertMaterial();
-			pic2 = new THREE.Mesh(geometry, material);
+			cube1 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image1.jpg', (imgLoader) => {
-				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic2.scale.set(targetWidth, targetHeight, 1.0);
-				pic2.position.x = 3;
-				pic2.position.z = -1;
+				var targetLength = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				cube1.scale.set(targetWidth, targetHeight, targetLength);
 			});
+			material = new THREE.MeshLambertMaterial({ map: imageLoader});
+			cube1.material = material;
 
-			//Load the image into a custom material
-			material = new THREE.MeshLambertMaterial({
-			  map: imageLoader
-			});
-			//Add material to the image mesh
-			pic2.material = material;
-			pic2.visible = false;
-
-			all.add(pic2);
-
-			//Load pic3
-			var geometry = new THREE.PlaneGeometry(1, 1);
+			//Load pic2
 			var material = new THREE.MeshLambertMaterial();
-			pic3 = new THREE.Mesh(geometry, material);
+			cube2 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
-				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic3.scale.set(targetWidth, targetHeight, 1.0);
-				pic3.position.x = -4;
-				pic3.position.z = -1;
+				var targetLength = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				cube2.scale.set(targetWidth, targetHeight, targetLength);
 			});
+			material = new THREE.MeshLambertMaterial({ map: imageLoader});
+			cube2.material = material;
 
-			//Load the image into a custom material
-			material = new THREE.MeshLambertMaterial({
-			  map: imageLoader
+			//Load pic3
+			var material = new THREE.MeshLambertMaterial();
+			cube3 = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image3.jpg', (imgLoader) => {
+				var targetLength = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				cube3.scale.set(targetWidth, targetHeight, targetLength);
 			});
-			//Add material to the image mesh
-			pic3.material = material;
-			pic3.visible = false;
+			material = new THREE.MeshLambertMaterial({ map: imageLoader});
+			cube3.material = material;
 
-			all.add(pic3);
+			//Load pic4
+			var material = new THREE.MeshLambertMaterial();
+			cube4 = new THREE.Mesh(geometry, material);
+			//Get image from image.jpg
+			var imageLoader = new THREE.TextureLoader().load('content/image4.jpg', (imgLoader) => {
+				var targetLength = targetWidth*imgLoader.image.height / imgLoader.image.width;
+				cube4.scale.set(targetWidth, targetHeight, targetLength);
+			});
+			material = new THREE.MeshLambertMaterial({ map: imageLoader});
+			cube4.material = material;
 
-			all.scale.multiplyScalar(0.4);
+			cube0.position.set(-0.5,0,0);
+			cube1.position.set(1.4,0,1);
+			cube2.position.set(1.5,0,-1);
+			cube3.position.set(-1.6,0,1);
+			cube4.position.set(-1.5,0,-1);
+
+			all.add( cube0 );
+			all.add( cube1 );
+			all.add( cube2 );
+			all.add( cube3 );
+			all.add( cube4 );
+
+			onRenderFcts.push(function(delta, now){
+		        analyser.getFrequencyData();
+		        var sum = analyser.data.reduce(function(a,b){return a+b;});
+		        var avg = analyser.getAverageFrequency();
+
+		        cube0.scale.y = 0.1+ avg*0.01;
+		        cube1.scale.y = 0.1+ avg*0.009;
+		        cube2.scale.y = 0.1+ avg*0.005;
+		        cube3.scale.y = 0.1+ avg*0.007;
+		        cube4.scale.y = 0.1+ avg*0.01;
+
+		        cube0.position.y = cube0.scale.y/2;
+		        cube1.position.y = cube1.scale.y/2;
+		        cube2.position.y = cube2.scale.y/2;
+		        cube3.position.y = cube3.scale.y/2;
+		        cube4.position.y = cube4.scale.y/2;
+
+	    	});
+
+			textGroup = new THREE.Group();
+
+	    	var loader = new THREE.FontLoader();
+			loader.load( 'lib/optimer_regular.typeface.json', function ( font ) {
+
+				var materials = [
+					new THREE.MeshPhongMaterial( { color: 0x000000, flatShading: true } ), // front
+					new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
+				];
+
+				var geometry = new THREE.TextGeometry( 'Hey Jules!', {
+					font: font,
+					size: 0.2,
+					height: 0.1,
+					curveSegments: 0.05,
+					bevelEnabled: true,
+					bevelThickness: 0.02,
+					bevelSize: 0.02,
+					bevelSegments: 5
+				} );
+				var text1 = new THREE.Mesh( geometry, materials );
+				text1.position.y = 0.15;
+
+				var geometry = new THREE.TextGeometry( 'Tu peux voir ce que j\'ecris?', {
+					font: font,
+					size: 0.1,
+					height: 0.1,
+					curveSegments: 0.03,
+					bevelEnabled: true,
+					bevelThickness: 0.01,
+					bevelSize: 0.01,
+					bevelSegments: 5
+				} );
+				var text2 = new THREE.Mesh( geometry, materials );
+				text2.position.y = -0.15;
+
+				textGroup.add(text1);
+				textGroup.add(text2);
+
+				textGroup.position.y = 1;
+				textGroup.position.x = 1.5;
+
+				textGroup.visible = false;
+				text1.translateX(-0.5);
+				text2.translateX(-0.5);
+
+				all.add( textGroup );
+			} );
+
+			onRenderFcts.push(function(delta, now){
+		        textGroup.rotation.y += 0.01;
+	    	});
+
+			all.scale.multiplyScalar(1);
 			//all.position.z = 0.5;
 			arWorldRoot.add(all);
 		}
@@ -416,29 +248,6 @@
 			// render the scene
 			onRenderFcts.push(function(){
 				renderer.render( scene, camera );
-
-				if (isSeqInit == false){
-					if(arToolkitContext.arController != null){
-						if(arToolkitContext.arController.patternMarkers[0] != null){
-							if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
-								console.log("seq init");
-								initSequence();
-								isSeqInit = true;
-							}
-						}
-					}
-				}
-
-				if(arToolkitContext.arController != null){
-					if(arToolkitContext.arController.patternMarkers[0] != null){
-						if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-							video.pause();
-						}
-						else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
-							video.play();
-						}
-					}
-				}
 			})
 
 			// run the rendering loop
@@ -460,208 +269,34 @@
 			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 		}
 
-		function onDocumentTouchStart( event ) {
-
-				event.preventDefault();
-
-				event.clientX = event.touches[0].clientX;
-				event.clientY = event.touches[0].clientY;
-				onDocumentMouseDown( event );
-		}
-
 		function onDocumentMouseDown( event ) {
 
 			event.preventDefault();
 
-			if(isStart == true){
-				video.play();
-  				video.pause();
-  				swal.close();
-  				isStart = false;
-  			}else{
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2();
 
-				var raycaster = new THREE.Raycaster();
-				var mouse = new THREE.Vector2();
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+			raycaster.setFromCamera( mouse, camera );
 
-				raycaster.setFromCamera( mouse, camera );
+			var array = [cube0, cube1, cube2, cube3, cube4];
 
-				var videoPlaneArray = [videoPlane];
+			var intersects = raycaster.intersectObjects( array );
 
-				var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
-
-				if ( videoIntersects.length > 0) {
-					if(video.paused == true){
-						video.play();
-						isVideoPlay = true;
-					}else{
-						video.pause();
-						isVideoPlay = false;
-					}
+			if ( intersects.length > 0) {
+				if(sound.isPlaying == false){
+					sound.play();
+					textGroup.visible = true;
+				}else{
+					sound.pause();
+					textGroup.visible = false;
 				}
 			}
+
 		}
 
-		function isScreenMode(){
-
-			let timerInterval
-			Swal({
-			  title: 'Scan reussi, patientez un ptit peu!',
-			  html:
-			    'Pret dans <strong></strong> seconds.<br/><br/>',
-			  timer: 25000,
-			  onBeforeOpen: () => {
-			    const content = Swal.getContent()
-			    const $ = content.querySelector.bind(content)
-
-			    Swal.showLoading()
-
-			    timerInterval = setInterval(() => {
-			      Swal.getContent().querySelector('strong')
-			        .textContent = (Swal.getTimerLeft() / 1000)
-			          .toFixed(0)
-			    }, 100)
-			  },
-			  onClose: () => {
-			    clearInterval(timerInterval)
-			    Swal({
-				  	title: 'C\'est parti!',
-				  	type: 'success',
-				  	confirmButtonText: 'OK'
-					}).then( function (result) {
-					if (result.value) {
-						video.play();
-	  					video.pause();
-					}
-				})
-			  }
-			})
-		}
-
-		function initSequence(){
-			time = 0;
-			video_time = 0;
-
-			videoStart = false;
-			stopAnim = false;
-
-			onRenderFcts.push(function(){
-				
-				//Init chrono
-				time += 0.02;
-				video_time = video.currentTime;
-				document.getElementById("time").innerHTML = "Time: " + Math.round(time) + " Video time: " + Math.round(video_time);
-
-				//Launch a Michelle speech at sec 3
-				var start = 5;
-				if(videoStart == false && Math.round(time) == start ){
-					//videoPlane.visible = true;
-					video.play();
-					videoStart = true;
-				}
-
-				//Show Pic1
-				var start = 6; 
-				var end = 9; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_down = (10*t-10); //t_down goes from -10 to 0
-					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					pic1.visible = true;
-				}
-
-				//Hide Pic1
-				var start = 11; 
-				var end = 13; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_up = (10*t); // t_up goes from 0 to 10
-					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					if (video_time >= end-0.1){
-						pic1.visible = false;
-					}
-				}
-
-				//Show Pic2 
-				var start = 21; 
-				var end = 24; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_down = (10*t-10); //t_down goes from -10 to 0
-					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					pic2.visible = true;
-				}
-
-				//Hide Pic2 
-				var start = 26; 
-				var end = 29; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_up = (10*t); // t_up goes from 0 to 10
-					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					if (video_time >= end-0.1){
-						pic2.visible = false;
-					}
-				}
-
-				//Show Pic3 
-				var start = 32; 
-				var end = 35; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_down = (10*t-10); //t_down goes from -10 to 0
-					t_lowered = t_down/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					pic3.visible = true;
-				}
-
-				//Hide Pic3 
-				var start = 38; 
-				var end = 41; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_up = (10*t); // t_up goes from 0 to 10
-					t_lowered = t_up/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-					if (video_time >= end-0.1){
-						pic3.visible = false;
-					}
-				}
-
-				// Stop speech
-				var start = 49;
-				if(Math.round(video_time) == start && stopAnim == false){
-					videoPlane.visible = false;
-					speechStopped = true;
-					isVideoPlay == false;
-					video.pause();
-					time = 100;
-					stopAnim = true;
-				}
-
-				// // Tile disappears
-				// var start = 102;
-				// var end = 104;
-				// var t = (time-start)/(end-start);
-				// if(	time >= start && time < end ){
-				// 	tile.visible = true;
-				// 	tile.position.z -= 0.05;
-				// 	// test(tile.position.z);
-				// }
-
-			})
-		}
-
-
-		function test(test_var){
-			document.getElementById("test").innerHTML = "Test: " + test_var;
-		}
 		</script>
 	</body>
 </html>
