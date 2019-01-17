@@ -471,7 +471,7 @@ function addObjects(){
 		gltf.scene.position.set(-1.5,2,0);
 
 		onRenderFcts.push(function(){
-			gltf.scene.rotation.y += - 0.005*Math.PI;
+			gltf.scene.rotation.y += - 0.002*Math.PI;
 			//console.log(gltf.scene.rotation.y);
 		})
 	
