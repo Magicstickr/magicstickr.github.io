@@ -21,32 +21,7 @@
 		V 1.1.26
 		<div id="time">Time:</div>
 		<div id="test"></div>
-		<div class="swal2-container">/</div>
-		<script id="vertexShader" type="x-shader/x-vertex">
 
-			varying vec2 vUv;
-
-			void main()
-			{
-				vUv = uv;
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-				gl_Position = projectionMatrix * mvPosition;
-			}
-		</script>
-		<script id="fragmentShader" type="x-shader/x-fragment">
-
-			uniform sampler2D texture;
-			uniform vec3 color;
-
-			varying vec2 vUv;
-
-			void main()
-			{
-				vec3 tColor = texture2D( texture, vUv ).rgb;
-				float a = (length(tColor - color) - 0.3) * 50.0;
-				gl_FragColor = vec4(tColor, a);
-			}
-		</script>
 		<script>
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
