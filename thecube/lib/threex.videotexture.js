@@ -1,17 +1,18 @@
 var THREEx = THREEx || {}
 
-THREEx.VideoTexture	= function(url){
+THREEx.VideoTexture	= function(url, thumbnail){
 	// create the video element
 	var video	= document.createElement('video');
-	video.width	= 1920;
-	video.height = 1080;
+	video.width	= 1280;
+	video.height = 720;
 	video.setAttribute("playsinline", true);
+	video.setAttribute("poster", thumbnail);
 	video.autoplay	= true;
 	video.src	= url;
 	// expose video as this.video
 	this.video	= video
 
-	//console.log(video);
+	console.log(video);
 
 	// create the texture
 	var texture	= new THREE.Texture( video );

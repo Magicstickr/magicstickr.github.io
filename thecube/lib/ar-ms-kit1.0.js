@@ -260,10 +260,12 @@ function addObjects(){
 	// create the videoTexture
 	var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 	if( canPlayMp4 ){
-		var url	= 'content/video.mp4';
+		var loc = window.location.href;
+		var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
+		var url	= directoryPath + 'content/video.mp4';
 	}else	alert('cant play mp4')
 
-	var videoTexture= new THREEx.VideoTexture(url);
+	var videoTexture = new THREEx.VideoTexture(url, 'content/logo.png');
 	video = videoTexture.video;
 	video.pause();
 
