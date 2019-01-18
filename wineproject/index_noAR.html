@@ -214,7 +214,7 @@
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic1.scale.set(targetWidth, targetHeight, 1.0);
-				pic1.position.x = -3;
+				pic1.position.x = -2;
 				pic1.position.z = -0.5;
 			});
 
@@ -239,7 +239,6 @@
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic2.scale.set(targetWidth, targetHeight, 1.0);
-				pic2.position.y = -0.5;
 				pic2.position.x = 2;
 				pic2.position.z = -0.5;
 			});
@@ -392,7 +391,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					pic1.visible = true;
 				}
 
@@ -403,7 +402,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					if (video_time >= end-0.1){
 						pic1.visible = false;
 					}
@@ -416,7 +415,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					pic2.visible = true;
 				}
 
@@ -427,7 +426,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					if (video_time >= end-0.1){
 						pic2.visible = false;
 					}
