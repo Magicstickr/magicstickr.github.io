@@ -50,12 +50,13 @@
 		// Threejs/ARjs standard variables
 		var renderer, arWorldRoot, onRenderFcts, camera, controls;
 		// Object variables
-		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3;
+		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3, groupButton;
 
 		var lang = "eng";
 		var startVideo = 3;
-		var startPic1 = 9;
-		var startPic2 = 24;
+		var startPic1 = 21;
+		var startPic2 = 28;
+		var startButton = 39;
 
 		initScene();
 		initCamera();
@@ -172,13 +173,13 @@
 
 			var location = window.location.href;
 			var directoryPath = location.substring(0, location.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/michelle.mp4', 1280, 720, 0xd432);
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/video.mp4', 1280, 720, 0xd432);
 			// green: 0xd432
 			// white: 0xffff
 
 			videoPlane = new THREE.Mesh( geometry, movieMaterial );
 			videoPlane.position.y = 1.1;
-			videoPlane.position.z = 1;
+			videoPlane.position.x = 0.4;
 			videoPlane.scale.multiplyScalar(4);
 			//videoPlane.visible = false;
 			video.loop = false;
@@ -188,6 +189,20 @@
 			onRenderFcts.push(function(delta, now){
 				movieMaterial.update();
 			})
+
+			//Add desk
+			var geometry = new THREE.PlaneGeometry(2, 1);
+			var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+			//Load the image into a custom material
+			var material = new THREE.MeshLambertMaterial({
+			  map: loader
+			});
+			
+			var desk = new THREE.Mesh(geometry, material);
+
+			desk.position.y = 0.2;
+			desk.position.z = 0.2;
+			all.add(desk);
 
 			//Load pic1
 			var geometry = new THREE.BoxGeometry(1, 1, 0.02);
@@ -200,7 +215,7 @@
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic1.scale.set(targetWidth, targetHeight, 1.0);
 				pic1.position.x = -3;
-				pic1.position.z = 0.5;
+				pic1.position.z = -0.5;
 			});
 
 			//Load the image into a custom material
@@ -224,8 +239,9 @@
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic2.scale.set(targetWidth, targetHeight, 1.0);
-				pic2.position.x = 1.5;
-				pic2.position.z = 0.5;
+				pic2.position.y = -0.5;
+				pic2.position.x = 2;
+				pic2.position.z = -0.5;
 			});
 
 			//Load the image into a custom material
@@ -238,6 +254,33 @@
 			pic2.castShadow = true;
 
 			all.add(pic2);
+
+			//link buttons
+			var geometry = new THREE.CircleGeometry(0.3, 32);
+			var fbLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
+			var twLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
+			var inLoader = new THREE.TextureLoader().load('content/icon/in_icon.png', (imgLoader) => {});
+			//Load the image into a custom material
+			var fbMaterial = new THREE.MeshLambertMaterial({ map: fbLoader});
+			var twMaterial = new THREE.MeshLambertMaterial({ map: twLoader});
+			var inMaterial = new THREE.MeshLambertMaterial({ map: inLoader});
+			
+			groupButton = new THREE.Group();
+
+			var fb = new THREE.Mesh(geometry, fbMaterial);
+			fb.position.x = -1;
+			groupButton.add(fb);
+			var tw = new THREE.Mesh(geometry, twMaterial);
+			tw.position.x = 0;
+			tw.position.y = 0.5;
+			groupButton.add(tw);
+			var lkd = new THREE.Mesh(geometry, inMaterial);
+			lkd.position.x = 1;
+			groupButton.add(lkd);
+
+			groupButton.position.y = 1.7;
+			groupButton.visible = false;
+			all.add(groupButton);
 
 			all.scale.multiplyScalar(1.5);
 
@@ -390,15 +433,22 @@
 					}
 				}
 
+				//Show Buttons 
+				var start = startButton;
+				if(video_time >= start){
+					groupButton.visible = true;
+				}
+
 				// Stop speech
 				var start = video.duration;
 				if(Math.round(video_time) == start && stopAnim == false){
-					videoPlane.visible = false;
+					videoPlane.visible = true;
 					speechStopped = true;
 					isVideoPlay == false;
 					video.pause();
 					time = 100;
 					stopAnim = true;
+					groupButton.visible = true;
 				}
 
 			})

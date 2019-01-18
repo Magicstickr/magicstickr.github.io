@@ -55,7 +55,11 @@
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isSeqInit = false;
-		var lang = "en";
+		var lang = "eng";
+		var startVideo = 3;
+		var startPic1 = 21;
+		var startPic2 = 28;
+		var startButton = 39;
 
 		initScene();
 		initCameraLight();
@@ -214,33 +218,31 @@
 			onRenderFcts.push(function(delta){
 				smoothedControls.update(markerRoot);
 			})
+
+			arWorldRoot = smoothedRoot;
 		}
 
 		function addObjects(){
 			//////////////////////////////////////////////////////////////////////////////////
-			//		Add the objects in the scene
+			//		Add the objects in the arWorldRoot
 			//////////////////////////////////////////////////////////////////////////////////
 
-			arWorldRoot = smoothedRoot;
-
-			var all = new THREE.Group();
-
-			isVideoPlay = false;
+			all = new THREE.Group();
 			
 			var xsize = 1;
 			var ysize = xsize * 0.5625;
 
 			var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
-			var loc = window.location.href;
-			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
-			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/michelle.mp4', 1280, 720, 0xd432);
+			var location = window.location.href;
+			var directoryPath = location.substring(0, location.lastIndexOf("/")+1);
+			var movieMaterial = new ChromaKeyMaterial(directoryPath + 'content/video.mp4', 1280, 720, 0xd432);
 			// green: 0xd432
 			// white: 0xffff
 
 			videoPlane = new THREE.Mesh( geometry, movieMaterial );
 			videoPlane.position.y = 1.1;
-			videoPlane.position.z = 1;
+			videoPlane.position.x = 0.4;
 			videoPlane.scale.multiplyScalar(4);
 			//videoPlane.visible = false;
 			video.loop = false;
@@ -251,49 +253,22 @@
 				movieMaterial.update();
 			})
 
-			// Load 3D object
-			var loader = new THREE.GLTFLoader().load('content/grape/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(4.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = (size.y * 0.2);
-				gltf.scene.position.x += 2.5;
-				gltf.scene.position.z = (size.z * 0.5);
-				gltf.scene.visible = true;
-				gltf.scene.traverse( function( o ) {
-
-					if ( o.isMesh === true ) {
-
-						o.material.transparent = true;
-						o.material.opacity = 0;
-					
-					}
-
-				} );
+			//Add desk
+			var geometry = new THREE.PlaneGeometry(2, 1);
+			var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+			//Load the image into a custom material
+			var material = new THREE.MeshLambertMaterial({
+			  map: loader
+			});
 			
-				gltfObj = gltf.scene;
-				//add it to the scene
-				all.add( gltfObj );
+			var desk = new THREE.Mesh(geometry, material);
 
-				onRenderFcts.push(function(){
-					gltfObj.rotation.y += - 0.005*Math.PI;
-				})
-
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
+			desk.position.y = 0.2;
+			desk.position.z = 0.2;
+			all.add(desk);
 
 			//Load pic1
-			var geometry = new THREE.PlaneGeometry(1, 1);
+			var geometry = new THREE.BoxGeometry(1, 1, 0.02);
 			var material = new THREE.MeshLambertMaterial();
 			pic1 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
@@ -303,7 +278,7 @@
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic1.scale.set(targetWidth, targetHeight, 1.0);
 				pic1.position.x = -3;
-				pic1.position.z = 0.1;
+				pic1.position.z = -0.5;
 			});
 
 			//Load the image into a custom material
@@ -313,11 +288,12 @@
 			//Add material to the image mesh
 			pic1.material = material;
 			pic1.visible = false;
+			pic1.castShadow = true;
 
 			all.add(pic1);
 
 			//Load pic2
-			var geometry = new THREE.PlaneGeometry(1, 1);
+			var geometry = new THREE.BoxGeometry(1, 1, 0.02);
 			var material = new THREE.MeshLambertMaterial();
 			pic2 = new THREE.Mesh(geometry, material);
 			//Get image from image.jpg
@@ -326,8 +302,9 @@
 				var targetWidth = 4;
 				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
 				pic2.scale.set(targetWidth, targetHeight, 1.0);
-				pic2.position.x = 1.5;
-				pic2.position.z = 0.1;
+				pic2.position.y = -0.5;
+				pic2.position.x = 2;
+				pic2.position.z = -0.5;
 			});
 
 			//Load the image into a custom material
@@ -337,37 +314,42 @@
 			//Add material to the image mesh
 			pic2.material = material;
 			pic2.visible = false;
+			pic2.castShadow = true;
 
 			all.add(pic2);
 
-			//Load pic3
-			var geometry = new THREE.PlaneGeometry(1, 1);
-			var material = new THREE.MeshLambertMaterial();
-			pic3 = new THREE.Mesh(geometry, material);
-			//Get image from image.jpg
-			var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
-				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic3.scale.set(targetWidth, targetHeight, 1.0);
-				pic3.position.x = -3;
-				pic3.position.z = 0.1;
-			});
-
+			//link buttons
+			var geometry = new THREE.CircleGeometry(0.3, 32);
+			var fbLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
+			var twLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
+			var inLoader = new THREE.TextureLoader().load('content/icon/in_icon.png', (imgLoader) => {});
 			//Load the image into a custom material
-			material = new THREE.MeshLambertMaterial({
-			  map: imageLoader
-			});
-			//Add material to the image mesh
-			pic3.material = material;
-			pic3.visible = false;
+			var fbMaterial = new THREE.MeshLambertMaterial({ map: fbLoader});
+			var twMaterial = new THREE.MeshLambertMaterial({ map: twLoader});
+			var inMaterial = new THREE.MeshLambertMaterial({ map: inLoader});
+			
+			groupButton = new THREE.Group();
 
-			all.add(pic3);
+			var fb = new THREE.Mesh(geometry, fbMaterial);
+			fb.position.x = -1;
+			groupButton.add(fb);
+			var tw = new THREE.Mesh(geometry, twMaterial);
+			tw.position.x = 0;
+			tw.position.y = 0.5;
+			groupButton.add(tw);
+			var lkd = new THREE.Mesh(geometry, inMaterial);
+			lkd.position.x = 1;
+			groupButton.add(lkd);
 
-			all.rotation.x = -Math.PI/2;
-			all.scale.multiplyScalar(0.7);
-			all.position.z = 0.5;
+			groupButton.position.y = 1.7;
+			groupButton.visible = false;
+			all.add(groupButton);
+
+			all.rotation.x = - Math.PI/2;
+			//all.scale.multiplyScalar(1);
+
 			arWorldRoot.add(all);
+
 		}
 
 		// function addWall(){
@@ -491,122 +473,78 @@
 				video_time = video.currentTime;
 				document.getElementById("time").innerHTML = "Time: " + Math.round(time) + " Video time: " + Math.round(video_time);
 
-				//Launch a Michelle speech at sec 3
-				var start = 5;
+				//Launch speech
+				var start = startVideo;
 				if(videoStart == false && Math.round(time) == start ){
 					//videoPlane.visible = true;
 					video.play();
 					videoStart = true;
 				}
 
-				//Show Lion 
-				var start = 16;
-				var end = 19;
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					//gltfObj.visible = true;
-					gltfObj.traverse( function( o ) {
-						if ( o.isMesh === true) {
-							o.material.opacity = t;
-							//test(o.material.opacity);
-						}
-					});
-				}
-
-				//Hide Lion at sec 23
-				var start = 26;
-				var end = 28;
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					//gltfObj.visible = true;
-					gltfObj.traverse( function( o ) {
-						if ( o.isMesh === true) {
-							o.material.opacity = 1-t;
-						}
-					});
-				}
-
 				//Show Pic1
-				var start = 26; 
-				var end = 29; 
+				var start = startPic1 - 3; 
+				var end = startPic1; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					pic1.visible = true;
 				}
 
 				//Hide Pic1
-				var start = 31; 
-				var end = 33; 
+				var start = startPic1 + 3; 
+				var end = startPic1 + 6; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					if (video_time >= end-0.1){
 						pic1.visible = false;
 					}
 				}
 
 				//Show Pic2 
-				var start = 33; 
-				var end = 35; 
+				var start = startPic2 - 3; 
+				var end = startPic2; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					pic2.visible = true;
 				}
 
 				//Hide Pic2 
-				var start = 38; 
-				var end = 40; 
+				var start = startPic2 + 3; 
+				var end = startPic2 + 6; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					if (video_time >= end-0.1){
 						pic2.visible = false;
 					}
 				}
 
-				//Show Pic3 
-				var start = 40; 
-				var end = 42; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_down = (10*t-10); //t_down goes from -10 to 0
-					t_lowered = t_down/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
-					pic3.visible = true;
-				}
-
-				//Hide Pic3 
-				var start = 44; 
-				var end = 45; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_up = (10*t); // t_up goes from 0 to 10
-					t_lowered = t_up/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
-					if (video_time >= end-0.1){
-						pic3.visible = false;
-					}
+				//Show Buttons 
+				var start = startButton;
+				if(video_time >= start){
+					groupButton.visible = true;
 				}
 
 				// Stop speech
-				var start = 45;
+				var start = video.duration;
 				if(Math.round(video_time) == start && stopAnim == false){
-					videoPlane.visible = false;
+					videoPlane.visible = true;
 					speechStopped = true;
 					isVideoPlay == false;
 					video.pause();
 					time = 100;
 					stopAnim = true;
+					groupButton.visible = true;
 				}
 
 			})
