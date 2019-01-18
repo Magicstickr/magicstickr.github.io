@@ -53,6 +53,9 @@
 		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3;
 
 		var lang = "eng";
+		var startVideo = 3;
+		var startPic1 = 9;
+		var startPic2 = 24;
 
 		initScene();
 		initCamera();
@@ -186,49 +189,6 @@
 				movieMaterial.update();
 			})
 
-			// Load 3D object
-			var loader = new THREE.GLTFLoader().load('content/grape/scene.gltf', function ( gltf ) {
-				//Resize/rescale the 3D Object
-				var bbox = new THREE.Box3().setFromObject(gltf.scene);
-				var cent = bbox.getCenter(new THREE.Vector3());
-				var size = bbox.getSize(new THREE.Vector3());
-				//Rescale the object to normalized space
-				var maxAxis = Math.max(size.x, size.y, size.z);
-				gltf.scene.scale.multiplyScalar(4.0 / maxAxis);
-				bbox.setFromObject(gltf.scene);
-				bbox.getCenter(cent);
-				bbox.getSize(size);
-				//Reposition to 0,halfY,0
-				gltf.scene.position.copy(cent).multiplyScalar(-1);
-				gltf.scene.position.y = (size.y * 0.2);
-				gltf.scene.position.x += 2.5;
-				gltf.scene.position.z = (size.z * 0.5);
-				gltf.scene.visible = true;
-				gltf.scene.traverse( function( o ) {
-
-					if ( o.isMesh === true ) {
-
-						o.material.transparent = true;
-						o.material.opacity = 0;
-					
-					}
-
-				} );
-
-				//gltf.scene.rotation.x = -0.1*Math.PI;
-				gltfObj = gltf.scene;
-				//add it to the scene				
-				
-				all.add( gltfObj );
-
-				onRenderFcts.push(function(){
-					gltfObj.rotation.y += - 0.005*Math.PI;
-				})
-
-			}, undefined, function ( e ) {
-				console.error( e );
-			} );
-
 			//Load pic1
 			var geometry = new THREE.BoxGeometry(1, 1, 0.02);
 			var material = new THREE.MeshLambertMaterial();
@@ -278,31 +238,6 @@
 			pic2.castShadow = true;
 
 			all.add(pic2);
-
-			//Load pic3
-			var geometry = new THREE.BoxGeometry(1, 1, 0.02);
-			var material = new THREE.MeshLambertMaterial();
-			pic3 = new THREE.Mesh(geometry, material);
-			//Get image from image.jpg
-			var imageLoader = new THREE.TextureLoader().load('content/image2.jpg', (imgLoader) => {
-				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic3.scale.set(targetWidth, targetHeight, 1.0);
-				pic3.position.x = -3;
-				pic3.position.z = 0.5;
-			});
-
-			//Load the image into a custom material
-			material = new THREE.MeshLambertMaterial({
-			  map: imageLoader
-			});
-			//Add material to the image mesh
-			pic3.material = material;
-			pic3.visible = false;
-			pic3.castShadow = true;
-
-			all.add(pic3);
 
 			all.scale.multiplyScalar(1.5);
 
@@ -386,11 +321,11 @@
 		}
 
 		function initSequence(){
-			var time = 0;
-			var video_time = 0;
+			time = 0;
+			video_time = 0;
 
-			var videoStart = false;
-			var speechStopped = false;
+			videoStart = false;
+			stopAnim = false;
 
 			onRenderFcts.push(function(){
 				
@@ -399,120 +334,71 @@
 				video_time = video.currentTime;
 				document.getElementById("time").innerHTML = "Time: " + Math.round(time) + " Video time: " + Math.round(video_time);
 
-				//Launch a Michelle speech at sec 3
-				var start = 5;
+				//Launch speech
+				var start = startVideo;
 				if(videoStart == false && Math.round(time) == start ){
+					//videoPlane.visible = true;
 					video.play();
 					videoStart = true;
 				}
 
-				//Show Lion 
-				var start = 16;
-				var end = 19;
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					//gltfObj.visible = true;
-					gltfObj.traverse( function( o ) {
-						if ( o.isMesh === true) {
-							o.material.opacity = t;
-							//test(o.material.opacity);
-							o.castShadow = true;
-						}
-					});
-				}
-
-				//Hide Lion at sec 23
-				var start = 26;
-				var end = 28;
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					//gltfObj.visible = true;
-					gltfObj.traverse( function( o ) {
-						if ( o.isMesh === true) {
-							o.material.opacity = 1-t;
-							o.castShadow = false;
-						}
-					});
-				}
-
 				//Show Pic1
-				var start = 26; 
-				var end = 29; 
+				var start = startPic1 - 3; 
+				var end = startPic1; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					pic1.visible = true;
 				}
 
 				//Hide Pic1
-				var start = 31; 
-				var end = 33; 
+				var start = startPic1 + 3; 
+				var end = startPic1 + 6; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 1; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					if (video_time >= end-0.1){
 						pic1.visible = false;
 					}
 				}
 
 				//Show Pic2 
-				var start = 33; 
-				var end = 35; 
+				var start = startPic2 - 3; 
+				var end = startPic2; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					pic2.visible = true;
 				}
 
 				//Hide Pic2 
-				var start = 38; 
-				var end = 40; 
+				var start = startPic2 + 3; 
+				var end = startPic2 + 6; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered + 2; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
 					if (video_time >= end-0.1){
 						pic2.visible = false;
 					}
 				}
 
-				//Show Pic3 
-				var start = 40; 
-				var end = 42; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_down = (10*t-10); //t_down goes from -10 to 0
-					t_lowered = t_down/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
-					pic3.visible = true;
-				}
-
-				//Hide Pic3 
-				var start = 44; 
-				var end = 46; 
-				var t = (video_time-start)/(end-start);
-				if(	video_time >= start && video_time < end ){
-					t_up = (10*t); // t_up goes from 0 to 10
-					t_lowered = t_up/3;
-					pic3.position.y = -t_lowered*t_lowered*t_lowered - 1; // cubic function
-					if (video_time >= end-0.1){
-						pic3.visible = false;
-					}
-				}
-
 				// Stop speech
-				var start = 45;
-				if(speechStopped == false && Math.round(video_time) == start ){
+				var start = video.duration;
+				if(Math.round(video_time) == start && stopAnim == false){
 					videoPlane.visible = false;
 					speechStopped = true;
+					isVideoPlay == false;
+					video.pause();
 					time = 100;
+					stopAnim = true;
 				}
 
 			})

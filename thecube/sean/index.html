@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='../lib/three.min.js'></script>
+		<script src="../lib/ar.js"></script>
+		<script src="../lib/WebGL.js"></script>
+		<script src='../lib/threex.videotexture.js'></script>
+		<script src="../lib/GLTFLoader.js"></script>
+		<!-- script for popup message -->
+		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+  		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+		<!-- This is what you need -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7"></script>
+		<script src="../lib/ar-ms-kit1.0.js"></script>
+
+		<title>Cube Project</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK(lang)'>
+		V 1.1.26
+		<div id="time">Time:</div>
+		<div id="test"></div>
+
+		<script>
+		var renderer, scene, camera;
+		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
+		var floor, mesh0, mesh1, videoPlane;
+		var isVideoPlay, time, video_time, stopAnim, videoStart, video;
+
+		var isStart = true;
+		var isSeqInit = false;
+		var lang = "eng";
+		var markerPatt = 'marker/marker_holo.patt';
+
+		initScene();
+		initCameraLight();
+		initAREngine(markerPatt);
+
+		addObjects();
+
+		renderEngine();
+		</script>
+	</body>
+</html>
