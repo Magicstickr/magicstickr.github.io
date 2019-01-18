@@ -263,8 +263,8 @@ function addObjects(){
 		var url	= 'content/video.mp4';
 	}else	alert('cant play mp4')
 
-	var videoTexture= new THREEx.VideoTexture(url, "");
-	video	= videoTexture.video;
+	var videoTexture= new THREEx.VideoTexture(url);
+	video = videoTexture.video;
 	video.pause();
 
 	onRenderFcts.push(function(delta, now){
@@ -280,7 +280,7 @@ function addObjects(){
 	videoPlane.position.y = -2;
 	all.add( videoPlane );
 
-	all.scale.multiplyScalar(0.5);
+	//all.scale.multiplyScalar(1);
 	//all.position.z = 0.5;
 	arWorldRoot.add(all);
 }
