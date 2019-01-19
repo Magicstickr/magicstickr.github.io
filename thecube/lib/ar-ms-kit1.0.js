@@ -265,15 +265,21 @@ function addObjects(){
 		var url	= directoryPath + 'content/video.mp4';
 	}else	alert('cant play mp4')
 
-	var videoTexture = new THREEx.VideoTexture(url, 'content/logo.png');
-	video = videoTexture.video;
-	video.pause();
+	var thumbnail = 'content/thumbnail.jpg';
+
+	var videoTexture= new THREEx.VideoTexture(url, thumbnail);
+	video	= videoTexture.video;
 
 	onRenderFcts.push(function(delta, now){
 		videoTexture.update(delta, now)
 	})
 
-	var geometry = new THREE.CircleGeometry( 1, 32 );
+	var xsize = 1;
+	var ysize = xsize * 0.5625;
+
+	var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+	//var texture = new THREE.VideoTexture( video );
 	var parameters = { color: 0xffffff, map: videoTexture.texture };
 	var material = new THREE.MeshBasicMaterial( parameters );
 
