@@ -11,7 +11,7 @@
 		<script src="lib/sweetalert2.all.min.js"></script>
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
-		<title>ResoSante Videos</title>
+		<title>Cube project</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
 		<!--V 1.1.7-->
@@ -146,6 +146,32 @@
 
 		var all = new THREE.Group();
 
+		// the inside of the hole
+		let geometry1	= new THREE.CylinderGeometry(1,1, 4, 32,1);
+		let loader = new THREE.TextureLoader();
+		let texture = loader.load( 'content/bricks.jpg' );
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(4,2);
+		let material1	= new THREE.MeshBasicMaterial({
+			transparent : true,
+			map: texture,
+			side: THREE.BackSide
+		}); 
+		var mesh1 = new THREE.Mesh( geometry1, material1 );
+		mesh1.position.y = -2;
+		all.add( mesh1 );
+		
+		// the invisibility cloak (ring; has circular hole)
+		let geometry0 = new THREE.RingGeometry(1,9, 32);
+		let material0 = new THREE.MeshBasicMaterial({
+			// map: loader.load( 'images/color-grid.png' ), // for testing placement
+			colorWrite: false
+		});
+		var mesh0 = new THREE.Mesh( geometry0, material0 );
+		mesh0.rotation.x = -Math.PI/2;
+		all.add(mesh0);
+
 		// create the videoTexture
 		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
 		if( canPlayMp4 ){
@@ -163,10 +189,7 @@
 			videoTexture.update(delta, now)
 		})
 
-		var xsize = 1;
-		var ysize = xsize * 0.5625;
-
-		var geometry = new THREE.PlaneGeometry(xsize, ysize);
+		var geometry = new THREE.CircleGeometry(1, 32);
 
 		//var texture = new THREE.VideoTexture( video );
 		var parameters = { color: 0xffffff, map: videoTexture.texture };
@@ -174,6 +197,7 @@
 
 		var videoPlane = new THREE.Mesh( geometry, material );
 		videoPlane.rotation.x = - Math.PI / 2
+		videoPlane.position.y = -2;
 		all.add( videoPlane );
 
 		all.scale.multiplyScalar(1.5);
