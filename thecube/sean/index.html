@@ -13,7 +13,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 		<title>Cube project</title>
 	</head>
-	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK(lang)'>
 		<!--V 1.1.7-->
 		<script>
 		//////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,28 @@
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 		}
 
-		//isScreenMode();
+		var lang = "eng";
+
+		switch(lang){
+		case "fr":
+			swal({
+			  	title: 'Scan OK, patiente un petit peu!',
+			  	type: 'info',
+			  	footer: 'STP, autorise l\'acces a ta camera!',
+			  	showConfirmButton: false,
+	  			timer: 1500000
+			});
+			break;
+		case "eng":
+			swal({
+			  	title: 'Scan OK, please wait',
+			  	type: 'info',
+			  	footer: 'Please, enable the camera access',
+			  	showConfirmButton: false,
+	  			timer: 1500000
+			});
+		break;
+	}
 
 		// init renderer
 		var renderer	= new THREE.WebGLRenderer({
@@ -218,7 +239,7 @@
 			if(arToolkitContext.arController != null){
 				if(arToolkitContext.arController.patternMarkers[0] != null){
 					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-						video.pause();
+						//video.pause();
 					}
 					else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
 						video.play();
@@ -279,20 +300,38 @@
 			}
 		}
 
-		function isScreenMode(){
-
-			swal.queue([{
-			  	title: 'Scan successful!',
-			  	type: 'success',
-			  	footer: 'Please, allow the access to your camera',
-  				preConfirm: () => {
-				  	swal.insertQueueStep({
-			  			title: 'Tap on [Tapoter ici] to play the video',
-			        	type: 'info'
-					})
-				}
-			}])
-		}
+		function loadOK(lang){
+			switch(lang){
+				case "fr":
+					swal({
+					  	title: 'C\'est pret! Pointe le QR code avec ta camera',
+					  	type: 'success',
+					  	confirmButtonText: 'OK',
+					  	footer: 'STP, autorise l\'acces a ta camera!',
+					  	showLoaderOnConfirm: true,
+							preConfirm: () => {
+								//video.play();
+								//video.pause();
+								//initSequence();
+						}
+					});
+					break;
+				case "eng":
+					swal({
+					  	title: 'Ready, point the QR code with your camera',
+					  	type: 'success',
+					  	confirmButtonText: 'OK',
+					  	footer: 'Please, enable the camera access',
+					  	showLoaderOnConfirm: true,
+							preConfirm: () => {
+								//video.play();
+								//video.pause();
+								//initSequence();
+						}
+					});
+				break;
+			}
+}
 		</script>
 	</body>
 </html>
