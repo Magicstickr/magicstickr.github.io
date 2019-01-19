@@ -262,144 +262,15 @@ function addObjects(){
 			side: THREE.DoubleSide
 		} );
 		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
-		var shapes = font.generateShapes( message, 0.09 );
+		var shapes = font.generateShapes( message, 0.06 );
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
 		text1 = new THREE.Mesh( geometry, mat );
-		text1.position.set(0.1,4.8,0.1);
+		text1.position.set(0.1,7,0.1);
 		all.add( text1 );
 	}, undefined, function ( e ) {
 		console.error( e );
 	});
-
-	// California map
-	var geometry = new THREE.PlaneGeometry( 1, 1 );
-	var loader = new THREE.TextureLoader().load('content/california.png', (imgLoader) => {
-		});
-		//Load the image into a custom material
-		var material = new THREE.MeshLambertMaterial({
-		  side: THREE.DoubleSide,
-		  transparent: true,
-		  map: loader,
-		});
-	button = new THREE.Mesh( geometry, material );
-	button.position.set(0.5,3.8,0.1);
-	all.add( button );
-
-	//Happy
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "HAPPY";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		happy = new THREE.Mesh( geometry, mat );
-		happy.position.set(0.1,3.2,0.1);
-		all.add( happy );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Happy bar
-	var geometry = new THREE.PlaneGeometry( 2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	happy_bar = new THREE.Mesh( geometry, material );
-	happy_bar.position.set(2/2+0.8,3.25,0.1); 
-	all.add( happy_bar );
-
-	//Relaxed
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "RELAXED";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		relax = new THREE.Mesh( geometry, mat );
-		relax.position.set(0.1,3.05,0.1);
-		all.add( relax );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Relax bar
-	var geometry = new THREE.PlaneGeometry( 1.7, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	relax_bar = new THREE.Mesh( geometry, material );
-	relax_bar.position.set(1.7/2+0.8,3.1,0.1);
-	all.add( relax_bar );
-
-	//Euphoric
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "EUPHORIC";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		eupho = new THREE.Mesh( geometry, mat );
-		eupho.position.set(0.1,2.9,0.1);
-		all.add( eupho );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Eupho bar
-	var geometry = new THREE.PlaneGeometry( 1.5, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	eupho_bar = new THREE.Mesh( geometry, material );
-	eupho_bar.position.set(1.5/2+0.8,2.95,0.1);
-	all.add( eupho_bar );
-
-	//Uplifted
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "UPLIFTED";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		uplift = new THREE.Mesh( geometry, mat );
-		uplift.position.set(0.1,2.75,0.1);
-		all.add( uplift );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// uplift bar
-	var geometry = new THREE.PlaneGeometry( 1.2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	uplift_bar = new THREE.Mesh( geometry, material );
-	uplift_bar.position.set(1.2/2+0.8,2.8,0.1);
-	all.add( uplift_bar );
-
-	//Creative
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "CREATIVE";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		crea = new THREE.Mesh( geometry, mat );
-		crea.position.set(0.1,2.6,0.1);
-		all.add( crea );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// crea bar
-	var geometry = new THREE.PlaneGeometry( 1.2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	crea_bar = new THREE.Mesh( geometry, material );
-	crea_bar.position.set(1.2/2+0.8,2.65,0.1);
-	all.add( crea_bar );
 
 	//Text2
 	var loader = new THREE.FontLoader();
@@ -409,49 +280,111 @@ function addObjects(){
 			color: color,
 			side: THREE.DoubleSide
 		} );
-		var message = "With a sweet berry aroma redolent of its Blueberry\nparent, Blue Dream delivers swift symptom relief\nwithout heavy sedative effects. This makes Blue\nDream a popular daytime medicine for patients\ntreating pain, depression, nausea, and other\nailments requiring a high THC strain.";
-		var shapes = font.generateShapes( message, 0.09 );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.10 );
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
-		text2 = new THREE.Mesh( geometry, mat );
-		text2.position.set(0.1,2.3,0.1);
-		all.add( text2 );
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,6,0.1);
+		all.add( text1 );
 	}, undefined, function ( e ) {
 		console.error( e );
 	});
 
-	//Order text
+	//Text3
 	var loader = new THREE.FontLoader();
 	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var xMid;
 		var color = 0x000000;
 		var mat = new THREE.MeshBasicMaterial( {
 			color: color,
 			side: THREE.DoubleSide
 		} );
-		var message = "ORDER HERE";
-		var shapes = font.generateShapes( message, 0.15 );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.14 );
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
-		ordtext = new THREE.Mesh( geometry, mat );
-		ordtext.position.set(0.5,0.9,0.1);
-		all.add( ordtext );
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,5,0.1);
+		all.add( text1 );
 	}, undefined, function ( e ) {
 		console.error( e );
 	});
 
-	// Order button
-	var geometry = new THREE.CircleGeometry( 0.3, 32 );
-	var loader = new THREE.TextureLoader().load('content/button.jpg', (imgLoader) => {
-		});
-		//Load the image into a custom material
-		var material = new THREE.MeshLambertMaterial({
-		  side: THREE.DoubleSide,
-		  map: loader,
-		});
-	button = new THREE.Mesh( geometry, material );
-	button.position.set(2.2,1,0.1);
-	all.add( button );
+	//Text4
+	var loader = new THREE.FontLoader();
+	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
+		var color = 0x000000;
+		var mat = new THREE.MeshBasicMaterial( {
+			color: color,
+			side: THREE.DoubleSide
+		} );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.18 );
+		var geometry = new THREE.ShapeBufferGeometry( shapes );
+		geometry.computeBoundingBox();
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,4,0.1);
+		all.add( text1 );
+	}, undefined, function ( e ) {
+		console.error( e );
+	});
+
+	//Text5
+	var loader = new THREE.FontLoader();
+	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
+		var color = 0x000000;
+		var mat = new THREE.MeshBasicMaterial( {
+			color: color,
+			side: THREE.DoubleSide
+		} );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.22 );
+		var geometry = new THREE.ShapeBufferGeometry( shapes );
+		geometry.computeBoundingBox();
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,2.6,0.1);
+		all.add( text1 );
+	}, undefined, function ( e ) {
+		console.error( e );
+	});
+
+	//Text6
+	var loader = new THREE.FontLoader();
+	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
+		var color = 0x000000;
+		var mat = new THREE.MeshBasicMaterial( {
+			color: color,
+			side: THREE.DoubleSide
+		} );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.26 );
+		var geometry = new THREE.ShapeBufferGeometry( shapes );
+		geometry.computeBoundingBox();
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,1.3,0.1);
+		all.add( text1 );
+	}, undefined, function ( e ) {
+		console.error( e );
+	});
+
+	//Text7
+	var loader = new THREE.FontLoader();
+	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
+		var color = 0x000000;
+		var mat = new THREE.MeshBasicMaterial( {
+			color: color,
+			side: THREE.DoubleSide
+		} );
+		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
+		var shapes = font.generateShapes( message, 0.30 );
+		var geometry = new THREE.ShapeBufferGeometry( shapes );
+		geometry.computeBoundingBox();
+		text1 = new THREE.Mesh( geometry, mat );
+		text1.position.set(0.1,0,0.1);
+		all.add( text1 );
+	}, undefined, function ( e ) {
+		console.error( e );
+	});
 
 	// Load marijuana
 	var loader = new THREE.GLTFLoader().load('content/cb/scene.gltf', function ( gltf ) {
