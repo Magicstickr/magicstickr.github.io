@@ -147,7 +147,7 @@
 		var all = new THREE.Group();
 
 		// the inside of the hole
-		let geometry1	= new THREE.CylinderGeometry(1,1, 2, 32,1, true);
+		let geometry1	= new THREE.CylinderGeometry(1,1, 1, 32,1, true);
 		let loader = new THREE.TextureLoader();
 		let texture = loader.load( 'content/bricks.jpg' );
 		texture.wrapS = THREE.RepeatWrapping;
@@ -159,7 +159,7 @@
 			side: THREE.BackSide
 		}); 
 		var mesh1 = new THREE.Mesh( geometry1, material1 );
-		mesh1.position.y = -1.1;
+		mesh1.position.y = -0.6;
 		all.add( mesh1 );
 
 		
@@ -171,6 +171,7 @@
 		});
 		var mesh0 = new THREE.Mesh( geometry0, material0 );
 		mesh0.rotation.x = -Math.PI/2;
+		mesh0.position.y -= 0.1;
 		all.add(mesh0);
 
 		// create the videoTexture
@@ -190,7 +191,10 @@
 			videoTexture.update(delta, now)
 		})
 
-		var geometry = new THREE.CircleGeometry(4, 32);
+		var ysize = 20;
+		var xsize = ysize * 0.5625;
+
+		var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
 		//var texture = new THREE.VideoTexture( video );
 		var parameters = { color: 0xffffff, map: videoTexture.texture };
@@ -198,7 +202,7 @@
 
 		var videoPlane = new THREE.Mesh( geometry, material );
 		videoPlane.rotation.x = - Math.PI / 2
-		videoPlane.position.y = -5;
+		videoPlane.position.y = -10;
 		all.add( videoPlane );
 
 		all.scale.multiplyScalar(1);
