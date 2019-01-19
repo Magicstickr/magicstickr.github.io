@@ -229,8 +229,8 @@
 
 			all = new THREE.Group();
 			
-			var xsize = 1;
-			var ysize = xsize * 0.5625;
+			var xsize = 1280;
+			var ysize = 720;
 
 			var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
@@ -243,7 +243,7 @@
 			videoPlane = new THREE.Mesh( geometry, movieMaterial );
 			videoPlane.position.y = 1.1;
 			videoPlane.position.x = 0.4;
-			videoPlane.scale.multiplyScalar(4);
+			videoPlane.scale.multiplyScalar(1/320);
 			//videoPlane.visible = false;
 			video.loop = false;
 
