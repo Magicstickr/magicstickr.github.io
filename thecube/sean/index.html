@@ -147,7 +147,7 @@
 		var all = new THREE.Group();
 
 		// the inside of the hole
-		let geometry1	= new THREE.CylinderGeometry(1,1, 4, 32,1);
+		let geometry1	= new THREE.CylinderGeometry(1,1, 2, 32,1, true);
 		let loader = new THREE.TextureLoader();
 		let texture = loader.load( 'content/bricks.jpg' );
 		texture.wrapS = THREE.RepeatWrapping;
@@ -159,8 +159,9 @@
 			side: THREE.BackSide
 		}); 
 		var mesh1 = new THREE.Mesh( geometry1, material1 );
-		mesh1.position.y = -2;
+		mesh1.position.y = -1;
 		all.add( mesh1 );
+
 		
 		// the invisibility cloak (ring; has circular hole)
 		let geometry0 = new THREE.RingGeometry(1,9, 32);
@@ -189,7 +190,7 @@
 			videoTexture.update(delta, now)
 		})
 
-		var geometry = new THREE.CircleGeometry(1, 32);
+		var geometry = new THREE.CircleGeometry(4, 32);
 
 		//var texture = new THREE.VideoTexture( video );
 		var parameters = { color: 0xffffff, map: videoTexture.texture };
@@ -197,10 +198,10 @@
 
 		var videoPlane = new THREE.Mesh( geometry, material );
 		videoPlane.rotation.x = - Math.PI / 2
-		videoPlane.position.y = -2;
+		videoPlane.position.y = -5;
 		all.add( videoPlane );
 
-		all.scale.multiplyScalar(1.5);
+		all.scale.multiplyScalar(1);
 		arWorldRoot.add(all);
 
 		//////////////////////////////////////////////////////////////////////////////////
