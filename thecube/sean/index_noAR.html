@@ -7,13 +7,11 @@
 		<script src="../lib/ar.js"></script>
 		<script src="../lib/WebGL.js"></script>
 		<script src="../lib/OrbitControls.js"></script>
-		<script src='../lib/threex.videotexture.js'></script>
-		<script src="../lib/GLTFLoader.js"></script>
+		<script src='threex.videotexture.js'></script>
 		<!-- script for popup message -->
 		<script src="../lib/sweetalert2.all.min.js"></script>
 		<!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
 		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
-		<script src="../lib/ar-ms-kit1.0.js"></script>
 		<title>Cube project</title>
 	</head>
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;' onload='loadOK()'>
@@ -25,8 +23,8 @@
 
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var floor, mesh0, mesh1, videoPlane;
-		var isVideoPlay, time, video_time, stopAnim, videoStart, video;
+		var floor, mesh0, mesh1, videoPlane, all;
+		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isStart = true;
 		var isSeqInit = false;
@@ -39,6 +37,41 @@
 
 		addFloor();
 		addObjects();
+
+		// create the videoTexture
+		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
+		if( canPlayMp4 ){
+			var loc = window.location.href;
+			var directoryPath = loc.substring(0, loc.lastIndexOf("/")+1);
+			var url	= directoryPath + 'content/video.mp4';
+		}else	alert('cant play mp4')
+
+		var thumbnail = 'content/thumbnail.jpg';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
+		var video	= videoTexture.video;
+
+		onRenderFcts.push(function(delta, now){
+			videoTexture.update(delta, now)
+		})
+
+		var xsize = 1;
+		var ysize = xsize * 0.5625;
+
+		var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+		//var texture = new THREE.VideoTexture( video );
+		var parameters = { color: 0xffffff, map: videoTexture.texture };
+		var material = new THREE.MeshBasicMaterial( parameters );
+
+		videoPlane = new THREE.Mesh( geometry, material );
+		videoPlane.rotation.x = - Math.PI / 2
+		videoPlane.position.y = -2;
+		all.add( videoPlane );
+
+		//all.scale.multiplyScalar(1);
+		//all.position.z = 0.5;
+		arWorldRoot.add(all);
 
 		renderEngine();
 

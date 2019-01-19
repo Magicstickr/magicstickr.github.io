@@ -268,7 +268,7 @@ function addObjects(){
 	var thumbnail = 'content/thumbnail.jpg';
 
 	var videoTexture= new THREEx.VideoTexture(url, thumbnail);
-	video	= videoTexture.video;
+	var video	= videoTexture.video;
 
 	onRenderFcts.push(function(delta, now){
 		videoTexture.update(delta, now)
