@@ -57,9 +57,9 @@
 		var isSeqInit = false;
 		var lang = "eng";
 		var startVideo = 3;
-		var startPic1 = 21;
+		var startPic1 = 22;
 		var startPic2 = 28;
-		var startButton = 39;
+		var startButton = 39.5;
 
 		initScene();
 		initCameraLight();
@@ -329,19 +329,21 @@
 			
 			groupButton = new THREE.Group();
 
-			var fb = new THREE.Mesh(geometry, fbMaterial);
+			fb = new THREE.Mesh(geometry, fbMaterial);
 			fb.position.x = -1;
+			fb.visible = false;
 			groupButton.add(fb);
-			var tw = new THREE.Mesh(geometry, twMaterial);
+			tw = new THREE.Mesh(geometry, twMaterial);
 			tw.position.x = 0;
 			tw.position.y = 0.5;
+			tw.visible = false;
 			groupButton.add(tw);
-			var lkd = new THREE.Mesh(geometry, inMaterial);
+			lkd = new THREE.Mesh(geometry, inMaterial);
 			lkd.position.x = 1;
+			lkd.visible = false;
 			groupButton.add(lkd);
 
 			groupButton.position.y = 1.7;
-			groupButton.visible = false;
 			all.add(groupButton);
 
 			all.rotation.x = - Math.PI/2;
@@ -487,7 +489,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					pic1.visible = true;
 				}
 
@@ -498,7 +500,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					if (video_time >= end-0.1){
 						pic1.visible = false;
 					}
@@ -511,7 +513,7 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					pic2.visible = true;
 				}
 
@@ -522,16 +524,38 @@
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
 					if (video_time >= end-0.1){
 						pic2.visible = false;
 					}
 				}
 
-				//Show Buttons 
-				var start = startButton;
-				if(video_time >= start){
-					groupButton.visible = true;
+				//button 1
+				var start = startButton; 
+				var end = startButton+0.5; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					lkd.scale.set(t_down,t_down,t_down);
+					lkd.visible = true;
+				}
+				//button 2
+				var start = startButton+0.2; 
+				var end = startButton+0.7; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					tw.scale.set(t_down,t_down, t_down);
+					tw.visible = true;
+				}
+				//button 3
+				var start = startButton+0.4; 
+				var end = startButton+0.9; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					fb.scale.set(t_down,t_down, t_down);
+					fb.visible = true;
 				}
 
 				// Stop speech

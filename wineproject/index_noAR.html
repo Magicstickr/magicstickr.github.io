@@ -50,13 +50,13 @@
 		// Threejs/ARjs standard variables
 		var renderer, arWorldRoot, onRenderFcts, camera, controls;
 		// Object variables
-		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3, groupButton;
+		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3, groupButton, fb, tw, lkd;
 
 		var lang = "eng";
 		var startVideo = 3;
-		var startPic1 = 21;
+		var startPic1 = 22;
 		var startPic2 = 28;
-		var startButton = 39;
+		var startButton = 40;
 
 		initScene();
 		initCamera();
@@ -266,19 +266,21 @@
 			
 			groupButton = new THREE.Group();
 
-			var fb = new THREE.Mesh(geometry, fbMaterial);
+			fb = new THREE.Mesh(geometry, fbMaterial);
 			fb.position.x = -1;
+			fb.visible = false;
 			groupButton.add(fb);
-			var tw = new THREE.Mesh(geometry, twMaterial);
+			tw = new THREE.Mesh(geometry, twMaterial);
 			tw.position.x = 0;
 			tw.position.y = 0.5;
+			tw.visible = false;
 			groupButton.add(tw);
-			var lkd = new THREE.Mesh(geometry, inMaterial);
+			lkd = new THREE.Mesh(geometry, inMaterial);
 			lkd.position.x = 1;
+			lkd.visible = false;
 			groupButton.add(lkd);
 
 			groupButton.position.y = 1.7;
-			groupButton.visible = false;
 			all.add(groupButton);
 
 			all.scale.multiplyScalar(1.5);
@@ -432,10 +434,32 @@
 					}
 				}
 
-				//Show Buttons 
-				var start = startButton;
-				if(video_time >= start){
-					groupButton.visible = true;
+				//button 1
+				var start = startButton; 
+				var end = startButton+0.5; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					lkd.scale.set(t_down,t_down,t_down);
+					lkd.visible = true;
+				}
+				//button 2
+				var start = startButton+0.5; 
+				var end = startButton+1; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					tw.scale.set(t_down,t_down, t_down);
+					tw.visible = true;
+				}
+				//button 3
+				var start = startButton+1; 
+				var end = startButton+1.5; 
+				var t = (video_time-start)/(end-start);
+				if(	video_time >= start && video_time < end ){
+					t_down = (2-1*t); //t_down goes from 3 to 1;
+					fb.scale.set(t_down,t_down, t_down);
+					fb.visible = true;
 				}
 
 				// Stop speech
