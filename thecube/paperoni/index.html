@@ -212,8 +212,8 @@
 			videoTexture.update(delta, now)
 		})
 
-		var ysize = 20;
-		var xsize = ysize * 0.5625;
+		var xsize = 20;
+		var ysize = xsize * 0.5625;
 
 		var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
@@ -238,10 +238,10 @@
 			renderer.render( scene, camera );
 			if(arToolkitContext.arController != null){
 				if(arToolkitContext.arController.patternMarkers[0] != null){
-					if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
-						//video.pause();
-					}
-					else if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == true){
+					// if(arToolkitContext.arController.patternMarkers[0].inCurrent == false){
+					// 	//video.pause();
+					// }
+					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true && video.paused == true && isVideoPlay == false){
 						video.play();
 					}
 				}
