@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- three.js library -->
+		<script src='lib/three.js'></script>
+		<script src="lib/ar.js"></script>
+		<script src="lib/WebGL.js"></script>
+		<script src='lib/threex.videotexture.js'></script>
+		<script src="lib/OrbitControls.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/josephg/noisejs/master/perlin.js"></script>
+		<title>ResoSante Videos</title>
+	</head>
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+		V 1.1.4
+		<script>
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Init
+		//////////////////////////////////////////////////////////////////////////////////
+
+		//Error if not WebGL compatible
+		if ( WEBGL.isWebGLAvailable() === false ) {
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+		}
+
+		// init renderer
+		var renderer	= new THREE.WebGLRenderer({
+			antialias	: true,
+			autoResize : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+		// array of functions for the rendering loop
+		var onRenderFcts= [];
+
+		// init arWorldRoot and camera
+
+		var arWorldRoot = new THREE.Scene();
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Initialize a basic camera
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// Create a camera
+		var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
+		camera.position.set( 0, 2, 10 );
+		arWorldRoot.add(camera);
+
+		var light = new THREE.AmbientLight( 0xffffff ); // soft white light
+		arWorldRoot.add( light );
+
+		// controls
+
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+		//controls.addEventListener( 'change', render ); // call this only in static arWorldRoots (i.e., if there is no animation loop)
+
+		controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+		controls.dampingFactor = 0.25;
+
+		controls.screenSpacePanning = false;
+
+		controls.minDistance = 0;
+		controls.maxDistance = 500;
+
+		controls.maxPolarAngle = Math.PI / 2;
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		Add the objects in the arWorldRoot
+		//////////////////////////////////////////////////////////////////////////////////
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+		var isVideoPlay = false;
+
+		var all = new THREE.Group();
+
+		// create the videoTexture
+		var canPlayMp4	= document.createElement('video').canPlayType('video/mp4') !== '' ? true : false
+		if( canPlayMp4 ){
+			var url	= 'content/video.mp4';
+		}else	alert('cant play mp4')
+
+		var thumbnail = 'content/thumbnail.png';
+
+		var videoTexture= new THREEx.VideoTexture(url, thumbnail);
+		var video	= videoTexture.video;
+		video.pause();
+
+		onRenderFcts.push(function(delta, now){
+			videoTexture.update(delta, now)
+		})
+
+		var xsize = 1;
+		var ysize = xsize * 0.5625;
+
+		var geometry = new THREE.PlaneGeometry(xsize, ysize);
+
+		//var texture = new THREE.VideoTexture( video );
+		var parameters = { color: 0xffffff, map: videoTexture.texture };
+		var material = new THREE.MeshBasicMaterial( parameters );
+
+		var videoPlane = new THREE.Mesh( geometry, material );
+		videoPlane.scale.multiplyScalar(3);
+		videoPlane.rotation.x = - Math.PI / 2
+		all.add( videoPlane );
+
+
+		// Audio System
+		var listener = new THREE.AudioListener();
+		camera.add( listener );
+
+		// create an Audio source
+		var fftSize = 128;
+		var sound = new THREE.Audio( listener );
+
+		// load a sound and set it as the Audio object's buffer
+		var audioLoader = new THREE.AudioLoader();
+		audioLoader.load( 'content/video.mp4', function( buffer ) {
+			sound.setBuffer( buffer );
+			sound.setVolume(0.01);
+			sound.play();
+			sound.pause();
+		});
+
+		analyser = new THREE.AudioAnalyser( sound, fftSize );
+
+		var imgLoader = new THREE.TextureLoader().load('content/ResoSante_logo_flower.png', (imgLoader) => {
+			//Rescale and position image
+			var targetWidth = 1;
+			var targetHeight = 1;
+		});
+
+		//Load the image into a custom material
+		material 
+		var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+		var material = new THREE.MeshLambertMaterial({
+		  map: imgLoader
+		});
+		var cube1 = new THREE.Mesh( geometry, material );
+		var cube1Size = 0.7;
+		cube1.position.set(2.2, cube1Size/2, 0.5);
+		cube1.scale.multiplyScalar(cube1Size);
+		var cube2 = new THREE.Mesh( geometry, material );
+		var cube2Size = 0.4;
+		cube2.position.set(-2.2, cube2Size/2, 0.7);
+		cube2.scale.multiplyScalar(cube2Size);
+		var cube3 = new THREE.Mesh( geometry, material );
+		var cube3Size = 0.8;
+		cube3.position.set(-2.7, cube3Size/2, -1);
+		cube3.scale.multiplyScalar(cube3Size);
+		var cube4 = new THREE.Mesh( geometry, material );
+		var cube4Size = 0.3;
+		cube4.position.set(2.1, cube4Size/2, -0.7);
+		cube4.scale.multiplyScalar(cube4Size);
+		all.add( cube1 );
+		all.add( cube2 );
+		all.add( cube3 );
+		all.add( cube4 );
+
+		onRenderFcts.push(function(delta, now){
+	        analyser.getFrequencyData();
+	        var sum = analyser.data.reduce(function(a,b){return a+b;});
+	        var avg = analyser.getAverageFrequency();
+
+	        cube1.position.y = cube1Size/2 + avg*0.005;
+	        cube2.position.y = cube2Size/2 + avg*0.01;
+	        cube3.position.y = cube3Size/2 + avg*0.004;
+	        cube4.position.y = cube4Size/2 + avg*0.01;
+	        //console.log(avg);
+    	});
+
+		// website button
+		var geometry = new THREE.PlaneGeometry(2, 0.3);
+		var loader = new THREE.TextureLoader().load('content/website.png', (imgLoader) => {
+		});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader,
+		  transparent: true,
+		});
+		
+		var website = new THREE.Mesh(geometry, material);
+		website.rotation.x = - Math.PI / 2;
+		website.position.z = -1.2;
+		all.add(website);
+
+		//link buttons
+		var geometry = new THREE.PlaneGeometry(0.3, 0.3);
+		var fbLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
+		var twLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
+		var inLoader = new THREE.TextureLoader().load('content/icon/in_icon.png', (imgLoader) => {});
+		var ytbLoader = new THREE.TextureLoader().load('content/icon/ytb_icon.png', (imgLoader) => {});
+		var gpLoader = new THREE.TextureLoader().load('content/icon/gp_icon.png', (imgLoader) => {});
+		//Load the image into a custom material
+		var fbMaterial = new THREE.MeshLambertMaterial({ map: fbLoader, transparent: true });
+		var twMaterial = new THREE.MeshLambertMaterial({ map: twLoader, transparent: true });
+		var inMaterial = new THREE.MeshLambertMaterial({ map: inLoader, transparent: true });
+		var ytbMaterial = new THREE.MeshLambertMaterial({ map: ytbLoader, transparent: true });
+		var gpMaterial = new THREE.MeshLambertMaterial({ map: gpLoader, transparent: true });
+		
+		var groupButton = new THREE.Group();
+
+		var fb = new THREE.Mesh(geometry, fbMaterial);
+		fb.position.x = -0.7;
+		groupButton.add(fb);
+		var tw = new THREE.Mesh(geometry, twMaterial);
+		tw.position.x = -0.35;
+		groupButton.add(tw);
+		var lkd = new THREE.Mesh(geometry, inMaterial);
+		lkd.position.x = 0;
+		groupButton.add(lkd);
+		var ytb = new THREE.Mesh(geometry, ytbMaterial);
+		ytb.position.x = 0.35;
+		groupButton.add(ytb);
+		var gp = new THREE.Mesh(geometry, gpMaterial);
+		gp.position.x = 0.7;
+		groupButton.add(gp);
+
+		groupButton.rotation.x = - Math.PI / 2;
+		groupButton.position.z = 1.2;
+		all.add(groupButton);
+
+		all.scale.multiplyScalar(1.5);
+		arWorldRoot.add(all);
+
+
+		/////////////////////////////
+		// Floor OBJECT
+		/////////////////////////////
+		var geometry = new THREE.PlaneGeometry(20, 10);
+		var loader = new THREE.TextureLoader().load('content/table.jpg', (imgLoader) => {});
+		//Load the image into a custom material
+		var material = new THREE.MeshLambertMaterial({
+		  map: loader
+		});
+		
+		var floor = new THREE.Mesh(geometry, material);
+		floor.rotation.x = - Math.PI / 2;
+		floor.position.y = -0.01;
+		arWorldRoot.add(floor);
+
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		render the whole thing on the page
+		//////////////////////////////////////////////////////////////////////////////////
+
+		// render the arWorldRoot
+		onRenderFcts.push(function(){
+			renderer.render( arWorldRoot, camera );
+		})
+
+		// run the rendering loop
+		var lastTimeMsec= null
+		requestAnimationFrame(function animate(nowMsec){
+			// keep looping
+			requestAnimationFrame( animate );
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+			// measure time
+			lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+			var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+			lastTimeMsec	= nowMsec
+			// call each update function
+			onRenderFcts.forEach(function(onRenderFct){
+				onRenderFct(deltaMsec/1000, nowMsec/1000)
+			})
+		})
+
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+		function onDocumentTouchStart( event ) {
+
+				event.preventDefault();
+
+				event.clientX = event.touches[0].clientX;
+				event.clientY = event.touches[0].clientY;
+				onDocumentMouseDown( event );
+
+		}
+
+		function onDocumentMouseDown( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+
+			var videoPlaneArray = [videoPlane];
+			var websiteArray = [website];
+
+			var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+			var websiteIntersects = raycaster.intersectObjects( websiteArray );
+
+			if ( videoIntersects.length > 0) {
+				if(video.paused == true){
+					video.play();
+					sound.play();
+				}else{
+					video.pause();
+					sound.pause();
+				}
+			}else if(websiteIntersects.length > 0){
+				window.location.href = 'https://resosante.ca';
+			}
+		}
+		</script>
+	</body>
+</html>
