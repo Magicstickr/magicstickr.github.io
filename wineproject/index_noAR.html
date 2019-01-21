@@ -30,7 +30,6 @@
 				gl_Position = projectionMatrix * mvPosition;
 			}
 		</script>
-
 		<script id="fragmentShader" type="x-shader/x-fragment">
 
 			uniform sampler2D texture;
@@ -41,7 +40,7 @@
 			void main()
 			{
 				vec3 tColor = texture2D( texture, vUv ).rgb;
-				float a = (length(tColor - color) - 0.6) * 100.0;
+				float a = (length(tColor - color) - 0.5) * 50.0;
 				gl_FragColor = vec4(tColor, a);
 			}
 		</script>
@@ -50,13 +49,13 @@
 		// Threejs/ARjs standard variables
 		var renderer, arWorldRoot, onRenderFcts, camera, controls;
 		// Object variables
-		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3, groupButton, fb, tw, lkd;
+		var all, videoPlane, floor, video, gltfObj, pic1, pic2, pic3, groupButton, health, pairing, coinfo;
 
 		var lang = "eng";
-		var startVideo = 3;
-		var startPic1 = 22;
-		var startPic2 = 28;
-		var startButton = 40;
+		var startVideo = 2;
+		var startPic1 = 21;
+		var startPic2 = 26;
+		var startButton = 38;
 
 		initScene();
 		initCamera();
@@ -75,7 +74,7 @@
 
 			//Error if not WebGL compatible
 			if ( WEBGL.isWebGLAvailable() === false ) {
-					document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+					document.body.appendChild( WEBGL.gepairingebGLErrorMessage() );
 			}
 
 			switch(lang){
@@ -110,7 +109,8 @@
 			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 			renderer.shadowMap.enabled = true;
 
-			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.domElement.style.position = 'absolute'
 			renderer.domElement.style.top = '0px'
@@ -166,8 +166,8 @@
 
 			all = new THREE.Group();
 			
-			var xsize = 1;
-			var ysize = xsize * 0.5625;
+			var xsize = 1280;
+			var ysize = 720;
 
 			var geometry = new THREE.PlaneGeometry(xsize, ysize);
 
@@ -178,9 +178,9 @@
 			// white: 0xffff
 
 			videoPlane = new THREE.Mesh( geometry, movieMaterial );
-			videoPlane.position.y = 1.1;
-			videoPlane.position.x = 0.4;
-			videoPlane.scale.multiplyScalar(4);
+			videoPlane.position.y = 1.2;
+			videoPlane.position.x = 0;
+			videoPlane.scale.multiplyScalar(1/512);
 			//videoPlane.visible = false;
 			video.loop = false;
 
@@ -211,10 +211,10 @@
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image0.jpg', (imgLoader) => {
 				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic1.scale.set(targetWidth, targetHeight, 1.0);
-				pic1.position.x = -2;
+				var targepairingidth = 2;
+				var targetHeight = targepairingidth*imgLoader.image.height / imgLoader.image.width;
+				pic1.scale.set(targepairingidth, targetHeight, 1.0);
+				pic1.position.x = -1;
 				pic1.position.z = -0.5;
 			});
 
@@ -224,8 +224,8 @@
 			});
 			//Add material to the image mesh
 			pic1.material = material;
-			pic1.visible = false;
-			pic1.castShadow = true;
+			pic1.position.y = 20;
+			//pic1.visible = false;
 
 			all.add(pic1);
 
@@ -236,10 +236,10 @@
 			//Get image from image.jpg
 			var imageLoader = new THREE.TextureLoader().load('content/image1.jpg', (imgLoader) => {
 				//Rescale and position image
-				var targetWidth = 4;
-				var targetHeight = targetWidth*imgLoader.image.height / imgLoader.image.width;
-				pic2.scale.set(targetWidth, targetHeight, 1.0);
-				pic2.position.x = 2;
+				var targepairingidth = 2;
+				var targetHeight = targepairingidth*imgLoader.image.height / imgLoader.image.width;
+				pic2.scale.set(targepairingidth, targetHeight, 1.0);
+				pic2.position.x = 1;
 				pic2.position.z = -0.5;
 			});
 
@@ -249,36 +249,36 @@
 			});
 			//Add material to the image mesh
 			pic2.material = material;
-			pic2.visible = false;
-			pic2.castShadow = true;
+			pic2.position.y = 20;
+			//pic2.visible = false;
 
 			all.add(pic2);
 
 			//link buttons
 			var geometry = new THREE.CircleGeometry(0.3, 32);
-			var fbLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
-			var twLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
+			var healthLoader = new THREE.TextureLoader().load('content/icon/fb_icon.png', (imgLoader) => {});
+			var pairingLoader = new THREE.TextureLoader().load('content/icon/tw_icon.png', (imgLoader) => {});
 			var inLoader = new THREE.TextureLoader().load('content/icon/in_icon.png', (imgLoader) => {});
 			//Load the image into a custom material
-			var fbMaterial = new THREE.MeshLambertMaterial({ map: fbLoader});
-			var twMaterial = new THREE.MeshLambertMaterial({ map: twLoader});
+			var healthMaterial = new THREE.MeshLambertMaterial({ map: healthLoader});
+			var pairingMaterial = new THREE.MeshLambertMaterial({ map: pairingLoader});
 			var inMaterial = new THREE.MeshLambertMaterial({ map: inLoader});
 			
 			groupButton = new THREE.Group();
 
-			fb = new THREE.Mesh(geometry, fbMaterial);
-			fb.position.x = -1;
-			fb.visible = false;
-			groupButton.add(fb);
-			tw = new THREE.Mesh(geometry, twMaterial);
-			tw.position.x = 0;
-			tw.position.y = 0.5;
-			tw.visible = false;
-			groupButton.add(tw);
-			lkd = new THREE.Mesh(geometry, inMaterial);
-			lkd.position.x = 1;
-			lkd.visible = false;
-			groupButton.add(lkd);
+			health = new THREE.Mesh(geometry, healthMaterial);
+			health.position.x = -1;
+			health.visible = false;
+			groupButton.add(health);
+			pairing = new THREE.Mesh(geometry, pairingMaterial);
+			pairing.position.x = 0;
+			pairing.position.y = 0.5;
+			pairing.visible = false;
+			groupButton.add(pairing);
+			coinfo = new THREE.Mesh(geometry, inMaterial);
+			coinfo.position.x = 1;
+			coinfo.visible = false;
+			groupButton.add(coinfo);
 
 			groupButton.position.y = 1.7;
 			all.add(groupButton);
@@ -349,10 +349,22 @@
 				raycaster.setFromCamera( mouse, camera );
 
 				var videoPlaneArray = [videoPlane];
+				var healthArray = [health];
+				var pairingArray = [pairing];
+				var coinfoArray = [coinfo];
 
 				var videoIntersects = raycaster.intersectObjects( videoPlaneArray );
+				var healthIntersects = raycaster.intersectObjects( healthArray );
+				var pairingIntersects = raycaster.intersectObjects( pairingArray );
+				var coinfoIntersects = raycaster.intersectObjects( coinfoArray );
 
-				if ( videoIntersects.length > 0) {
+				if ( healthIntersects.length > 0) {
+					window.location.href = 'https://en.wikipedia.org/wiki/Health_effects_of_wine';
+				}else if(pairingIntersects.length > 0){
+					window.location.href = 'https://www.foodandwine.com/slideshows/15-rules-great-wine-and-food-pairings';
+				}else if(coinfoIntersects.length > 0){
+					window.location.href = 'https://www.paperoniproductions.com/';
+				}else if ( videoIntersects.length > 0) {
 					if(video.paused == true){
 						video.play();
 						isVideoPlay = true;
@@ -393,20 +405,20 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
-					pic1.visible = true;
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1.5; // cubic function
+					//pic1.visible = true;
 				}
 
 				//Hide Pic1
 				var start = startPic1 + 3; 
-				var end = startPic1 + 6; 
+				var end = startPic1 + 4; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic1.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
+					pic1.position.y = -t_lowered*t_lowered*t_lowered +1.5; // cubic function
 					if (video_time >= end-0.1){
-						pic1.visible = false;
+						//pic1.visible = false;
 					}
 				}
 
@@ -417,8 +429,8 @@
 				if(	video_time >= start && video_time < end ){
 					t_down = (10*t-10); //t_down goes from -10 to 0
 					t_lowered = t_down/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
-					pic2.visible = true;
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1.5; // cubic function
+					//pic2.visible = true;
 				}
 
 				//Hide Pic2 
@@ -428,9 +440,9 @@
 				if(	video_time >= start && video_time < end ){
 					t_up = (10*t); // t_up goes from 0 to 10
 					t_lowered = t_up/3;
-					pic2.position.y = -t_lowered*t_lowered*t_lowered +1; // cubic function
+					pic2.position.y = -t_lowered*t_lowered*t_lowered +1.5; // cubic function
 					if (video_time >= end-0.1){
-						pic2.visible = false;
+						//pic2.visible = false;
 					}
 				}
 
@@ -440,26 +452,26 @@
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (2-1*t); //t_down goes from 3 to 1;
-					lkd.scale.set(t_down,t_down,t_down);
-					lkd.visible = true;
+					coinfo.scale.set(t_down,t_down,t_down);
+					coinfo.visible = true;
 				}
 				//button 2
-				var start = startButton+0.5; 
-				var end = startButton+1; 
+				var start = startButton+0.2; 
+				var end = startButton+0.7; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (2-1*t); //t_down goes from 3 to 1;
-					tw.scale.set(t_down,t_down, t_down);
-					tw.visible = true;
+					pairing.scale.set(t_down,t_down, t_down);
+					pairing.visible = true;
 				}
 				//button 3
-				var start = startButton+1; 
-				var end = startButton+1.5; 
+				var start = startButton+0.4; 
+				var end = startButton+0.9; 
 				var t = (video_time-start)/(end-start);
 				if(	video_time >= start && video_time < end ){
 					t_down = (2-1*t); //t_down goes from 3 to 1;
-					fb.scale.set(t_down,t_down, t_down);
-					fb.visible = true;
+					health.scale.set(t_down,t_down, t_down);
+					health.visible = true;
 				}
 
 				// Stop speech
@@ -469,7 +481,7 @@
 					speechStopped = true;
 					isVideoPlay == false;
 					video.pause();
-					time = 100;
+					time = 63;
 					stopAnim = true;
 					groupButton.visible = true;
 				}
