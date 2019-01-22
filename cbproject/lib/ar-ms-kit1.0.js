@@ -234,6 +234,26 @@ function addObjects(){
 	plane.position.set(1.5,3,0);
 	all.add( plane );
 
+	//strain title
+	var loader = new THREE.FontLoader();
+	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
+		var xMid;
+		var color = 0x000000;
+		var mat = new THREE.MeshBasicMaterial( {
+			color: color,
+			side: THREE.DoubleSide
+		} );
+		var message = "STRAIN: BLUE DREAM";
+		var shapes = font.generateShapes( message, 0.15 );
+		var geometry = new THREE.ShapeBufferGeometry( shapes );
+		geometry.computeBoundingBox();
+		title = new THREE.Mesh( geometry, mat );
+		title.position.set(0.1,5,0.1);
+		all.add( title );
+	}, undefined, function ( e ) {
+		console.error( e );
+	});
+
 	//Text1
 	var loader = new THREE.FontLoader();
 	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
