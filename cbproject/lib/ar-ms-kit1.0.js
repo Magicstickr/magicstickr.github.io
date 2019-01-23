@@ -251,7 +251,7 @@ function addObjects(){
 		var xMid, yMid;
 		var fontSize = 0.2;
 		var mat = new THREE.MeshBasicMaterial( {color: 0x000000} );
-		var message = "BLUE DREAM";
+		var message = "BLUE CHEESE";
 		var shapes = font.generateShapes( message, fontSize);
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
