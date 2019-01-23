@@ -227,48 +227,42 @@ function addObjects(){
 
 	var all = new THREE.Group();
 
-	// Background plane
-	var geometry = new THREE.PlaneGeometry( 3, 5 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffffff, opacity: 0.5, transparent: true, side: THREE.DoubleSide} );
-	plane = new THREE.Mesh( geometry, material );
-	plane.position.set(1.5,3,0);
-	all.add( plane );
+	// WoodenBox
+	var geometry = new THREE.BoxGeometry( 1, 0.4, 1 );
+	var loader = new THREE.TextureLoader().load('content/box.jpg', (imgLoader) => {});
+	var material = new THREE.MeshPhongMaterial({
+	    map: loader,
+	});
+	woodenBox = new THREE.Mesh( geometry, material );
+	woodenBox.position.set(0,0.2,0);
+	all.add( woodenBox );
+
+	// // Test
+	// var geometry = new THREE.PlaneGeometry( 1.6, 1.6 );
+	// var material = new THREE.MeshLambertMaterial({ color: "#ff00ff"});
+	// testplane = new THREE.Mesh( geometry, material );
+	// testplane.rotation.x = - Math.PI/2;
+	// testplane.position.set(0,0,0);
+	// all.add( testplane );
 
 	//strain title
 	var loader = new THREE.FontLoader();
 	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var xMid;
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {
-			color: color,
-			side: THREE.DoubleSide
-		} );
-		var message = "STRAIN: BLUE DREAM";
-		var shapes = font.generateShapes( message, 0.15 );
+		var xMid, yMid;
+		var fontSize = 0.2;
+		var mat = new THREE.MeshBasicMaterial( {color: 0x000000} );
+		var message = "BLUE DREAM";
+		var shapes = font.generateShapes( message, fontSize);
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
+		// Center the text
+		xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+		yMid = - 0.5 * ( geometry.boundingBox.max.y - geometry.boundingBox.min.y );
+		geometry.translate( xMid, yMid, 0 );
 		title = new THREE.Mesh( geometry, mat );
-		title.position.set(0.1,5,0.1);
+		title.position.set(0,0,0.5+0.3+fontSize/2);
+		title.rotation.x = - Math.PI/2;
 		all.add( title );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	//Text1
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {
-			color: color,
-			side: THREE.DoubleSide
-		} );
-		var message = "Blue Dream, a sativa-dominant hybrid originating\nin California, has achieved legendary status among\nWest Coast strains.";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		text1 = new THREE.Mesh( geometry, mat );
-		text1.position.set(0.1,4.8,0.1);
-		all.add( text1 );
 	}, undefined, function ( e ) {
 		console.error( e );
 	});
@@ -284,158 +278,111 @@ function addObjects(){
 		  map: loader,
 		});
 	button = new THREE.Mesh( geometry, material );
-	button.position.set(0.5,3.8,0.1);
+	button.position.set(0.5+0.3+0.5,0,0);
+	button.rotation.x = - Math.PI/2;
+	button.rotation.z = Math.PI/2;
 	all.add( button );
 
+	var specGroup = new THREE.Group();
+	var geometry = new THREE.CircleGeometry( 0.1, 32 );
 	//Happy
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "HAPPY";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		happy = new THREE.Mesh( geometry, mat );
-		happy.position.set(0.1,3.2,0.1);
-		all.add( happy );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Happy bar
-	var geometry = new THREE.PlaneGeometry( 2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	happy_bar = new THREE.Mesh( geometry, material );
-	happy_bar.position.set(2/2+0.8,3.25,0.1); 
-	all.add( happy_bar );
-
+	var loader = new THREE.TextureLoader().load('content/happy.jpg', (imgLoader) => {});
+	var material = new THREE.MeshLambertMaterial({map: loader,});
+	happy = new THREE.Mesh( geometry, material );
+	happy.position.set(-0.5,0,0);
+	specGroup.add( happy );
 	//Relaxed
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "RELAXED";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		relax = new THREE.Mesh( geometry, mat );
-		relax.position.set(0.1,3.05,0.1);
-		all.add( relax );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Relax bar
-	var geometry = new THREE.PlaneGeometry( 1.7, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	relax_bar = new THREE.Mesh( geometry, material );
-	relax_bar.position.set(1.7/2+0.8,3.1,0.1);
-	all.add( relax_bar );
-
+	var loader = new THREE.TextureLoader().load('content/relax.jpg', (imgLoader) => {});
+	var material = new THREE.MeshLambertMaterial({map: loader,});
+	relax = new THREE.Mesh( geometry, material );
+	relax.position.set(-0.25,0,0);
+	specGroup.add( relax );
 	//Euphoric
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "EUPHORIC";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		eupho = new THREE.Mesh( geometry, mat );
-		eupho.position.set(0.1,2.9,0.1);
-		all.add( eupho );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// Eupho bar
-	var geometry = new THREE.PlaneGeometry( 1.5, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	eupho_bar = new THREE.Mesh( geometry, material );
-	eupho_bar.position.set(1.5/2+0.8,2.95,0.1);
-	all.add( eupho_bar );
-
+	var loader = new THREE.TextureLoader().load('content/eupho.jpg', (imgLoader) => {});
+	var material = new THREE.MeshLambertMaterial({map: loader,});
+	eupho = new THREE.Mesh( geometry, material );
+	eupho.position.set(0,0,0);
+	specGroup.add( eupho );
 	//Uplifted
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "UPLIFTED";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		uplift = new THREE.Mesh( geometry, mat );
-		uplift.position.set(0.1,2.75,0.1);
-		all.add( uplift );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
-
-	// uplift bar
-	var geometry = new THREE.PlaneGeometry( 1.2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	uplift_bar = new THREE.Mesh( geometry, material );
-	uplift_bar.position.set(1.2/2+0.8,2.8,0.1);
-	all.add( uplift_bar );
-
+	var loader = new THREE.TextureLoader().load('content/uplift.jpg', (imgLoader) => {});
+	var material = new THREE.MeshLambertMaterial({map: loader,});
+	uplift = new THREE.Mesh( geometry, material );
+	uplift.position.set(0.5,0,0);
+	specGroup.add( uplift );
 	//Creative
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {color: color,side: THREE.DoubleSide} );
-		var message = "CREATIVE";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		crea = new THREE.Mesh( geometry, mat );
-		crea.position.set(0.1,2.6,0.1);
-		all.add( crea );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
+	var loader = new THREE.TextureLoader().load('content/crea.jpg', (imgLoader) => {});
+	var material = new THREE.MeshLambertMaterial({map: loader,});
+	crea = new THREE.Mesh( geometry, material );
+	crea.position.set(0.25,0,0);
+	specGroup.add( crea );
 
-	// crea bar
-	var geometry = new THREE.PlaneGeometry( 1.2, 0.14 );
-	var material = new THREE.MeshLambertMaterial({ color: "#648B43",side: THREE.DoubleSide});
-	crea_bar = new THREE.Mesh( geometry, material );
-	crea_bar.position.set(1.2/2+0.8,2.65,0.1);
-	all.add( crea_bar );
+	specGroup.rotation.x = - Math.PI/2;
+	specGroup.rotation.z = - Math.PI/2;
+	specGroup.position.set(-0.5-0.3-0.1,0,0);
+	all.add( specGroup );
 
-	//Text2
-	var loader = new THREE.FontLoader();
-	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {
-			color: color,
-			side: THREE.DoubleSide
-		} );
-		var message = "With a sweet berry aroma redolent of its Blueberry\nparent, Blue Dream delivers swift symptom relief\nwithout heavy sedative effects. This makes Blue\nDream a popular daytime medicine for patients\ntreating pain, depression, nausea, and other\nailments requiring a high THC strain.";
-		var shapes = font.generateShapes( message, 0.09 );
-		var geometry = new THREE.ShapeBufferGeometry( shapes );
-		geometry.computeBoundingBox();
-		text2 = new THREE.Mesh( geometry, mat );
-		text2.position.set(0.1,2.3,0.1);
-		all.add( text2 );
-	}, undefined, function ( e ) {
-		console.error( e );
-	});
+	//Spec bars
+	var specBarGroup = new THREE.Group();
+	var material = new THREE.MeshLambertMaterial({ color: "#648B43"});
+	// Happy bar
+	var barSize = 1;
+	var geometry = new THREE.PlaneGeometry( 0.1, barSize );
+	geometry.translate(0, -barSize/2, 0);
+	happy_bar = new THREE.Mesh( geometry, material );
+	happy_bar.position.set(-0.5,0,0);
+	specBarGroup.add( happy_bar );
+	// Relax bar
+	var barSize = 0.8;
+	var geometry = new THREE.PlaneGeometry( 0.1, barSize );
+	geometry.translate(0, -barSize/2, 0);
+	happy_relax = new THREE.Mesh( geometry, material );
+	happy_relax.position.set(-0.25,0,0);
+	specBarGroup.add( happy_relax );
+	// Eupho bar
+	var barSize = 0.6;
+	var geometry = new THREE.PlaneGeometry( 0.1, barSize );
+	geometry.translate(0, -barSize/2, 0);
+	happy_eupho = new THREE.Mesh( geometry, material );
+	happy_eupho.position.set(0,0,0);
+	specBarGroup.add( happy_eupho );
+	// Uplift bar
+	var barSize = 0.3;
+	var geometry = new THREE.PlaneGeometry( 0.1, barSize );
+	geometry.translate(0, -barSize/2, 0);
+	happy_uplift = new THREE.Mesh( geometry, material );
+	happy_uplift.position.set(0.25,0,0);
+	specBarGroup.add( happy_uplift );
+	// Crea bar
+	var barSize = 0.3;
+	var geometry = new THREE.PlaneGeometry( 0.1, barSize );
+	geometry.translate(0, -barSize/2, 0);
+	happy_crea = new THREE.Mesh( geometry, material );
+	happy_crea.position.set(0.5,0,0);
+	specBarGroup.add( happy_crea );
+
+	specBarGroup.rotation.x = - Math.PI/2;
+	specBarGroup.rotation.z = - Math.PI/2;
+	specBarGroup.position.set(-0.5-0.3-0.2-0.1,0,0);
+	all.add( specBarGroup );
 
 	//Order text
 	var loader = new THREE.FontLoader();
 	loader.load('lib/optimer_regular.typeface.json', function ( font ) {
-		var xMid;
-		var color = 0x000000;
-		var mat = new THREE.MeshBasicMaterial( {
-			color: color,
-			side: THREE.DoubleSide
-		} );
-		var message = "ORDER HERE";
-		var shapes = font.generateShapes( message, 0.15 );
+		var xMid, yMid;
+		var fontSize = 0.15;
+		var mat = new THREE.MeshBasicMaterial( {color: 0x000000} );
+		var message = "ORDER NOW";
+		var shapes = font.generateShapes( message, fontSize);
 		var geometry = new THREE.ShapeBufferGeometry( shapes );
 		geometry.computeBoundingBox();
+		// Center the text
+		xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+		yMid = - 0.5 * ( geometry.boundingBox.max.y - geometry.boundingBox.min.y );
+		geometry.translate( xMid, yMid, 0 );
 		ordtext = new THREE.Mesh( geometry, mat );
-		ordtext.position.set(0.5,0.9,0.1);
+		ordtext.position.set(0,0,-0.5-0.3-fontSize/2);
+		ordtext.rotation.x = - Math.PI/2;
+		ordtext.rotation.z = - Math.PI;
 		all.add( ordtext );
 	}, undefined, function ( e ) {
 		console.error( e );
@@ -451,7 +398,9 @@ function addObjects(){
 		  map: loader,
 		});
 	button = new THREE.Mesh( geometry, material );
-	button.position.set(2.2,1,0.1);
+	button.position.set(0,0,-0.5-0.3-0.3-0.2);
+	button.rotation.x = - Math.PI/2;
+	button.rotation.z = - Math.PI;
 	all.add( button );
 
 	// Load marijuana
@@ -468,8 +417,8 @@ function addObjects(){
 		bbox.getSize(size);
 		gltf.scene.position.copy(cent).multiplyScalar(1);
 
-		gltf.scene.scale.multiplyScalar(3);
-		gltf.scene.position.set(-1.5,2,0);
+		gltf.scene.scale.multiplyScalar(2);
+		gltf.scene.position.set(0,1.5,0);
 
 		onRenderFcts.push(function(){
 			gltf.scene.rotation.y += - 0.002*Math.PI;
@@ -484,9 +433,6 @@ function addObjects(){
 		console.error( e );
 	} );
 
-
-
-	all.scale.multiplyScalar(0.5);
 	//all.position.z = 0.5;
 	arWorldRoot.add(all);
 }
@@ -510,119 +456,6 @@ function onDocumentMouseDown( event ) {
 	if ( intersects.length > 0) {
 		window.location.href = 'https://www.leafly.ca/hybrid/blue-dream';
 	}
-}
-
-function initSequence(){
-	time = 0;
-	video_time = 0;
-
-	videoStart = false;
-	stopAnim = false;
-
-	startVideo = 3;
-	startPic1 = 9;
-	startPic2 = 29;
-	startPic3 = 47;
-
-	onRenderFcts.push(function(){
-		
-		//Init chrono
-		time += 0.02;
-		video_time = video.currentTime;
-		document.getElementById("time").innerHTML = "Time: " + Math.round(time) + " Video time: " + Math.round(video_time);
-
-		//Launch speech
-		var start = startVideo;
-		if(videoStart == false && Math.round(time) == start ){
-			//videoPlane.visible = true;
-			video.play();
-			videoStart = true;
-		}
-
-		//Show Pic1
-		var start = startPic1 - 3; 
-		var end = startPic1; 
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_down = (10*t-10); //t_down goes from -10 to 0
-			t_lowered = t_down/3;
-			pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			pic1.visible = true;
-		}
-
-		//Hide Pic1
-		var start = startPic1 + 3; 
-		var end = startPic1 + 6; 
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_up = (10*t); // t_up goes from 0 to 10
-			t_lowered = t_up/3;
-			pic1.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			if (video_time >= end-0.1){
-				pic1.visible = false;
-			}
-		}
-
-		//Show Pic2 
-		var start = startPic2 - 3; 
-		var end = startPic2; 
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_down = (10*t-10); //t_down goes from -10 to 0
-			t_lowered = t_down/3;
-			pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			pic2.visible = true;
-		}
-
-		//Hide Pic2 
-		var start = startPic2 + 3; 
-		var end = startPic2 + 6; 
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_up = (10*t); // t_up goes from 0 to 10
-			t_lowered = t_up/3;
-			pic2.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			if (video_time >= end-0.1){
-				pic2.visible = false;
-			}
-		}
-
-		//Show Pic3 
-		var start = startPic3 - 3; 
-		var end = startPic3;  
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_down = (10*t-10); //t_down goes from -10 to 0
-			t_lowered = t_down/3;
-			pic3.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			pic3.visible = true;
-		}
-
-		//Hide Pic3 
-		var start = startPic3 + 3; 
-		var end = startPic3 + 6;  
-		var t = (video_time-start)/(end-start);
-		if(	video_time >= start && video_time < end ){
-			t_up = (10*t); // t_up goes from 0 to 10
-			t_lowered = t_up/3;
-			pic3.position.y = -t_lowered*t_lowered*t_lowered + 3; // cubic function
-			if (video_time >= end-0.1){
-				pic3.visible = false;
-			}
-		}
-
-		// Stop speech
-		var start = video.duration;
-		if(Math.round(video_time) == start && stopAnim == false){
-			videoPlane.visible = false;
-			speechStopped = true;
-			isVideoPlay == false;
-			video.pause();
-			time = 100;
-			stopAnim = true;
-		}
-
-	})
 }
 
 function initControl(){

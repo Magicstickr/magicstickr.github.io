@@ -25,7 +25,6 @@
 
 		var renderer, scene, camera;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
-		var plane, marijuana, button, title, ordtext, text1, text2, happy, relax, eupho, uplift, crea;
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isStart = true;
@@ -124,7 +123,7 @@
 			
 			var floor = new THREE.Mesh(geometry, material);
 
-			floor.position.y = -1;
+			floor.position.y = -0.1;
 			floor.rotation.x = -Math.PI/2;
 			arWorldRoot.add(floor);
 		}
