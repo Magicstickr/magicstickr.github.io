@@ -531,7 +531,27 @@ function onDocumentMouseDown( event ) {
 	var intersects = raycaster.intersectObjects( array );
 
 	if ( intersects.length > 0) {
-		window.location.href = 'https://www.leafly.ca/hybrid/blue-dream';
+		//window.location.href = 'https://www.leafly.ca/hybrid/blue-dream';
+		if(currentSound == "f"){
+	    	if(sound2.isPlaying == true){
+	        	sound2.stop();
+	    	}
+	    	if(sound1.isPlaying == false){
+	        	sound1.play();
+	    	}
+	    	currentSound = "m";
+	        console.log("You pressed M!");
+	    }
+	    else if(currentSound == "m"){
+	    	if(sound1.isPlaying == true){
+	        	sound1.stop();
+	    	}
+	    	if(sound2.isPlaying == false){
+	        	sound2.play();
+	    	}
+	    	currentSound = "f";
+	        console.log("You pressed F!");
+	    }
 	}
 }
 
