@@ -23,13 +23,14 @@
 
 		<script>
 
-		var renderer, scene, camera;
+		var renderer, scene, camera, sound1, sound2, listener;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
 		var isStart = true;
 		var isSeqInit = false;
 		var lang = "eng";
+		var currentSound = "m";
 
 		initScene();
 		initCamera();
@@ -102,6 +103,12 @@
 			camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1500 );
 			camera.position.set( 0, 2, 10 );
 			arWorldRoot.add(camera);
+
+			// Audio System
+			listener = new THREE.AudioListener();
+			camera.add( listener );
+			sound = new THREE.Audio( listener );
+			loadAudio('content/Sean_M Mixdown.wav');
 		}
 
 		function initLight(){
@@ -155,6 +162,7 @@
 
 			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+			document.addEventListener( 'keypress', changeAudio, false);
 		}
 
 		</script>

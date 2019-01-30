@@ -8,8 +8,12 @@ function loadOK(lang){
 			  	footer: 'STP, autorise l\'acces a ta camera!',
 			  	showLoaderOnConfirm: true,
 					preConfirm: () => {
+						sound1.play();
+						sound1.stop();
+						sound2.play();
+						sound2.stop();
 						// video.play();
-						// video.pause();
+						// video.stop();
 						// initSequence();
 				}
 			});
@@ -22,8 +26,12 @@ function loadOK(lang){
 			  	footer: 'Please, enable the camera access',
 			  	showLoaderOnConfirm: true,
 					preConfirm: () => {
+						sound1.play();
+						sound1.stop();
+						sound2.play();
+						sound2.stop();
 						// video.play();
-						// video.pause();
+						// video.stop();
 						// initSequence();
 				}
 			});
@@ -101,6 +109,12 @@ function initCameraLight(){
 
 	var light = new THREE.AmbientLight( 0xffffff ); // soft white light
 	scene.add( light );
+
+	// Audio System
+	listener = new THREE.AudioListener();
+	camera.add( listener );
+	loadAudio();
+	
 }
 
 function initAREngine(markerPatt){
@@ -199,6 +213,26 @@ function renderEngine(){
 	// render the scene
 	onRenderFcts.push(function(){
 		renderer.render( scene, camera );
+
+		if(arToolkitContext.arController != null){
+				if(arToolkitContext.arController.patternMarkers[0] != null){
+					if(arToolkitContext.arController.patternMarkers[0].inCurrent == true){
+						if (currentSound == "m" && sound1.isPlaying == false){
+							sound1.play();
+						}
+						if (currentSound == "f" && sound2.isPlaying == false){
+							sound2.play();
+						}
+					} else{
+						if (currentSound == "m" && sound1.isPlaying == true){
+							sound1.pause();
+						}
+						if (currentSound == "f" && sound2.isPlaying == true){
+							sound2.pause();
+						}
+					}
+				}
+			}
 	})
 
 	// run the rendering loop
@@ -218,6 +252,49 @@ function renderEngine(){
 
 	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+	document.addEventListener( 'keypress', changeAudio, false);
+}
+
+function changeAudio(e){
+	console.log("Key pressed!");
+    var keyCode = e.charCode;
+    if(keyCode == 109){
+    	if(sound2.isPlaying == true){
+        	sound2.stop();
+    	}
+    	if(sound1.isPlaying == false){
+        	sound1.play();
+    	}
+    	currentSound = "m";
+        console.log("You pressed M!");
+    }
+    if(keyCode == 102){
+    	if(sound1.isPlaying == true){
+        	sound1.stop();
+    	}
+    	if(sound2.isPlaying == false){
+        	sound2.play();
+    	}
+    	currentSound = "f";
+        console.log("You pressed F!");
+    }
+};
+
+function loadAudio(){
+	// load a sound and set it as the Audio object's buffer
+	sound1 = new THREE.Audio( listener );
+	var audioLoader = new THREE.AudioLoader();
+	audioLoader.load( 'content/Sean_M Mixdown.wav', function( buffer ) {
+		sound1.setBuffer( buffer );
+		sound1.setVolume(1);
+	});
+
+	sound2 = new THREE.Audio( listener );
+	var audioLoader = new THREE.AudioLoader();
+	audioLoader.load( 'content/Sean_F Mixdown.wav', function( buffer ) {
+		sound2.setBuffer( buffer );
+		sound2.setVolume(1);
+	});
 }
 
 function addObjects(){

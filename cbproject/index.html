@@ -23,7 +23,7 @@
 		<div id="test"></div>
 
 		<script>
-		var renderer, scene, camera;
+		var renderer, scene, camera, sound1, sound2, listener;
 		var arToolkitSource, arToolkitContext, markerRoot, artoolkitMarker, smoothedRoot, smoothedControls, arWorldRoot;
 		var isVideoPlay, time, video_time, stopAnim, videoStart;
 
@@ -31,6 +31,7 @@
 		var isSeqInit = false;
 		var lang = "eng";
 		var markerPatt = 'marker/marker_cb.patt';
+		var currentSound = "m";
 
 		initScene();
 		initCameraLight();
