@@ -56,6 +56,7 @@
 			autoResize : true,
 			alpha: true
 		});
+		window.renderer = renderer;
 		renderer.setClearColor(new THREE.Color('lightgrey'), 0);
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
@@ -270,7 +271,7 @@
 		function onDocumentMouseDown( event ) {
 
 			event.preventDefault();
-
+			console.log(event.clientX);
 			mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
 			mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 			mouse.down = (event.buttons != 0);
@@ -286,13 +287,13 @@
 
 			if ( meshIntersects.length > 0) {
 				var x = meshIntersects[0].uv.x * texture_canvas.width;
-	            var y = (1 - meshIntersects[0].uv.y) * texture_canvas.height;
-	            
-	            var size = 1;
-	            if (mousePos == null){
-        			mousePos = {x, y};
-        		}else{
-        			texture_context.beginPath();
+				var y = (1 - meshIntersects[0].uv.y) * texture_canvas.height;
+				
+				var size = 1;
+				if (mousePos == null){
+					mousePos = {x, y};
+				}else{
+					texture_context.beginPath();
 					texture_context.moveTo(mousePos.x, mousePos.y);
 					texture_context.lineTo(x, y);
 					strokeColor[0] += Math.round(Math.random()*100-50);
@@ -308,8 +309,8 @@
 					texture_context.lineWidth = 1;
 					texture_context.stroke();
 					mousePos = {x, y};
-        		}
-	            texture.needsUpdate = true;
+				}
+				texture.needsUpdate = true;
 			}
 		}
 		</script>
